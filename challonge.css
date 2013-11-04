@@ -1,0 +1,207 @@
+.challonge-ok,
+.challonge-error {
+	margin: 5px 0 15px;
+	border: 1px solid #777;
+	padding: 0 .6em;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	outline: 0;
+	font-family: sans-serif;
+	font-size: 12px;
+	line-height: 1.4em;
+}
+.challonge-ok {
+	background-color: #ebffe8;
+	border-color: #0c0;
+	color: #333;
+}
+.challonge-error {
+	background-color: #ffebe8;
+	border-color: #c00;
+	color: #333;
+}
+.challonge-embed {
+	height: 400px;
+}
+.challonge-denied {
+	background: rgb(112,112,112);
+	background:    -moz-radial-gradient(center, ellipse cover, rgba(112,112,112,1) 0%, rgba(68,68,68,1) 100%);
+	background:        -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgba(112,112,112,1)), color-stop(100%,rgba(68,68,68,1)));
+	background: -webkit-radial-gradient(center, ellipse cover, rgba(112,112,112,1) 0%, rgba(68,68,68,1) 100%);
+	background:      -o-radial-gradient(center, ellipse cover, rgba(112,112,112,1) 0%, rgba(68,68,68,1) 100%);
+	background:     -ms-radial-gradient(center, ellipse cover, rgba(112,112,112,1) 0%, rgba(68,68,68,1) 100%);
+	background:         radial-gradient(ellipse at center, rgba(112,112,112,1) 0%, rgba(68,68,68,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#707070', endColorstr='#444444',GradientType=1 );
+}
+.challonge-denied-message {
+	position: relative;
+	top: 50%;
+	left: 50%;
+}
+.challonge-denied-message-inner {
+	position: relative;
+	top: -45px;
+	left: -160px;
+	color: white;
+	width: 300px;
+	text-align: left;
+	border: 5px solid red;
+	border-radius: 15px;
+	padding: 10px 5px;
+}
+.challonge-denied-message-title {
+	font-weight: bold;
+	text-transform: uppercase;
+}
+.challonge-denied-message-description {
+	font-size: 80%;
+}
+.challonge-table th {
+	text-align: center;
+}
+td.challonge-type,
+td.challonge-participants,
+td.challonge-progress {
+	text-align: center;
+}
+td.challonge-created {
+	text-align: right;
+}
+td.challonge-progress progress {
+	width: 64px;
+}
+
+.challonge-widget-tournaments li {
+	margin-bottom: 12px;
+	line-height: 100%;
+}
+.challonge-widget-tournaments li .challonge-info {
+	font-size: 80%;
+}
+
+.challonge-button {
+	background:     -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #79bbff), color-stop(1, #4197ee) );
+	background: -moz-linear-gradient( center top, #79bbff 5%, #4197ee 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#79bbff', endColorstr='#4197ee');
+	background-color: #79bbff;
+	-webkit-border-radius: 4px;
+	   -moz-border-radius: 4px;
+	        border-radius: 4px;
+	border: 1px solid #469df5;
+	display: inline-block;
+	color: #fff !important;
+	font-family: Arial, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	height: 18px;
+	line-height: 18px;
+	width: 56px;
+	text-decoration: none;
+	text-align: center;
+	text-shadow: 0px 1px 1px #287ace;
+	float: right;
+}
+.challonge-button:hover {
+	background:     -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #4197ee), color-stop(1, #79bbff) );
+	background: -moz-linear-gradient( center top, #4197ee 5%, #79bbff 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4197ee', endColorstr='#79bbff');
+	background-color: #4197ee;
+	text-decoration: none !important;
+}
+.challonge-button:active {
+	position:relative;
+	top:1px;
+}
+
+.challonge-bigbutton {
+	height: 28px;
+	line-height: 28px;
+	width: 86px;
+	float: none;
+}
+
+.challonge-button-win,
+.challonge-button-join {
+	background:     -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #9dce2c), color-stop(1, #8cb82b) );
+	background: -moz-linear-gradient( center top, #9dce2c 5%, #8cb82b 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#9dce2c', endColorstr='#8cb82b');
+	background-color: #9dce2c;
+	border-color: #83c41a;
+	text-shadow: 0px 1px 1px #689324;
+}
+.challonge-button-win:hover,
+.challonge-button-join:hover {
+	background:     -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #8cb82b), color-stop(1, #9dce2c) );
+	background: -moz-linear-gradient( center top, #8cb82b 5%, #9dce2c 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#8cb82b', endColorstr='#9dce2c');
+	background-color: #8cb82b;
+}
+
+.challonge-button-lose,
+.challonge-button-leave {
+	background:     -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f24537), color-stop(1, #c62d1f) );
+	background: -moz-linear-gradient( center top, #f24537 5%, #c62d1f 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f24537', endColorstr='#c62d1f');
+	background-color: #f24537;
+	border-color: #d02718;
+	text-shadow: 0px 1px 1px #810e05;
+}
+.challonge-button-lose:hover,
+.challonge-button-leave:hover {
+	background:     -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #c62d1f), color-stop(1, #f24537) );
+	background: -moz-linear-gradient( center top, #c62d1f 5%, #f24537 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c62d1f', endColorstr='#f24537');
+	background-color: #c62d1f;
+}
+
+.challonge-button-tie {
+	background:     -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f6b33d), color-stop(1, #d29105) );
+	background: -moz-linear-gradient( center top, #f6b33d 5%, #d29105 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6b33d', endColorstr='#d29105');
+	background-color: #f6b33d;
+	border-color: #eda933;
+	text-shadow: 1px 1px 0px #cd8a15;
+}
+.challonge-button-tie:hover {
+	background:     -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #d29105), color-stop(1, #f6b33d) );
+	background: -moz-linear-gradient( center top, #d29105 5%, #f6b33d 100% );
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d29105', endColorstr='#f6b33d');
+	background-color: #d29105;
+}
+
+.challonge-tournyname {
+	font-size: 220%;
+	font-weight: bold;
+	color: #333;
+}
+.challonge-tournyinfo {
+	font-weight: bold;
+	color: #999;
+}
+.challonge-playername {
+	font-size: 200%;
+	font-weight: bold;
+	color: #f60;
+}
+.challonge-lnkconfirm {
+	text-align: center;
+}
+.challonge-metahtml {
+	display: none;
+}
+
+#challonge-report,
+#challonge-report-score {
+	text-align: center;
+}
+#challonge-report .challonge-button {
+	cursor: pointer;
+}
+#challonge-report-table {
+	width: 100%;
+}
+#challonge-report-table th,
+#challonge-report-table td {
+	text-align: center;
+	width: 33%;
+}
