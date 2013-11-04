@@ -218,7 +218,7 @@ class Challonge_Shortcode
 		if ( ! $this->oCP->hasApiKey() ) {
 			if ( current_user_can( 'manage_options' ) ) {
 				return '<p class="challonge-error">' . __( 'No API Key!', Challonge_Plugin::TEXT_DOMAIN ) . ' <a href="'
-					. bloginfo( 'wpurl' ) . '/wp-admin/options-general.php?page=challonge-settings">'
+					. admin_url( 'options-general.php?page=challonge-settings' ) . '">'
 					. __( 'Set one.', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>';
 			}
 			return '<p class="challonge-error">' . __( 'No API Key!', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';

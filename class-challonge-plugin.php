@@ -501,7 +501,7 @@ class Challonge_Plugin
 			$apikey = $_GET['api_key'];
 
 			$c = new Challonge_Api( $apikey );
-			$c->verify_ssl = false;
+			$c->verify_ssl = ( '127.0.0.1' != $_SERVER['SERVER_ADDR'] ); // KLUDGE: Make this better.
 			$t = $c->getTournaments( array( 'created_after' => date( 'Y-m-d', time() + 86400 ) ) );
 			if ( $c->errors )
 				die( json_encode( array( 'errors' => $c->errors ) ) );
@@ -528,7 +528,15 @@ class Challonge_Plugin
 		// API Key
 		$options['api_key_input'] = preg_replace( '/[\W_]+/', '', $input['api_key'] );
 		if (40 == strlen( $options['api_key_input'] ) ) {
-			$options['api_key'] = $options['api_key_input'];
+			$c = new Challonge_Api( $options['api_key_input'] );
+			$c->verify_ssl = ( '127.0.0.1' != $_SERVER['SERVER_ADDR'] ); // KLUDGE: Make this better.
+			$t = $c->getTournaments( array( 'created_after' => date( 'Y-m-d', time() + 86400 ) ) );
+			if ( $c->errors && 'Result set empty' == $c->errors[0] )
+				$options['api_key'] = $options['api_key_input'];
+			else
+				$options['api_key'] = '';
+		} else {
+			$options['api_key'] = '';
 		}
 
 		// Include Organizations
