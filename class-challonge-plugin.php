@@ -498,7 +498,7 @@ class Challonge_Plugin
 	{
 		header( 'Content-Type: application/json; charset=utf-8' );
 		if ( isset( $_GET['api_key'] ) && preg_match( '/^[a-z0-9]{40}$/i', $_GET['api_key'] ) && current_user_can( 'manage_options' ) ) {
-			$apikey = strtolower( $_GET['api_key'] );
+			$apikey = $_GET['api_key'];
 
 			$c = new Challonge_Api( $apikey );
 			$c->verify_ssl = false;
@@ -526,7 +526,7 @@ class Challonge_Plugin
 		$options = $this->aOptions;
 
 		// API Key
-		$options['api_key_input'] = strtolower( preg_replace( '/[\W_]+/', '', $input['api_key'] ) );
+		$options['api_key_input'] = preg_replace( '/[\W_]+/', '', $input['api_key'] );
 		if (40 == strlen( $options['api_key_input'] ) ) {
 			$options['api_key'] = $options['api_key_input'];
 		}
