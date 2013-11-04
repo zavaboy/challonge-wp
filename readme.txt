@@ -30,7 +30,7 @@ A couple terms we will use here:
 To get started, first you must make sure you have provided a valid Challonge API key to the plugin.
 
 A valid API key will look something like this:
-`t6m32vtq94io2h2jgbwtu5078vmm4uny0a136vuf`
+`osJiclyAUwwo5s63vihleZuLjf4ZTSC7BLgewVfH`
 
 Once you get that in, you are ready to start using the plugin.
 
@@ -86,10 +86,17 @@ At first, I needed a WordPress plugin to help with some tournaments I was involv
 
 == Changelog ==
 
+= 1.0.1 =
+* API key validation fix
+* Additional API key related fixes
+
 = 1.0 =
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Fixed API key validation to work with new (mixed-case) API keys.
 
 = 1.0 =
 Initial release.
