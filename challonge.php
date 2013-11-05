@@ -4,9 +4,9 @@
  */
 /*
 Plugin Name: Challonge
-Plugin URI: http://zavaboy.org/2013/02/09/challonge-wordpress-plugin/
+Plugin URI: http://wordpress.org/plugins/challonge
 Description: Integrates <a href="http://challonge.com/">Challonge</a>, a handy bracket generator, in WordPress.
-Version: 1.0.1
+Version: 1.0.2
 Author: Ivik Injerd
 Author URI: http://zavaboy.org/
 License: MIT
@@ -34,6 +34,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+*/
+
+/*
+3rd Party Software included in this package:
+
+File: class-challonge-api.php
+challonge-php 1.0.0
+https://bitbucket.org/t27duck/challonge-php
+(c) 2011 Tony Drake
+License: MIT
+License URL: http://www.opensource.org/licenses/mit-license.php
+
+File: jquery.challonge.js
+Challonge jQuery Plugin 0.1.1
+https://github.com/challonge/challonge-jquery-plugin
+(c) 2013 Challonge! LLC
+Contributers: Adam Darrah, David Cornelius
+License: MIT
+License URL: https://github.com/jquery/jquery-color/blob/2.1.2/MIT-LICENSE.txt
+
 */
 
 // TODO: add phpdoc

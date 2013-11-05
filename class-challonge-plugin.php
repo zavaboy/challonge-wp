@@ -10,7 +10,7 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.0.1';
+	const VERSION     = '1.0.2';
 	const TEXT_DOMAIN = 'challonge';
 
 	protected $sPluginUrl;

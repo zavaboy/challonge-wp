@@ -23,46 +23,58 @@ Do you use [Challonge](http://challonge.com/ "a handy bracket generator") for yo
 
 = Getting Started =
 
-A couple terms we will use here:
-* 'Challonge' refers to the Challonge.com website.
-* 'Plugin' refers to this Challonge WordPress plugin.
+Before you start using this plugin, here's what you'll need:
 
-To get started, first you must make sure you have provided a valid Challonge API key to the plugin.
+* A [Challonge.com](http://challonge.com/) account. Signup is free.
+* A valid 'Developer API Key' so the Challonge plugin can talk with your Challonge.com account.
 
-A valid API key will look something like this:
-`osJiclyAUwwo5s63vihleZuLjf4ZTSC7BLgewVfH`
+Once you have the Challonge plugin installed and activated on your website, you will need to enter your Challonge.com API key in 'Settings' > 'Challonge'. Once you have done that, you have unlocked the full power of this nice plugin.
 
-Once you get that in, you are ready to start using the plugin.
+= Using This Plugin =
 
-You may use a short code in posts and pages to display a tournament or list out tournaments.
+This is the kind of stuff you can now do:
+
+You may use a shortcode in posts and pages to display a tournament or list out tournaments.
+
 * `[challonge url="w4la9fs6"]`
+ * This will embed a tournament bracket. This may be any Challonge bracket, not just your own.
 * `[challonge subdomain="my_sub"]`
+ * This will list out all tournament brackets in the 'my_sub' Challonge.com subdomain, or organization.
 * `[challonge url="w4la9fs6" theme="2" show_final_results="1" width="90%" height="600px"]`
+ * This is just a more customized version of the first shortcode.
 
-The short code has the following attributes:
-* url - The URL to a tournament.
-* subdomain - The subdomain of the tournament URL or if no tournament URL is provided, the listing will be tournaments within the specified subdomain.
-* theme - The theme ID you would like to use. See: http://challonge.com/themes/1/edit
-* multiplier - Scales the entire bracket. See: http://challonge.com/module/instructions
-* match_width_multiplier - Scales the width allotted for names. See: http://challonge.com/module/instructions
-* show_final_results - Display the final results above your bracket. See: http://challonge.com/module/instructions
-* show_standings - For round robin and Swiss tournaments, you can opt to show a table of the standings below your bracket. See: http://challonge.com/module/instructions
-* width - The width of the embedded tournament bracket.
-* height - The height of the embedded tournament bracket.
-* allowusers/denyusers/allowroles/denyroles - A comma separated list of users or roles you would like to specifically allow or deny from viewing the tournament bracket.
+The shortcode has the following attributes:
+
+* Challonge Module Options: ( See: http://challonge.com/module/instructions )
+ * `url` - The URL to a tournament.
+ * `subdomain` - The subdomain of the tournament URL or if no tournament URL is provided, the listing will be tournaments within the specified subdomain.
+ * `theme` - The theme ID you would like to use.
+ * `multiplier` - Scales the entire bracket.
+ * `match_width_multiplier` - Scales the width allotted for names.
+ * `show_final_results` - Display the final results above your bracket.
+ * `show_standings` - For round robin and Swiss tournaments, you can opt to show a table of the standings below your bracket.
+* Challonge Plugin Options:
+ * `width` - The width of the embedded tournament bracket.
+ * `height` - The height of the embedded tournament bracket.
+ * `allowusers` / `denyusers` / `allowroles` / `denyroles` - A comma separated list of users or roles you would like to specifically allow or deny from viewing the tournament bracket.
 
 To allow your users to signup and report their own scores, just add the plugin widget.
 
 The widget has the following options:
-* Title - The title of the widget, nothing special here.
+
+* Title - The title of the widget, nothing special here. Defaults to 'Challonge'.
 * Subdomain - The subdomain to list your tournaments from. (Optional)
-* Tournament Filter - Filter the names of the tournaments. This may be a simple wildcard filter, for example `My * Tournament` will match 'My Big Tournament' but not 'Your Big Tournament'. If you need a more robust filter, you may use Perl Compatible Regular Expressions (PCRE) like so: `/My \d+(st|nd|rd|th) Tournament/i` will match 'My 3rd tournament' but not 'My Third Tournament'
-* Max Tournaments Listed - The maximum tournaments that the widget will list.
+* Tournament Filter - Only tournament names that match this filter will be listed. (Optional)
+ * This may be a simple wildcard filter, for example `My * Tournament` will match 'My Big Tournament' but not 'Your Big Tournament'.
+ * If you need a more robust filter, you may use Regular Expressions (PCRE) like so: `/My \d+(st|nd|rd|th) Tournament/i` will match 'My 3rd tournament' but not 'My Third Tournament'
+* Max tournaments listed - The maximum number of tournaments that the widget will list. Defaults to 10.
 
 Here are some things you should know when setting up your tournament on Challonge:
+
 * Turning 'Host a sign-up page' on will allow your users to signup through the widget.
-* In 'Advanced Options' > 'Permissions', turning 'Allow participants with Challonge accounts to report their own scores.' on will allow your users to report their own scores through the widget.
-* In 'Advanced Options' > 'Permissions', turning 'Exclude this event from search engines and the public browsable index.' on will hide the tournament from the short code and widget tournament listings.
+* In 'Advanced Options' > 'Permissions':
+ * Turning 'Allow participants with Challonge accounts to report their own scores.' on will allow your users to report their own scores through the widget.
+ * Turning 'Exclude this event from search engines and the public browsable index.' on will hide the tournament from the shortcode and widget tournament listings.
 
 Good luck!
 
@@ -70,7 +82,7 @@ Good luck!
 
 1. Upload the `challonge` folder to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in WordPress.
-1. You will have to add your Challonge API key in 'Settings' > 'Challonge'.
+1. You should add your Challonge.com 'Developer API Key' to 'Settings' > 'Challonge'.
 
 == Frequently Asked Questions ==
 
@@ -78,13 +90,20 @@ Good luck!
 
 At first, I needed a WordPress plugin to help with some tournaments I was involved with and nobody had made one or was working on one at that time, so I started making this plugin. Later, I no longer needed a plugin, but I already started the project and people have already noticed. After about a year of life distractions and general procrastination, I completed the first version.
 
+= Do I need a Challonge.com account to use this plugin? =
+
+Actually, no you don't. (Keep reading!) Without an account, you will only be able to embed tournament brackets into posts and pages with the shortcode, but you will not be able to get any tournament listings with the shortcode or in the widget. You will need a valid Challonge API key, which you can get easily with a [Challonge.com](http://challonge.com/) account, to use all the Challonge WordPress plugin has to offer. A Challonge.com account is free.
+
 == Screenshots ==
 
-1. A short code tournament bracket and a few widgets on the right.
+1. A shortcode tournament bracket and a few widgets on the right.
 2. How you report your score.
-3. Tournament listing from short code.
+3. Tournament listing from shortcode.
 
 == Changelog ==
+
+= 1.0.2 =
+* Updates for WordPress.org. There were no changes to the code.
 
 = 1.0.1 =
 * API key validation fix
@@ -94,6 +113,9 @@ At first, I needed a WordPress plugin to help with some tournaments I was involv
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Updated a few things for WordPress.org. No huge benefit upgrading from 1.0.1.
 
 = 1.0.1 =
 Fixed API key validation to work with new (mixed-case) API keys.
