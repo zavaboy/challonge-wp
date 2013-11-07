@@ -102,6 +102,12 @@ Actually, no you don't. (Keep reading!) Without an account, you will only be abl
 
 == Changelog ==
 
+= 1.0.3 =
+* The API Key setting will display unexpected errors instead of nothing.
+* Added a way to disable SSL verification in settings.
+* Signing up for a tournament with a participant with the same username will now give you an alternate username.
+* Tied games are reported correctly now.
+
 = 1.0.2 =
 * Updates for WordPress.org. There were no changes to the code.
 
@@ -113,6 +119,12 @@ Actually, no you don't. (Keep reading!) Without an account, you will only be abl
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+The API Key setting will display unexpected errors instead of nothing.
+Added a way to disable SSL verification in settings.
+Signing up for a tournament with a participant with the same username will now give you an alternate username.
+Tied games are reported correctly now.
 
 = 1.0.2 =
 Updated a few things for WordPress.org. No huge benefit upgrading from 1.0.1.

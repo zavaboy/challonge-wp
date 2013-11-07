@@ -9,7 +9,8 @@
 	color: #0c0;
 	display: none;
 }
-#challonge-apikey-fail {
+#challonge-apikey-fail,
+#challonge-apikey-error {
 	color: #f00;
 	display: none;
 }
@@ -61,4 +62,8 @@
 #challonge-developer img {
 	float: left;
 	margin-right: 6px;
+}
+.challonge-important {
+	color: red;
+	font-weight: bold;
 }

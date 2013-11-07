@@ -35,6 +35,7 @@ defined( 'ABSPATH' ) OR exit;
 				<span id="challonge-apikey-check"><?php _e('Verifying...', Challonge_Plugin::TEXT_DOMAIN) ?></span>
 				<span id="challonge-apikey-ok">&#x2714; <?php _e('Valid', Challonge_Plugin::TEXT_DOMAIN) ?></span>
 				<span id="challonge-apikey-fail">&#x2718; <?php _e('Invalid', Challonge_Plugin::TEXT_DOMAIN) ?></span>
+				<span id="challonge-apikey-error">&#x2718; <span id="challonge-apikey-errmsg"></span></span>
 				<br />
 				<?php _e('Don\'t have an API key?', Challonge_Plugin::TEXT_DOMAIN) ?>
 				<a href="https://challonge.com/users/+/change_password" target="_blank"><?php _e('Get one.', Challonge_Plugin::TEXT_DOMAIN) ?></a></td>
@@ -48,6 +49,15 @@ defined( 'ABSPATH' ) OR exit;
 					<label for="challonge-public_widget"><input type="checkbox" id="challonge-public_widget"
 						name="challonge_options[public_widget]" <?php checked($options['public_widget'], true) ?>/>
 					<?php _e('Challonge widgets are publicly displayed by default.', Challonge_Plugin::TEXT_DOMAIN) ?></label>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><?php _e('Security', Challonge_Plugin::TEXT_DOMAIN) ?></th>
+				<td>
+					<label for="challonge-no_ssl_verify"><input type="checkbox" id="challonge-no_ssl_verify"
+						name="challonge_options[no_ssl_verify]" <?php checked($options['no_ssl_verify'], true) ?>/>
+					<?php _e('Disable SSL verification.', Challonge_Plugin::TEXT_DOMAIN) ?></label><br />
+					<div class="challonge-important"><?php _e('Disabling SSL verification is a security risk. This may be, however, a way around SSL errors if you are getting them.', Challonge_Plugin::TEXT_DOMAIN) ?></div>
 				</td>
 			</tr>
 		</table>

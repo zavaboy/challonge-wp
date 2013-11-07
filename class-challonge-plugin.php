@@ -10,7 +10,7 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.0.2';
+	const VERSION     = '1.0.3';
 	const TEXT_DOMAIN = 'challonge';
 
 	protected $sPluginUrl;
@@ -22,8 +22,9 @@ class Challonge_Plugin
 		'api_key'          => ''    ,
 		'public_shortcode' => false ,
 		'public_widget'    => false ,
+		'no_ssl_verify'    => false ,
 	);
-	protected $bUseMinJs = true;
+	protected $bUseMinJs = false;
 
 	static $oInstance;
 
@@ -81,7 +82,7 @@ class Challonge_Plugin
 		require_once( 'class-challonge-api.php' );
 		if ( $this->hasApiKey() ) {
 			$this->oApi = new Challonge_Api( $this->sApiKey );
-			$this->oApi->verify_ssl = ( '127.0.0.1' != $_SERVER['SERVER_ADDR'] ); // KLUDGE: Make this better.
+			$this->oApi->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 		}
 		$this->oUsr = wp_get_current_user();
 	}
@@ -124,8 +125,10 @@ class Challonge_Plugin
 		$signed_up = $reported_scores = false;
 		$participant_id = -1;
 		$participants_by_id = array();
+		$participant_names = array();
 		foreach ( $participants AS $participant ) {
 			$participants_by_id[ (int) $participant->id ] = $participant;
+			$participant_names[] = $participant->name;
 			$pmisc = $this->parseParticipantMisc( $participant->misc );
 			if ( $pmisc[0] == $usrkey ) {
 				$signed_up = true;
@@ -169,10 +172,16 @@ class Challonge_Plugin
 		$hide_button = false;
 		$tbw = 400; // ThinkBox Width
 		$tbh = 250; // ThinkBox Height
+		$username = $this->oUsr->display_name;
+		$user_alt = 1;
 		if ( ! $signed_up && current_user_can( 'challonge_signup' ) && 'pending' == $tourny->state && 'true' == $tourny->{'open-signup'} ) {
 			$lnk = 'join';
 			$lnk_button = __( 'Signup', Challonge_Plugin::TEXT_DOMAIN );
 			if ( '&infin;' == $signup_cap || (int) $tourny->{'participants-count'} < $signup_cap ) {
+				// Is username taken?
+				while ( in_array( $username, $participant_names ) ) {
+					$username = $this->oUsr->display_name . '_' . ( ++$user_alt );
+				}
 				$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
 					. '<p>'
 						. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
@@ -183,7 +192,7 @@ class Challonge_Plugin
 						. '</span>'
 					. '</p>'
 					. '<p>' . __( 'You will join as:', Challonge_Plugin::TEXT_DOMAIN )
-					. '<br /><span class="challonge-playername">' . $this->oUsr->display_name . '</span></p>';
+					. '<br /><span class="challonge-playername">' . $username . '</span></p>';
 			} else {
 				$lnk_html = '<p>' . __( 'This tournament is full.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
 				$hide_button = true;
@@ -275,6 +284,7 @@ class Challonge_Plugin
 			'participant_id' => $participant_id,
 			'match'          => $match,
 			'opponent'       => $opponent,
+			'username'       => $username,
 		);
 	}
 
@@ -306,7 +316,7 @@ class Challonge_Plugin
 		switch ( $action ) {
 			case 'join':
 				$joined = $this->oApi->createParticipant( $lnk['tourny']->id, array(
-					'participant[name]' => (string) $this->oUsr->display_name,
+					'participant[name]' => $lnk['username'],
 					'participant[misc]' => $lnk['usrkey'],
 				) );
 				if ( $joined ) {
@@ -391,8 +401,10 @@ class Challonge_Plugin
 			// Determine winner participant ID
 			if ( 'w' == $wl ) {
 				$winner_id = $lnk['participant_id'];
-			} else {
+			} else if ( 'l' == $wl ) {
 				$winner_id = (int) $lnk['opponent']->id;
+			} else {
+				$winner_id = 'tie';
 			}
 			// Determine score order
 			if ( (int) $lnk['match']->{ 'player1-id' } == $lnk['participant_id'] ) {
@@ -501,7 +513,7 @@ class Challonge_Plugin
 			$apikey = $_GET['api_key'];
 
 			$c = new Challonge_Api( $apikey );
-			$c->verify_ssl = ( '127.0.0.1' != $_SERVER['SERVER_ADDR'] ); // KLUDGE: Make this better.
+			$c->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 			$t = $c->getTournaments( array( 'created_after' => date( 'Y-m-d', time() + 86400 ) ) );
 			if ( $c->errors )
 				die( json_encode( array( 'errors' => $c->errors ) ) );
@@ -529,7 +541,7 @@ class Challonge_Plugin
 		$options['api_key_input'] = preg_replace( '/[\W_]+/', '', $input['api_key'] );
 		if (40 == strlen( $options['api_key_input'] ) ) {
 			$c = new Challonge_Api( $options['api_key_input'] );
-			$c->verify_ssl = ( '127.0.0.1' != $_SERVER['SERVER_ADDR'] ); // KLUDGE: Make this better.
+			$c->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 			$t = $c->getTournaments( array( 'created_after' => date( 'Y-m-d', time() + 86400 ) ) );
 			if ( $c->errors && 'Result set empty' == $c->errors[0] )
 				$options['api_key'] = $options['api_key_input'];
@@ -539,20 +551,12 @@ class Challonge_Plugin
 			$options['api_key'] = '';
 		}
 
-		// Include Organizations
-		$orgs = preg_split( '/[\s,]/' , $input['orgs'] );
-		$filtered_orgs = array();
-		foreach ( $orgs AS $org ) {
-			$org = strtolower( preg_replace( array( '/^(?:.*\W)?(\w+)\.challonge\.com.*$/i', '/[\W]+/' ), array( '$1', '' ), $org ) );
-			if ( $org ) {
-				$filtered_orgs[] = $org;
-			}
-		}
-		$options['orgs'] = $filtered_orgs;
-
 		// Public
-		$options['public'] = (bool) $input['public'];
+		$options['public_shortcode'] = (bool) $input['public_shortcode'];
 		$options['public_widget'] = (bool) $input['public_widget'];
+
+		// Disable SSL verification
+		$options['no_ssl_verify'] = (bool) $input['no_ssl_verify'];
 
 		return $options;
 	}
