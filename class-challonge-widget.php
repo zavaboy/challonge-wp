@@ -68,7 +68,7 @@ class Challonge_Widget extends WP_Widget
 		$instance['title']       = strip_tags( $new_instance['title']       );
 		$instance['subdomain']   = strip_tags( $new_instance['subdomain']   );
 		$instance['name_filter'] = strip_tags( $new_instance['name_filter'] );
-		if ( 0 < $instance['limit'] )
+		if ( 0 < $new_instance['limit'] )
 			$instance['limit']       = (int) $new_instance['limit'];
 		else
 			$instance['limit']       = '';
@@ -115,7 +115,7 @@ class Challonge_Widget extends WP_Widget
 			$filter = $instance['name_filter'];
 		else
 			$filter = null;
-		if ( !empty( $instance['limit'] ) )
+		if ( ! empty( $instance['limit'] ) )
 			$limit = $instance['limit'];
 		else
 			$limit = 10;
