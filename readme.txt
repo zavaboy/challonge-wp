@@ -110,6 +110,9 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Changelog ==
 
+= 1.0.5 =
+* Fixed subdomain tournament actions in widget.
+
 = 1.0.4 =
 * Fixed issue with widget tournament limit.
 * Made changes to readme.
@@ -131,6 +134,9 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+Fixed subdomain tournament actions in widget.
 
 = 1.0.4 =
 Fixed issue with widget tournament limit.

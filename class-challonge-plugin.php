@@ -10,7 +10,7 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.0.4';
+	const VERSION     = '1.0.5';
 	const TEXT_DOMAIN = 'challonge';
 
 	protected $sPluginUrl;
@@ -116,6 +116,11 @@ class Challonge_Plugin
 		$participants = $tourny->participants->participant;
 		$matches = $tourny->matches->match;
 		$ajaxurl = admin_url( 'admin-ajax.php' );
+		if ( strlen( $tourny->subdomain ) ) {
+			$lnk_tourny = $tourny->subdomain . '-' . $tourny->url;
+		} else {
+			$lnk_tourny = $tourny->url;
+		}
 
 		// User key hash
 		$usrkey = md5( $tourny->url . ' ' . $this->oUsr->user_login . ' <' . $this->oUsr->user_email . '>' );
@@ -258,13 +263,13 @@ class Challonge_Plugin
 			if ( $hide_button )
 				$lnk_html .= '<a href="#close" onclick="tb_remove();return false;" class="challonge-cancel">' . __( 'Close', Challonge_Plugin::TEXT_DOMAIN ) . '</a>';
 			else
-				$lnk_html .= '<a href="#' . $lnk . '" data-lnkaction="' . $lnk . '" data-lnktourny="' . esc_attr( $tourny->url )
+				$lnk_html .= '<a href="#' . $lnk . '" data-lnkaction="' . $lnk . '" data-lnktourny="' . esc_attr( $lnk_tourny )
 					. '" class="challonge-button challonge-bigbutton challonge-button-' . $lnk . '">' . $lnk_button . '</a>'
 					. ' &nbsp; '
 					. '<a href="#cancel" onclick="tb_remove();return false;" class="challonge-cancel">' . __( 'Cancel', Challonge_Plugin::TEXT_DOMAIN ) . '</a>';
 			$lnk_html .= '</p>';
-			$lnk_button_html = '<a href="' . $lnk_url . '&amp;lnk_tourny=' . esc_attr( $tourny->url )
-				. '" class="challonge-button challonge-button-' . $lnk . ' challonge-tournyid-' . esc_attr( $tourny->url ) . ' thickbox">'
+			$lnk_button_html = '<a href="' . $lnk_url . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
+				. '" class="challonge-button challonge-button-' . $lnk . ' challonge-tournyid-' . esc_attr( $lnk_tourny ) . ' thickbox">'
 				. $lnk_button . '</a>';
 		} else {
 			$lnk_html = '<p class="challonge-error">' . __( 'ERROR: No tournament actions available.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
