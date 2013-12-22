@@ -3,7 +3,7 @@ Contributors: zavaboy
 Donate link: http://zavaboy.org/2013/02/09/challonge-wordpress-plugin/
 Tags: plugin, widget, shortcode, api, integration, embed, events, games, tournaments, matches, Challonge
 Requires at least: 3.1
-Tested up to: 3.7
+Tested up to: 3.8
 Stable tag: trunk
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
@@ -110,6 +110,9 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Changelog ==
 
+= 1.0.6 =
+* Fixed unregistered user permissions.
+
 = 1.0.5 =
 * Fixed subdomain tournament actions in widget.
 
@@ -134,6 +137,9 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.6 =
+Fixed unregistered user permissions.
 
 = 1.0.5 =
 Fixed subdomain tournament actions in widget.

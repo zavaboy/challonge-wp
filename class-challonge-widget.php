@@ -82,7 +82,7 @@ class Challonge_Widget extends WP_Widget
 		$options = $this->oCP->getOptions();
 
 		// Visitor can not see widget?
-		if ( empty( $usr ) && empty( $options['public_widget'] ) ) {
+		if ( empty( $usr->ID ) && empty( $options['public_widget'] ) ) {
 			return;
 		}
 

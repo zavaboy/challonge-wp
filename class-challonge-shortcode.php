@@ -137,8 +137,9 @@ class Challonge_Shortcode
 		// Attributes
 		$atts = $this->aAtts;
 
-		// Current user
+		// Current user and plugin options
 		$usr = wp_get_current_user();
+		$options = $this->oCP->getOptions();
 
 		// Width/Height CSS
 		$css = '';
@@ -153,8 +154,8 @@ class Challonge_Shortcode
 		}
 
 		// Denied?
-		if ( ! current_user_can( 'challonge_view' ) || ( empty( $usr ) && empty( $this->oCP->aOptions['public_shortcode'] ) ) ) {
-			if ( empty( $usr ) ) {
+		if ( ( ! empty( $usr->ID ) && ! current_user_can( 'challonge_view' ) ) || ( empty( $usr->ID ) && empty( $options['public_shortcode'] ) ) ) {
+			if ( empty( $usr->ID ) ) {
 				$loginmessage = '<br />' . __( 'Please login to view this tournament.', Challonge_Plugin::TEXT_DOMAIN );
 			} else {
 				$loginmessage = '';
@@ -209,8 +210,12 @@ class Challonge_Shortcode
 
 	public function listTournaments()
 	{
+		// Current user and plugin options
+		$usr = wp_get_current_user();
+		$options = $this->oCP->getOptions();
+
 		// Denied?
-		if ( ! current_user_can( 'challonge_view' ) ) {
+		if ( ( ! empty( $usr->ID ) && ! current_user_can( 'challonge_view' ) ) || ( empty( $usr->ID ) && empty( $options['public_shortcode'] ) ) ) {
 			return '<p><em>(' . __( 'no tournaments', Challonge_Plugin::TEXT_DOMAIN ) . ')</em></p>';
 		}
 
