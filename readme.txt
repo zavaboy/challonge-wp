@@ -110,6 +110,10 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Changelog ==
 
+= 1.0.7 =
+* Fixed progress bars for Google Chrome v32.
+* Corrected link to get a Challonge API key. (It was moved.)
+
 = 1.0.6 =
 * Fixed unregistered user permissions.
 
@@ -137,6 +141,10 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.0.7 =
+Fixed progress bars for Google Chrome v32.
+Corrected link to get a Challonge API key. (It was moved.)
 
 = 1.0.6 =
 Fixed unregistered user permissions.

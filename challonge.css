@@ -69,6 +69,7 @@ td.challonge-created {
 }
 td.challonge-progress progress {
 	width: 64px;
+	background-clip: content-box; /* fixes Chrome v32+ */
 }
 
 .challonge-widget-tournaments li {

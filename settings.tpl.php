@@ -38,7 +38,7 @@ defined( 'ABSPATH' ) OR exit;
 				<span id="challonge-apikey-error">&#x2718; <span id="challonge-apikey-errmsg"></span></span>
 				<br />
 				<?php _e('Don\'t have an API key?', Challonge_Plugin::TEXT_DOMAIN) ?>
-				<a href="https://challonge.com/users/+/change_password" target="_blank"><?php _e('Get one.', Challonge_Plugin::TEXT_DOMAIN) ?></a></td>
+				<a href="https://challonge.com/settings/developer" target="_blank"><?php _e('Get one.', Challonge_Plugin::TEXT_DOMAIN) ?></a></td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><?php _e('Privacy', Challonge_Plugin::TEXT_DOMAIN) ?></th>
