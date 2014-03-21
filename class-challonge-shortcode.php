@@ -13,19 +13,20 @@ class Challonge_Shortcode
 	protected $nShortCodeId = 0;
 	protected $aAtts;
 	protected $aAttsDefault = array(
-		'url'					=> ''	,
-		'subdomain'				=> ''	,
-		'theme'					=> '1'	,
-		'multiplier'			=> '1.0',
-		'match_width_multiplier'=> '1.0',
-		'show_final_results'	=> '0'	,
-		'show_standings'		=> '0'	,
-		'width'					=> ''	,
-		'height'				=> ''	,
-		'allowusers'			=> ''	,
-		'denyusers'				=> ''	,
-		'allowroles'			=> ''	,
-		'denyroles'				=> ''	,
+		'url'                    => ''   ,
+		'subdomain'              => ''   ,
+		'theme'                  => '1'  ,
+		'multiplier'             => '1.0',
+		'match_width_multiplier' => '1.0',
+		'show_final_results'     => '0'  ,
+		'show_standings'         => '0'  ,
+		'width'                  => ''   ,
+		'height'                 => ''   ,
+		'limit'                  => '5'  ,
+		'allowusers'             => ''   ,
+		'denyusers'              => ''   ,
+		'allowroles'             => ''   ,
+		'denyroles'              => ''   ,
 	);
 
 	public function __construct()
@@ -56,21 +57,21 @@ class Challonge_Shortcode
 					if ( $v ) {
 						$atts['theme'] = (int) $v;
 					} else {
-						$atts['theme'] = '1';
+						$atts['theme'] = $this->aAttsDefault['theme'];
 					}
 					break;
 				case 'multiplier' :
 					if ( 0.5 <= $v && 1.4 >= $v ) {
 						$atts['multiplier'] = (string) round( $v, 1 );
 					} else {
-						$atts['multiplier'] = '1.0';
+						$atts['multiplier'] = $this->aAttsDefault['multiplier'];
 					}
 					break;
 				case 'match_width_multiplier' :
 					if ( 0.8 <= $v && 2 >= $v ) {
 						$atts['match_width_multiplier'] = (string) round( $v, 1 );
 					} else {
-						$atts['match_width_multiplier'] = '1.0';
+						$atts['match_width_multiplier'] = $this->aAttsDefault['match_width_multiplier'];
 					}
 					break;
 				case 'show_final_results' :
@@ -84,6 +85,13 @@ class Challonge_Shortcode
 					break;
 				case 'height' :
 					$atts['height'] = $this->toCssUnit( $v );
+					break;
+				case 'limit' :
+					if ( $v ) {
+						$atts['limit'] = (int) $v;
+					} else {
+						$atts['limit'] = $this->aAttsDefault['limit'];
+					}
 					break;
 				case 'allowusers' :
 					$users = explode( ',', $v );
@@ -239,31 +247,34 @@ class Challonge_Shortcode
 		} else {
 			$t = $this->oApi->getTournaments( array( 'subdomain' => $atts[ 'subdomain' ] ) );
 		}
-		$html = '';
+		$tournys = array();
 		if ( count( $t->tournament ) ) {
-			$html .= '<table class="challonge-table"><thead><tr>'
-				. '<th class="challonge-name">'         . __( 'Name'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '<th class="challonge-type">'         . __( 'Type'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '<th class="challonge-participants">' . __( 'Participants', Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '<th class="challonge-created">'      . __( 'Created On'  , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '<th class="challonge-progress">'     . __( 'Progress'    , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '</tr></thead><tbody>';
-			$tournys = array();
+			$ajaxurl = admin_url( 'admin-ajax.php' );
+			$limit = $atts['limit'];
 			foreach ( $t->tournament AS $tourny ) {
-				if ( 100 == $tourny->{ 'progress-meter' } ) {
-					$progress = __( 'Done', Challonge_Plugin::TEXT_DOMAIN );
-				} else {
-					$progress = '<progress value="'
-						. esc_attr( $tourny->{ 'progress-meter' } )
-						. '" max="100"></progress>';
-				}
-				if ( 'false' == $tourny->{'private'} ) {
-					$tournys[] = '<tr>'
+				if ( 'false' == $tourny->private && ( $limit-- ) > 0 ) {
+					if ( strlen( $tourny->subdomain ) ) {
+						$lnk_tourny = $tourny->subdomain . '-' . $tourny->url;
+					} else {
+						$lnk_tourny = $tourny->url;
+					}
+					$tbw = 750; // ThinkBox Width
+					$tbh = 550; // ThinkBox Height
+					$lnk_url = $ajaxurl . '?action=challonge_widget&amp;width=' . $tbw . '&amp;height=' . $tbh;
+					$lnk_title_html = '<a href="' . $lnk_url . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
+						. '&amp;lnk_action=view" class="challonge-tournyid-' . esc_attr( $lnk_tourny ) . ' thickbox" title="' . esc_html( $tourny->name ) . '">'
+						. esc_html( $tourny->name ) . '</a>';
+					if ( 100 == $tourny->{ 'progress-meter' } ) {
+						$progress = __( 'Done', Challonge_Plugin::TEXT_DOMAIN );
+					} else {
+						$progress = '<progress value="'
+							. esc_attr( $tourny->{ 'progress-meter' } )
+							. '" max="100"></progress>';
+					}
+					$tournys[ $tourny->{ 'created-at' } . $tourny->id ] = '<tr>'
 
 						. '<td class="challonge-name">'
-						. '<a href="' . $tourny->{ 'full-challonge-url' } . '">'
-							. esc_html( $tourny->name )
-						. '</a>'
+						. $lnk_title_html
 						. '</td>'
 
 						. '<td class="challonge-type">'
@@ -296,12 +307,22 @@ class Challonge_Shortcode
 						. '</tr>';
 				}
 			}
-			$html .= implode( '', array_slice( array_reverse( $tournys ), 0, 5 ) );
-			$html .= '</tbody></table>';
-		} else {
-			$html .= '<p><em>(' . __( 'no tournaments', Challonge_Plugin::TEXT_DOMAIN ) . ')</em></p>';
 		}
-		return $html;
+		if ( empty( $tournys ) ) {
+			return '<p><em>(' . __( 'no tournaments', Challonge_Plugin::TEXT_DOMAIN ) . ')</em></p>';
+		} else {
+			add_thickbox();
+			ksort( $tournys );
+			return '<table class="challonge-table"><thead><tr>'
+				. '<th class="challonge-name">'         . __( 'Name'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				. '<th class="challonge-type">'         . __( 'Type'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				. '<th class="challonge-participants">' . __( 'Participants', Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				. '<th class="challonge-created">'      . __( 'Created On'  , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				. '<th class="challonge-progress">'     . __( 'Progress'    , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				. '</tr></thead><tbody>'
+			    . implode( '', array_reverse( $tournys ) )
+				. '</tbody></table>';
+		}
 	}
 
 	public function shortCode( $atts )

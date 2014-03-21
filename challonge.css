@@ -23,6 +23,9 @@
 .challonge-embed {
 	height: 400px;
 }
+.challonge-embed-tb {
+	height: 100%;
+}
 .challonge-denied {
 	background: rgb(112,112,112);
 	background:    -moz-radial-gradient(center, ellipse cover, rgba(112,112,112,1) 0%, rgba(68,68,68,1) 100%);
@@ -170,6 +173,10 @@ td.challonge-progress progress {
 	background-color: #d29105;
 }
 
+.challonge-container-tb {
+	text-align: center;
+}
+
 .challonge-tournyname {
 	font-size: 220%;
 	font-weight: bold;
@@ -177,7 +184,17 @@ td.challonge-progress progress {
 }
 .challonge-tournyinfo {
 	font-weight: bold;
-	color: #999;
+	color: #444;
+}
+.challonge-tournydesc {
+	background: #ddd;
+	max-height: 300px;
+	overflow: auto;
+	text-align: left;
+	padding: 0 7px;
+}
+.challonge-tournydesc p {
+	margin: 0;
 }
 .challonge-playername {
 	font-size: 200%;
@@ -186,23 +203,38 @@ td.challonge-progress progress {
 }
 .challonge-lnkconfirm {
 	text-align: center;
+	width: 80%;
+	margin: 1em auto 0;
+	border-top: 1px solid #aaa;
 }
 .challonge-metahtml {
 	display: none;
 }
 
-#challonge-report,
-#challonge-report-score {
+#challonge-report {
+	text-align: center;
+}
+#challonge-report-score,
+#challonge-report-opponent-score {
+	width: 120px;
 	text-align: center;
 }
 #challonge-report .challonge-button {
 	cursor: pointer;
 }
 #challonge-report-table {
-	width: 100%;
+	margin: auto;
+	width: 500px;
 }
-#challonge-report-table th,
-#challonge-report-table td {
+#challonge-report-table .challonge-wlt th,
+#challonge-report-table .challonge-wlt td {
 	text-align: center;
 	width: 33%;
+	padding: 1em 0;
+}
+#challonge-report-table .challonge-score th,
+#challonge-report-table .challonge-score td {
+	text-align: center;
+	width: 50%;
+	padding: 1em 0;
 }

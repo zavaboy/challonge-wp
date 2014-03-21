@@ -29,6 +29,10 @@ class Challonge_Widget extends WP_Widget
 		$title = '';
 		$subdomain = '';
 		$name_filter = '';
+		$status_filter_pending         = false;
+		$status_filter_underway        = false;
+		$status_filter_awaiting_review = false;
+		$status_filter_complete        = false;
 		$limit = '';
 		if ( $instance ) {
 			if ( isset( $instance['title'] ) ) {
@@ -39,6 +43,18 @@ class Challonge_Widget extends WP_Widget
 			}
 			if ( isset( $instance['name_filter'] ) ) {
 				$name_filter = esc_attr( $instance['name_filter'] );
+			}
+			if ( isset( $instance['status_filter_pending'] ) ) {
+				$status_filter_pending = (bool) $instance['status_filter_pending'];
+			}
+			if ( isset( $instance['status_filter_underway'] ) ) {
+				$status_filter_underway = (bool) $instance['status_filter_underway'];
+			}
+			if ( isset( $instance['status_filter_awaiting_review'] ) ) {
+				$status_filter_awaiting_review = (bool) $instance['status_filter_awaiting_review'];
+			}
+			if ( isset( $instance['status_filter_complete'] ) ) {
+				$status_filter_complete = (bool) $instance['status_filter_complete'];
 			}
 			if ( isset( $instance['limit'] ) ) {
 				$limit = esc_attr( $instance['limit'] );
@@ -57,6 +73,21 @@ class Challonge_Widget extends WP_Widget
 			<label for="<?php echo $this->get_field_id( 'name_filter' ); ?>"><?php _e( 'Tournament Filter:', Challonge_Plugin::TEXT_DOMAIN ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'name_filter' ); ?>" name="<?php echo $this->get_field_name( 'name_filter' ); ?>" type="text" value="<?php echo $name_filter; ?>" />
 		</p>
+		<p class="challonge-widget-status_filter">
+			<?php _e( 'Status Filter:', Challonge_Plugin::TEXT_DOMAIN ); ?><br />
+			<label for="<?php echo $this->get_field_id( 'status_filter_pending' ); ?>">
+				<input id="<?php echo $this->get_field_id( 'status_filter_pending' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_pending' ); ?>" type="checkbox" <?php checked($status_filter_pending, true) ?>/> Pending
+			</label>
+			<label for="<?php echo $this->get_field_id( 'status_filter_underway' ); ?>">
+				<input id="<?php echo $this->get_field_id( 'status_filter_underway' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_underway' ); ?>" type="checkbox" <?php checked($status_filter_underway, true) ?>/> Underway
+			</label>
+			<label for="<?php echo $this->get_field_id( 'status_filter_complete' ); ?>">
+				<input id="<?php echo $this->get_field_id( 'status_filter_complete' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_complete' ); ?>" type="checkbox" <?php checked($status_filter_complete, true) ?>/> Complete
+			</label>
+			<label for="<?php echo $this->get_field_id( 'status_filter_awaiting_review' ); ?>" class="challonge-status_filter_awaiting_review">
+				<input id="<?php echo $this->get_field_id( 'status_filter_awaiting_review' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_awaiting_review' ); ?>" type="checkbox" <?php checked($status_filter_awaiting_review, true) ?>/> Awaiting Review
+			</label>
+		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'limit' ); ?>"><?php _e( 'Max tournaments listed:', Challonge_Plugin::TEXT_DOMAIN ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'limit' ); ?>" name="<?php echo $this->get_field_name( 'limit' ); ?>" type="text" value="<?php echo $limit; ?>" size="3" placeholder="10" />
@@ -65,13 +96,17 @@ class Challonge_Widget extends WP_Widget
 	}
 
 	public function update( $new_instance, $old_instance ) {
-		$instance['title']       = strip_tags( $new_instance['title']       );
-		$instance['subdomain']   = strip_tags( $new_instance['subdomain']   );
-		$instance['name_filter'] = strip_tags( $new_instance['name_filter'] );
+		$instance['title']                         = strip_tags( $new_instance['title']       );
+		$instance['subdomain']                     = strip_tags( $new_instance['subdomain']   );
+		$instance['name_filter']                   = strip_tags( $new_instance['name_filter'] );
+		$instance['status_filter_pending']         = (bool) $new_instance['status_filter_pending'];
+		$instance['status_filter_underway']        = (bool) $new_instance['status_filter_underway'];
+		$instance['status_filter_awaiting_review'] = (bool) $new_instance['status_filter_awaiting_review'];
+		$instance['status_filter_complete']        = (bool) $new_instance['status_filter_complete'];
 		if ( 0 < $new_instance['limit'] )
-			$instance['limit']       = (int) $new_instance['limit'];
+			$instance['limit']                     = (int) $new_instance['limit'];
 		else
-			$instance['limit']       = '';
+			$instance['limit']                     = '';
 		return $instance;
 	}
 
@@ -112,9 +147,18 @@ class Challonge_Widget extends WP_Widget
 		else
 			$subdomain = null;
 		if ( isset( $instance['name_filter'] ) )
-			$filter = $instance['name_filter'];
+			$name_filter = $instance['name_filter'];
 		else
-			$filter = null;
+			$name_filter = null;
+		$status_filter = array();
+		if ( isset( $instance['status_filter_pending']         ) && $instance['status_filter_pending']         )
+			$status_filter[] = 'pending';
+		if ( isset( $instance['status_filter_underway']        ) && $instance['status_filter_underway']        )
+			$status_filter[] = 'underway';
+		if ( isset( $instance['status_filter_awaiting_review'] ) && $instance['status_filter_awaiting_review'] )
+			$status_filter[] = 'awaiting_review';
+		if ( isset( $instance['status_filter_complete']        ) && $instance['status_filter_complete']        )
+			$status_filter[] = 'complete';
 		if ( ! empty( $instance['limit'] ) )
 			$limit = $instance['limit'];
 		else
@@ -130,49 +174,50 @@ class Challonge_Widget extends WP_Widget
 			return '<p class="challonge-error">' . __( 'No API Key!', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
 		}
 
-		// Validate filter
-		if ( empty( $filter ) || ! is_string( $filter ) ) // Empty or invalid filter
-			$filter = null;
-		else if ( 0 !== strpos( $filter, '/' ) ) // Astrisk "*" Wildcard to RegEx
-			$filter = '/' . str_replace( '\*', '.*', preg_quote( $filter, '/' ) ) . '/i';
-		else if ( false === @preg_match( $filter, null ) ) // Validate RegEx - KLUDGE: Can haz alternate that doesn't use "@"?
-			$filter = false;
+		// Validate name filter
+		if ( empty( $name_filter ) || ! is_string( $name_filter ) ) // Empty or invalid filter
+			$name_filter = null;
+		else if ( 0 !== strpos( $name_filter, '/' ) ) // Astrisk "*" Wildcard to RegEx
+			$name_filter = '/' . str_replace( '\*', '.*', preg_quote( $name_filter, '/' ) ) . '/i';
+		else if ( false === @preg_match( $name_filter, null ) ) // Validate RegEx - KLUDGE: Can haz alternate that doesn't use "@"?
+			$name_filter = false;
 
 		// Get tournament listing
-		$ret = '';
 		if ( empty( $subdomain ) ) {
-			$tournys = $this->oApi->getTournaments();
+			$t = $this->oApi->getTournaments();
 		} else {
-			$tournys = $this->oApi->getTournaments( array( 'subdomain' => $subdomain ) );
+			$t = $this->oApi->getTournaments( array( 'subdomain' => $subdomain ) );
 		}
-		if ( count( $tournys->tournament ) ) {
-			foreach ( $tournys->tournament AS $tourny ) {
-				if ( 'false' == $tourny->private && false !== $filter && ( null === $filter || preg_match( $filter, $tourny->name ) ) && ( $limit-- ) > 0 ) {
-					$ret .= '<li>';
+		$tournys = array();
+		if ( count( $t->tournament ) ) {
+			foreach ( $t->tournament AS $tourny ) {
+				if ( 'false' == $tourny->private && false !== $name_filter && ( null === $name_filter || preg_match( $name_filter, $tourny->name ) ) && ( empty( $status_filter ) || in_array( strtolower( $tourny->state ), $status_filter ) ) && ( $limit-- ) > 0 ) {
+					$ret = '<li>';
 					if ( strlen( $tourny->subdomain ) )
 						$tname = (string) $tourny->subdomain . '-' . $tourny->url;
 					else
 						$tname = (string) $tourny->url;
 					$lnk = $this->oCP->widgetTournyLink( $tname );
 					if ( ! empty( $lnk['name'] ) ) {
-						add_thickbox();
-						$ret .= $lnk['button_html'];
+						$ret .= $lnk['button_html'] . $lnk['title_html'];
+					} else {
+						$ret .= $lnk['title_html']; //esc_html( $tourny->name );
 					}
-					$ret .= '<a href="' . $tourny->{ 'full-challonge-url' } . '">'
-							. esc_html( $tourny->name )
-						. '</a><br /><span class="challonge-info">'
+					$ret .= '<br /><span class="challonge-info">'
 							. esc_html( $lnk['participants'] ) . '/' . $lnk['signup_cap']
-							. ' | ' . esc_html( ucfirst( $tourny->state ) )
+							. ' | ' . esc_html( ucwords( str_replace( '_', ' ', $tourny->state ) ) )
 						. '</span>';
 					$ret .= '</li>';
+					$tournys[ $tourny->{ 'created-at' } . $tourny->id ] = $ret;
 				}
 			}
-			if ( empty( $ret ) )
-				$ret = '<p><em>(' . __( 'no tournaments', Challonge_Plugin::TEXT_DOMAIN ) . ')<!-- by filter --></em></p>';
-			else
-				$ret = '<ul class="challonge-widget-tournaments">' . $ret . '</ul>';
-		} else {
+		}
+		if ( empty( $tournys ) ) {
 			$ret = '<p><em>(' . __( 'no tournaments', Challonge_Plugin::TEXT_DOMAIN ) . ')</em></p>';
+		} else {
+			add_thickbox();
+			ksort( $tournys );
+			$ret = '<ul class="challonge-widget-tournaments">' . implode( '', array_reverse( $tournys ) ) . '</ul>';
 		}
 		return $ret;
 	}

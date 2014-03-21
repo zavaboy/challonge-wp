@@ -28,4 +28,16 @@ jQuery(document).ready( function ( $ ) {
 			$('#challonge-apikey-fail').fadeIn('fast');
 		}
 	} ).keyup();
+	$('#challonge-participant_name-showtokens').click( function ( e ) {
+		$(this).slideUp('fast');
+		$('#challonge-participant_name-tokens').slideDown('slow');
+		e.preventDefault();
+	} );
+	$('#challonge-participant_name-tokens-users').change( function ( e ) {
+		var userdata = $(this).find('option:selected').data('userdata');
+		$('#challonge-participant_name-tokens table tr td.token').each( function () {
+			var key = $(this).text().split('%').join('');
+			$(this).nextAll('td.userdata').text(userdata[key]);
+		} );
+	} ).change();
 } );

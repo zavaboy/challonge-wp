@@ -10,7 +10,7 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.0.7';
+	const VERSION     = '1.1.0';
 	const TEXT_DOMAIN = 'challonge';
 
 	protected $sPluginUrl;
@@ -19,12 +19,21 @@ class Challonge_Plugin
 	protected $sApiKey;
 	protected $aOptions;
 	protected $aOptionsDefault = array(
-		'api_key'          => ''    ,
-		'public_shortcode' => false ,
-		'public_widget'    => false ,
-		'no_ssl_verify'    => false ,
+		'api_key'              => '',
+		'public_shortcode'     => false,
+		'public_widget'        => false,
+		'public_widget_signup' => false,
+		'enable_teams'         => false,
+		'participant_name'     => '%whatev% (%login%)',
+		'scoring'              => 'one',
+		'scoring_opponent'     => false,
+		'caching'              => 600,
+		'no_ssl_verify'        => false,
 	);
-	protected $bUseMinJs = false;
+	// TODO: Before release, minify JS and turn $bUseMinJs ON
+	protected $bUseMinJs = true;
+	protected $bIgnoreCached = false;
+	protected $bDevMode = false; // Development mode?
 
 	static $oInstance;
 
@@ -59,6 +68,7 @@ class Challonge_Plugin
 		add_action( 'admin_init', array( $this, 'initAdmin' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'loadAssetsAdmin' ) );
 		add_action( 'wp_ajax_challonge_verify_apikey', array( $this, 'verifyApiKey' ) );
+		add_action( 'admin_notices', array( $this, 'adminNotice' ) );
 
 		// Short Code
 		require_once( 'class-challonge-shortcode.php' );
@@ -79,9 +89,9 @@ class Challonge_Plugin
 	{
 		$this->getOptions();
 		$this->sApiKey = $this->aOptions['api_key'];
-		require_once( 'class-challonge-api.php' );
+		require_once( 'class-challonge-api-adapter.php' );
 		if ( $this->hasApiKey() ) {
-			$this->oApi = new Challonge_Api( $this->sApiKey );
+			$this->oApi = new Challonge_Api_Adapter( $this->sApiKey );
 			$this->oApi->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 		}
 		$this->oUsr = wp_get_current_user();
@@ -126,6 +136,8 @@ class Challonge_Plugin
 		$usrkey = md5( $tourny->url . ' ' . $this->oUsr->user_login . ' <' . $this->oUsr->user_email . '>' );
 
 		// Is the user signed up?
+		// We will also cheack if all participants have signed up through the plugin while we're at it. :)
+		$all_have_misc = true;
 		$misc = array();
 		$signed_up = $reported_scores = false;
 		$participant_id = -1;
@@ -135,7 +147,9 @@ class Challonge_Plugin
 			$participants_by_id[ (int) $participant->id ] = $participant;
 			$participant_names[] = $participant->name;
 			$pmisc = $this->parseParticipantMisc( $participant->misc );
-			if ( $pmisc[0] == $usrkey ) {
+			if ( empty( $pmisc[0] ) ) {
+				$all_have_misc = false;
+			} else if ( $pmisc[0] == $usrkey ) {
 				$signed_up = true;
 				$participant_id = (int) $participant->id;
 				$misc = $pmisc;
@@ -147,7 +161,7 @@ class Challonge_Plugin
 		$has_match = false;
 		$opponent_id = -1;
 		$opponent = null;
-		if ( $signed_up && 'underway' == $tourny->state ) {
+		if ( $signed_up && ! $reported_scores && 'underway' == $tourny->state ) {
 			foreach ( $matches AS $match ) {
 				if ( 'open' == $match->state && (
 					(int) $match->{'player1-id'} == $participant_id ||
@@ -175,36 +189,55 @@ class Challonge_Plugin
 		}
 		$lnk = false;
 		$hide_button = false;
-		$tbw = 400; // ThinkBox Width
-		$tbh = 250; // ThinkBox Height
-		$username = $this->oUsr->display_name;
+		$tbw = 750; // ThinkBox Width
+		$tbh = 550; // ThinkBox Height
+		$username = $this->getUsernameHtml();
 		$user_alt = 1;
-		if ( ! $signed_up && current_user_can( 'challonge_signup' ) && 'pending' == $tourny->state && 'true' == $tourny->{'open-signup'} ) {
+		if ( ! $signed_up && ( current_user_can( 'challonge_signup' ) || ( ! current_user_can( 'level_0' ) && $this->aOptions['public_widget_signup'] ) ) && 'pending' == $tourny->state && 'true' == $tourny->{'open-signup'} ) {
 			$lnk = 'join';
 			$lnk_button = __( 'Signup', Challonge_Plugin::TEXT_DOMAIN );
-			if ( '&infin;' == $signup_cap || (int) $tourny->{'participants-count'} < $signup_cap ) {
-				// Is username taken?
-				while ( in_array( $username, $participant_names ) ) {
-					$username = $this->oUsr->display_name . '_' . ( ++$user_alt );
-				}
-				$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
-					. '<p>'
-						. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
-						. '<span class="challonge-tournyinfo">'
-							. date_i18n( get_option( 'date_format' ), strtotime( $tourny->{'created-at'} ) ) . ' | '
-							. esc_html( ucwords( $tourny->{'tournament-type'} ) ) . ' | '
-							. esc_html( $tourny->{'participants-count'} ) . '/' . $signup_cap
-						. '</span>'
-					. '</p>'
-					. '<p>' . __( 'You will join as:', Challonge_Plugin::TEXT_DOMAIN )
-					. '<br /><span class="challonge-playername">' . $username . '</span></p>';
-			} else {
-				$lnk_html = '<p>' . __( 'This tournament is full.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
+			if ( ! current_user_can( 'level_0' ) ) {
+				$tbw = 300; // ThinkBox Width
+				$tbh = 350; // ThinkBox Height
+				$lnk_html = '<p>You must be logged in to sign up.</p>'
+					. wp_login_form( array(
+						'echo'     => false,
+						'redirect' => 'challonge_signup=' . urlencode( $lnk_tourny ),
+						'form_id'  => 'challonge-loginform',
+					) );
 				$hide_button = true;
+			} else {
+				if ( '&infin;' == $signup_cap || (int) $tourny->{'participants-count'} < $signup_cap ) {
+					// Is username taken?
+					while ( in_array( $username, $participant_names ) ) {
+						$username = $this->oUsr->display_name . '_' . ( ++$user_alt );
+					}
+					$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
+						. '<div>'
+							. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
+							. '<span class="challonge-tournyinfo">'
+								. date_i18n( get_option( 'date_format' ), strtotime( $tourny->{'created-at'} ) ) . ' | '
+								. esc_html( ucwords( $tourny->{'tournament-type'} ) ) . ' | '
+								. esc_html( $tourny->{'participants-count'} ) . '/' . $signup_cap
+							. '</span><br />'
+						. '</div>'
+						. '<div class="challonge-tournydesc">' . $tourny->description . '</div>'
+						. '<p>' . __( 'You will join as:', Challonge_Plugin::TEXT_DOMAIN )
+						. '<br /><span class="challonge-playername">' . $username . '</span></p>';
+					if ( ! $all_have_misc && 'both' == $this->aOptions['scoring'] )
+						$lnk_html .= '<p class="challonge-error">' . __( 'Warning: One or more participants in this tournament have not'
+							. ' signed up through this website. The host or an authorized Challonge user must report'
+							. ' the score for their matches.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
+				} else {
+					$lnk_html = '<p>' . __( 'This tournament is full.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
+					$hide_button = true;
+				}
 			}
 		} elseif ( $signed_up && current_user_can( 'challonge_signup' ) && 'pending' == $tourny->state ) {
 			$lnk = 'leave';
 			$lnk_button = __( 'Forfeit', Challonge_Plugin::TEXT_DOMAIN );
+			$tbw = 600; // ThinkBox Width
+			$tbh = 200; // ThinkBox Height
 			$lnk_html = '<p>' . __( 'Forfeit the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
 				. '<p>'
 					. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
@@ -215,33 +248,54 @@ class Challonge_Plugin
 					. '</span>'
 				. '</p>';
 			$tbh = 200;
-		} elseif ( $signed_up && current_user_can( 'challonge_report_own' ) && 'underway' == $tourny->state && 'true' == $tourny->{'allow-participant-match-reporting'} ) {
+		} elseif ( $signed_up && current_user_can( 'challonge_report_own' ) && 'underway' == $tourny->state && 'true' == $tourny->{'allow-participant-match-reporting'} && 'none' != $this->aOptions['scoring'] ) {
 			$lnk = 'report';
 			$lnk_button = __( 'Report', Challonge_Plugin::TEXT_DOMAIN );
+			$tbw = 600; // ThinkBox Width
+			$tbh = 250; // ThinkBox Height
 			// Find opponent
 			if ( $has_match ) {
 				$omisc = $this->parseParticipantMisc( $opponent->misc );
-				if ( ! empty( $omisc[0] ) ) {
+				if ( ! empty( $omisc[0] ) || 'both' != $this->aOptions['scoring'] ) {
+					// TODO: Use round labels when available
 					$round = (int) $match->round;
+					if ( 'true' != $tourny->{'quick-advance'} ) {
+						$scoring_row = '<label for="challonge-report-score">' . __( 'What was your score?', Challonge_Plugin::TEXT_DOMAIN ) . '</label><br />'
+							. '<input type="text" id="challonge-report-score" name="challonge_report_score" placeholder="0" />';
+						if ( $this->aOptions['scoring_opponent'] || 'any' == $this->aOptions['scoring'] ) {
+							$scoring_row = '<tr class="challonge-score"><td colspan="2">'
+									. $scoring_row
+								. '</td><td colspan="2">'
+									. '<label for="challonge-report-opponent-score">' . __( 'What was your opponent\'s score?', Challonge_Plugin::TEXT_DOMAIN ) . '</label><br />'
+									. '<input type="text" id="challonge-report-opponent-score" name="challonge_report_opponent_score" placeholder="0" />'
+								. '</td></tr>';
+						} else {
+							$scoring_row = '<tr class="challonge-score"><td colspan="4">'
+									. $scoring_row
+								. '</td></tr>';
+						}
+					} else {
+						$scoring_row = '';
+					}
 					$lnk_html = '<p>'
 						. sprintf(
 							__( 'Did you win against <strong>%s</strong> in <strong>Round %d</strong> of <strong>%s</strong>?', Challonge_Plugin::TEXT_DOMAIN ),
 							$opponent->name, $round, $tourny->name
 							) . '</p>'
 						. '<form id="challonge-report">'
-							. '<table id="challonge-report-table"><tr>'
+							. '<table id="challonge-report-table"><tr class="challonge-wlt">'
 								. '<td><label for="challonge-report-win" class="challonge-button challonge-bigbutton challonge-button-win">'
 									. '<input type="radio" id="challonge-report-win" name="challonge_report_wl" value="w" /> '
 								. __( 'Won', Challonge_Plugin::TEXT_DOMAIN ) . '</label></td>'
-								. '<td><label for="challonge-report-lose" class="challonge-button challonge-bigbutton challonge-button-lose">'
+								. '<td colspan="2"><label for="challonge-report-lose" class="challonge-button challonge-bigbutton challonge-button-lose">'
 									. '<input type="radio" id="challonge-report-lose" name="challonge_report_wl" value="l" /> '
 								. __( 'Lost', Challonge_Plugin::TEXT_DOMAIN ) . '</label></td>'
-								. '<td><label for="challonge-report-tie" class="challonge-button challonge-bigbutton challonge-button-tie">'
-									. '<input type="radio" id="challonge-report-tie" name="challonge_report_wl" value="t" /> '
-								. __( 'Tied', Challonge_Plugin::TEXT_DOMAIN ) . '</label></td>'
-							. '</tr></table>'
-							. '<p><label for="challonge-report-score">' . __( 'What was your score?', Challonge_Plugin::TEXT_DOMAIN ) . '</label><br />'
-							. '<input type="text" id="challonge-report-score" name="challonge_report_score" placeholder="0" /></p>'
+								. ( 'true' != $tourny->{'quick-advance'} ?
+										'<td><label for="challonge-report-tie" class="challonge-button challonge-bigbutton challonge-button-tie">'
+										. '<input type="radio" id="challonge-report-tie" name="challonge_report_wl" value="t" /> '
+									. __( 'Tied', Challonge_Plugin::TEXT_DOMAIN ) . '</label></td>'
+									: '' )
+							. '</tr>' . $scoring_row . '</table>'
 						. '</form>';
 				} else {
 					$lnk_html = '<p>' . sprintf( __( 'Your opponent, <strong>%s</strong>, did not sign up through this website. The host or an authorized Challonge user must report the score.', Challonge_Plugin::TEXT_DOMAIN ), $opponent->name ) . '</p>';
@@ -256,9 +310,12 @@ class Challonge_Plugin
 			}
 		}
 
+		$lnk_url = $ajaxurl . '?action=challonge_widget&amp;width=%d&amp;height=%d';
+		$lnk_title_html = '<a href="' . sprintf( $lnk_url, 750, 550 ) . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
+			. '&amp;lnk_action=view" class="challonge-tournyid-' . esc_attr( $lnk_tourny ) . ' thickbox" title="' . esc_html( $tourny->name ) . '">'
+			. esc_html( $tourny->name ) . '</a>';
 		// Content
 		if ( $lnk ) {
-			$lnk_url = $ajaxurl . '?action=challonge_widget&amp;width=' . $tbw . '&amp;height=' . $tbh;
 			$lnk_html .= '<p class="challonge-lnkconfirm">';
 			if ( $hide_button )
 				$lnk_html .= '<a href="#close" onclick="tb_remove();return false;" class="challonge-cancel">' . __( 'Close', Challonge_Plugin::TEXT_DOMAIN ) . '</a>';
@@ -268,13 +325,14 @@ class Challonge_Plugin
 					. ' &nbsp; '
 					. '<a href="#cancel" onclick="tb_remove();return false;" class="challonge-cancel">' . __( 'Cancel', Challonge_Plugin::TEXT_DOMAIN ) . '</a>';
 			$lnk_html .= '</p>';
-			$lnk_button_html = '<a href="' . $lnk_url . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
-				. '" class="challonge-button challonge-button-' . $lnk . ' challonge-tournyid-' . esc_attr( $lnk_tourny ) . ' thickbox">'
+			$lnk_button_html = '<a href="' . sprintf( $lnk_url, $tbw, $tbh ) . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
+				. '" class="challonge-button challonge-button-' . $lnk . ' challonge-tournyid-' . esc_attr( $lnk_tourny ) . ' thickbox" title="' . esc_html( $tourny->name ) . '">'
 				. $lnk_button . '</a>';
 		} else {
 			$lnk_html = '<p class="challonge-error">' . __( 'ERROR: No tournament actions available.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
 			$lnk_button = $lnk_button_html = '';
 		}
+		$lnk_html = '<dic class="challonge-container-tb">' . $lnk_html . '</div>';
 
 		return array(
 			'tourny'         => $tourny,
@@ -284,6 +342,7 @@ class Challonge_Plugin
 			'button'         => $lnk_button,
 			'html'           => $lnk_html,
 			'button_html'    => $lnk_button_html,
+			'title_html'     => $lnk_title_html,
 			'usrkey'         => $usrkey,
 			'misc'           => $misc,
 			'participant_id' => $participant_id,
@@ -295,6 +354,8 @@ class Challonge_Plugin
 
 	public function widgetReply()
 	{
+		$this->bIgnoreCached = true; // AJAX requests never should use cached API data
+
 		// No API Key?
 		if ( ! $this->hasApiKey() ) {
 			if ( current_user_can( 'manage_options' ) ) {
@@ -319,11 +380,28 @@ class Challonge_Plugin
 
 		// Actions
 		switch ( $action ) {
+			case 'view':
+				die( 
+					'<div id="challonge_embed_tb" class="challonge-embed-tb">'
+					. '<div class="challonge-loading" title="' . __( 'Loading Challonge tournament...', Challonge_Plugin::TEXT_DOMAIN ) . '"></div>'
+					. '</div>'
+					. '<script>jQuery(document).ready(function(){'
+					. 'jQuery(\'#challonge_embed_tb\').challonge(\'' . $tourny->url . '\',{subdomain:\'' . $tourny->subdomain . '\'});'
+					. '});</script>'
+				);
 			case 'join':
-				$joined = $this->oApi->createParticipant( $lnk['tourny']->id, array(
-					'participant[name]' => $lnk['username'],
-					'participant[misc]' => $lnk['usrkey'],
-				) );
+				$joined = false;
+				if ( ! empty( $_REQUEST['playername_input'] ) ) {
+					$input = stripslashes_deep( $_REQUEST['playername_input'] );
+				} else {
+					$input = array();
+				}
+				$username = $this->getUsernameText( $lnk['username'], $input );
+				if ( ! empty( $username ) ) 
+					$joined = $this->oApi->createParticipant( $lnk['tourny']->id, array(
+						'participant[name]' => $username,
+						'participant[misc]' => $lnk['usrkey'],
+					) );
 				if ( $joined ) {
 					// Refresh lnk
 					$lnk = $this->widgetTournyLink( $tournyId );
@@ -353,12 +431,16 @@ class Challonge_Plugin
 				}
 				break;
 			case 'report':
-				if ( ! empty( $_REQUEST['report_wl'] ) && isset( $_REQUEST['report_score'] ) ) {
-					$reported = $this->reportScore( $lnk, $_REQUEST['report_wl'], $_REQUEST['report_score'] );
+				$score          = isset( $_REQUEST['report_score']          ) ? (int) $_REQUEST['report_score']          : null;
+				$opponent_score = isset( $_REQUEST['report_opponent_score'] ) ? (int) $_REQUEST['report_opponent_score'] : null;
+				if ( ! empty( $_REQUEST['report_wl'] ) ) {
+					$reported = $this->reportScore( $lnk, $_REQUEST['report_wl'], $score, $opponent_score );
 				} else {
 					$reported = __( 'Invalid request', Challonge_Plugin::TEXT_DOMAIN );
 				}
 				if ( 'Reported' == $reported ) {
+					// Refresh lnk
+					$lnk = $this->widgetTournyLink( $tournyId );
 					die( '<p class="challonge-ok">'
 						. __( 'You have reported your score.', Challonge_Plugin::TEXT_DOMAIN )
 						. ' -- <a href="#done" onclick="tb_remove();return false;">' . __( 'Done', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>'
@@ -374,64 +456,78 @@ class Challonge_Plugin
 		}
 	}
 
-	public function reportScore( $lnk, $wl, $score )
+	public function reportScore( $lnk, $wl, $score, $opponent_score )
 	{
+		// Check if scoring is disabled
+		if ( 'none' == $this->aOptions['scoring'] )
+			return __( 'Scoring disabled', Challonge_Plugin::TEXT_DOMAIN );
+
 		// Validate W/L status
 		$wl = strtolower( $wl );
 		if ( ! in_array( $wl, array( 'w', 'l', 't' ), true ) ) // is strict
 			return __( 'Invalid W/L status', Challonge_Plugin::TEXT_DOMAIN );
 
-		// Type-cast score to be safe
-		$score = (int) $score;
+		// Type-cast scores to be safe
+		$score          = (int) $score;
+		$opponent_score = (int) $opponent_score;
 
 		// Validate opponent
-		if ( ! empty( $lnk['opponent'] ) )
+		if ( ! empty( $lnk['opponent'] ) && 'any' != $this->aOptions['scoring'] )
 			$omisc = $this->parseParticipantMisc( $lnk['opponent']->misc );
+		else if ( 'both' != $this->aOptions['scoring'] )
+			$omisc = false;
 		else
 			return __( 'Invalid opponent', Challonge_Plugin::TEXT_DOMAIN );
 
-		// Opponent W/L disagreement?
-		if ( ! empty( $omisc[1] ) ) {
-			$wlwl = $wl . $omisc[1];
-			if ( 'wl' != $wlwl && 'lw' != $wlwl && 'tt' != $wlwl )
-				return __( 'Opponent disagreement', Challonge_Plugin::TEXT_DOMAIN ); // eg: Oppenent says he/she won and you say you won.
-
-			// Good to go, let's first reset opponent's misc to just his/her usrkey
-			$oupdated = $this->oApi->updateParticipant( $lnk['tourny']->id, (int) $lnk['opponent']->id, array(
-				'participant[misc]' => $omisc[0],
-			) );
-			if ( ! $oupdated )
-				return __( 'Unable to clear opponent report', Challonge_Plugin::TEXT_DOMAIN );
-
-			// Determine winner participant ID
-			if ( 'w' == $wl ) {
-				$winner_id = $lnk['participant_id'];
-			} else if ( 'l' == $wl ) {
-				$winner_id = (int) $lnk['opponent']->id;
+		// Validate score agreement is applicable
+		if ( false !== $omisc ) {
+			if ( ! empty( $omisc[1] ) ) {
+				// Opponent W/L disagreement?
+				$wlwl = $wl . $omisc[1];
+				if ( 'wl' != $wlwl && 'lw' != $wlwl && 'tt' != $wlwl )
+					return __( 'Opponent W/L/T disagreement', Challonge_Plugin::TEXT_DOMAIN ); // eg: Oppenent says he/she won and you say you won.
+				// Opponent score disagreement?
+				if ( ( $this->aOptions['scoring_opponent'] || 'any' == $this->aOptions['scoring'] ) && ( $score != $omisc[3] || $opponent_score != $omisc[2] ) )
+					return __( 'Opponent score disagreement', Challonge_Plugin::TEXT_DOMAIN );
+				$opponent_score = $omisc[2];
+				// Good to go, let's first reset opponent's misc to just his/her usrkey
+				$oupdated = $this->oApi->updateParticipant( $lnk['tourny']->id, (int) $lnk['opponent']->id, array(
+					'participant[misc]' => $omisc[0],
+				) );
+				if ( ! $oupdated )
+					return __( 'Unable to clear opponent report', Challonge_Plugin::TEXT_DOMAIN );
 			} else {
-				$winner_id = 'tie';
+				// Set participant score, opponent hasn't submitted his/her score yet
+				$pupdated = $this->oApi->updateParticipant( $lnk['tourny']->id, $lnk['participant_id'], array(
+					'participant[misc]' => $lnk['usrkey'] . ',' . $wl . ',' . $score . ',' . $opponent_score,
+				) );
+				if ( ! $pupdated )
+					return __( 'Unable to set your report', Challonge_Plugin::TEXT_DOMAIN );
+				return 'Reported';
 			}
-			// Determine score order
-			if ( (int) $lnk['match']->{ 'player1-id' } == $lnk['participant_id'] ) {
-				$scores_csv = sprintf( '%d-%d', $score, (int) $omisc[2] );
-			} else {
-				$scores_csv = sprintf( '%d-%d', (int) $omisc[2], $score );
-			}
-			// Now, let's set the match score
-			$mupdated = $this->oApi->updateMatch( $lnk['tourny']->id, (int) $lnk['match']->id, array(
-				'match[scores_csv]' => $scores_csv,
-				'match[winner_id]' => $winner_id,
-			) );
-			if ( ! $mupdated )
-				return __( 'Unable to update match', Challonge_Plugin::TEXT_DOMAIN );
-		} else {
-			// Set participant score, opponent hasn't submitted his/hers yet
-			$pupdated = $this->oApi->updateParticipant( $lnk['tourny']->id, $lnk['participant_id'], array(
-				'participant[misc]' => $lnk['usrkey'] . ',' . $wl . ',' . $score,
-			) );
-			if ( ! $pupdated )
-				return __( 'Unable to set your report', Challonge_Plugin::TEXT_DOMAIN );
 		}
+
+		// Determine winner participant ID
+		if ( 'w' == $wl ) {
+			$winner_id = $lnk['participant_id'];
+		} else if ( 'l' == $wl ) {
+			$winner_id = (int) $lnk['opponent']->id;
+		} else {
+			$winner_id = 'tie';
+		}
+		// Determine score order
+		if ( (int) $lnk['match']->{ 'player1-id' } == $lnk['participant_id'] ) {
+			$scores_csv = sprintf( '%d-%d', $score, $opponent_score );
+		} else {
+			$scores_csv = sprintf( '%d-%d', $opponent_score, $score );
+		}
+		// Now, let's set the match score
+		$mupdated = $this->oApi->updateMatch( $lnk['tourny']->id, (int) $lnk['match']->id, array(
+			'match[scores_csv]' => $scores_csv,
+			'match[winner_id]' => $winner_id,
+		) );
+		if ( ! $mupdated )
+			return __( 'Unable to update match', Challonge_Plugin::TEXT_DOMAIN );
 
 		return 'Reported';
 	}
@@ -439,8 +535,8 @@ class Challonge_Plugin
 	public function parseParticipantMisc( $misc )
 	{
 		// If $misc is defined:
-		//   $misc format is '{usrkey},{w|l|t},{score}' eg: b9c3cf4e9491aaf72548408eac387e3c,w,12
-		$default = array( null, null, null );
+		//   $misc format is '{usrkey},{w|l|t},{score},{opponent_score}' eg: b9c3cf4e9491aaf72548408eac387e3c,w,12,3
+		$default = array( null, null, null, null );
 		// Validate
 		if ( empty( $misc ) )
 			return $default;
@@ -454,9 +550,10 @@ class Challonge_Plugin
 		// $misc[0] is $usrkey of the participant (always there if participant signed up via widget)
 		// $misc[1] is the win/loss/tie reported by the participant, if any
 		// $misc[2] is the score reported by the participant, if any
+		// $misc[3] is the opponent score reported by the participant, if any
 
-		// Validate array, must be at most 3 values
-		if ( count( $misc ) > 3 ) {
+		// Validate array, must be at most 4 values
+		if ( count( $misc ) > 4 ) {
 			return $default;
 		}
 
@@ -471,6 +568,11 @@ class Challonge_Plugin
 			$misc[2] = null;
 		else
 			$misc[2] = (int) $misc[2]; // Cast to integer
+		// Validate opponent score
+		if ( empty( $misc[3] ) )
+			$misc[3] = null;
+		else
+			$misc[3] = (int) $misc[3]; // Cast to integer
 
 		return $misc;
 	}
@@ -513,6 +615,8 @@ class Challonge_Plugin
 
 	public function verifyApiKey()
 	{
+		$this->bIgnoreCached = true; // AJAX requests never should use cached API data
+
 		header( 'Content-Type: application/json; charset=utf-8' );
 		if ( isset( $_GET['api_key'] ) && preg_match( '/^[a-z0-9]{40}$/i', $_GET['api_key'] ) && current_user_can( 'manage_options' ) ) {
 			$apikey = $_GET['api_key'];
@@ -536,6 +640,38 @@ class Challonge_Plugin
 	public function initAdmin()
 	{
 		register_setting( 'challonge_options', 'challonge_options', array( $this, 'optionsValidate' ) );
+
+		// BEGIN PLUGIN DEVELOPMENT STUFF
+		// If in Dev Mode and on localhost, throw some notices to help with development.
+		// This is for myself while developing so I remember what I need to complete before release.
+		// Yeah, I'm a lazy sod.
+		if ( ( $this->bDevMode && 'localhost' == $_SERVER['SERVER_NAME'] ) || 'FORCE' == $this->bDevMode ) {
+			// Find TODO items
+			$todos = array();
+			$dir = dirname( __FILE__ );
+			if (is_dir($dir)) {
+				if ($dh = opendir($dir)) {
+					while (($file = readdir($dh)) !== false) {
+						if ( '.' != $file[0] ) {
+							$content = file( $dir . '/' . $file );
+							foreach ( $content AS $k => $v ) {
+								if ( strpos( $v, '// ' . 'TODO' ) !== false )
+									$todos[] = $file . ' at line ' . ( $k + 1 ) . ': <tt>' . htmlentities( trim( $v ) ) . '</tt>';
+							}
+						}
+					}
+					closedir($dh);
+				}
+			}
+			// Send admin notice if there are TODO items found
+			// If the plugin is released with TODO items, I have determined they should be completed in a later release.
+			if ( ! empty( $todos ) )
+				$this->addNotice('Found ' . count( $todos ) . ' TODO items:<br />' . implode( '<br />', $todos ) );
+			// Send admin notice if UseMinJS is OFF
+			if ( ! $this->bUseMinJs && $_SERVER['SERVER_NAME'] == 'localhost' )
+				$this->addNotice( Challonge_Plugin::NAME . ': UseMinJS is OFF!', 'error' );
+		}
+		// END PLUGIN DEVELOPMENT STUFF
 	}
 
 	public function optionsValidate( $input )
@@ -557,11 +693,28 @@ class Challonge_Plugin
 		}
 
 		// Public
-		$options['public_shortcode'] = (bool) $input['public_shortcode'];
-		$options['public_widget'] = (bool) $input['public_widget'];
+		$options['public_shortcode'] = ! empty( $input['public_shortcode'] );
+		$options['public_widget'] = ! empty( $input['public_widget'] );
+		$options['public_widget_signup'] = ! empty( $input['public_widget_signup'] );
+
+		// Participant Name
+		$options['participant_name'] = trim( $input['participant_name'] );
+
+		// Scoring
+		if ( in_array( $input['scoring'], array( 'both', 'one', 'any', 'none' ) ) )
+			$options['scoring'] = $input['scoring'];
+		$options['scoring_opponent'] = ! empty( $input['scoring_opponent'] );
+
+		// Cache
+		$options['caching'] = (int) $input['caching'];
+		if ( $input['caching_clear'] ) {
+			$this->clearCache();
+			$this->addNotice( __( 'The Challonge API cache was cleared.', Challonge_Plugin::TEXT_DOMAIN ) );
+			//die('foo');
+		}
 
 		// Disable SSL verification
-		$options['no_ssl_verify'] = (bool) $input['no_ssl_verify'];
+		$options['no_ssl_verify'] = ! empty( $input['no_ssl_verify'] );
 
 		return $options;
 	}
@@ -580,5 +733,120 @@ class Challonge_Plugin
 			return $this->oApi;
 		}
 		return null;
+	}
+
+	public function addNotice( $message, $type = 'updated', $id = null )
+	{
+		$notice_transient = 'challonge_notices';
+		if ( false === ( $transient_data = get_transient( $notice_transient ) ) ) {
+			$transient_data = array();
+		}
+		if ( $type != 'updated' && $type != 'error' && $type != 'updated-nag' )
+			$type = 'updated';
+		$notice = array( 'type' => $type, 'message' => $message );
+		$transient_data[ md5( serialize( $notice ) ) ] = $notice;
+		$transient_set = set_transient( $notice_transient, $transient_data, HOUR_IN_SECONDS );
+	}
+
+	public function adminNotice()
+	{
+		$notice_transient = 'challonge_notices';
+		if ( false !== ( $transient_data = get_transient( $notice_transient ) ) ) {
+			$notices = array();
+			foreach ( $transient_data AS $notice ) {
+				$notices[ md5( serialize( $notice ) ) ] = $notice;
+			}
+			foreach ( $notices AS $notice ) {
+				echo '<div class="' . $notice['type'] . '"><p>' . $notice['message'] . '</p></div>';
+			}
+			delete_transient( $notice_transient );
+		}
+	}
+
+	public function getUsernameHtml()
+	{
+		$username = htmlspecialchars( $this->aOptions['participant_name'] );
+		if ( empty( $username ) )
+			return $this->oUsr->display_name;
+		$username = explode( '%', $username );
+		$last = count( $username ) - 1;
+		$lastWasToken = true; // Starting this true will skip the first element, which can't be a token
+		foreach ( $username AS $k => $v ) {
+			if ( $lastWasToken ) {
+				$lastWasToken = false;
+				continue;
+			} else if ( $last == $k ) {
+				$username[$k] = '%' . $v;
+				break;
+			}
+			$lastWasToken = true;
+			switch ( $v ) {
+				case ''       : $v =                   '%'                            ; break;
+				case 'uid'    : $v =                   $this->oUsr->ID                ; break;
+				case 'login'  : $v = htmlspecialchars( $this->oUsr->user_login       ); break;
+				case 'nice'   : $v =                   $this->oUsr->user_nicename     ; break;
+				case 'first'  : $v = htmlspecialchars( $this->oUsr->user_firstname   ); break;
+				case 'last'   : $v = htmlspecialchars( $this->oUsr->user_lastname    ); break;
+				case 'nick'   : $v = htmlspecialchars( $this->oUsr->nickname         ); break;
+				case 'display': $v = htmlspecialchars( $this->oUsr->display_name     ); break;
+				case 'role'   : $v = htmlspecialchars( current( $this->oUsr->roles ) ); break;
+				default:
+					if ( preg_match( '/^whatev:?(\d*)$/', $v, $m ) )
+						$v = '<input type="text" style="width:' . ( $m[1] > 0 ? (int) $m[1] : 12 ) . 'em" value="" placeholder="type here" />';
+					else {
+						$v = '%' . $v;
+						$lastWasToken = false;
+					}
+			}
+			$username[$k] = $v;
+		}
+		return implode( '', $username );
+	}
+
+	public function getUsernameText( $htmlUsername, $inputs )
+	{
+		if ( ! is_array( $inputs ) )
+			return false;
+		$username = preg_replace(
+			'/<input[^>]+>/i',
+			'%s',
+			str_replace(
+				'%',
+				'&#37;',
+				$htmlUsername
+			),
+			-1, // no limit
+			$count
+		);
+		if ( count( $inputs ) == $count ) {
+			foreach ( $inputs AS &$input ) {
+				$input = htmlspecialchars( $input );
+			}
+			return html_entity_decode( vsprintf( $username, $inputs ) );
+		}
+		return false;
+	}
+
+	public function clearCache() {
+		$log_transient = 'challonge_cache_log';
+		if ( false !== ( $transient_data = get_transient( $log_transient ) ) ) {
+			foreach ( $transient_data AS $k => $v) {
+				delete_transient( $k );
+			}
+			delete_transient( $log_transient );
+		}
+	}
+
+	public function logCache( $transient ) {
+		$log_transient = 'challonge_cache_log';
+		if ( false === ( $transient_data = get_transient( $log_transient ) ) ) {
+			$transient_data = array();
+		}
+		$transient_data[$transient] = time();
+		$transient_set = set_transient( $log_transient, $transient_data, WEEK_IN_SECONDS );
+	}
+
+	public function isCacheIgnored() {
+		return $this->bIgnoreCached;
 	}
 }
