@@ -66,3 +66,7 @@ jQuery(document).ready(function ( $ ) {
 		setTimeout( "jQuery('.challonge-button.thickbox.challonge-tournyid-" + tournyid + "').get(0).click();", 1000 );
 	}
 } );
+
+// Our own jQuery variable that points to WP's own copy of jQuery. We shouldn't lose this. ;)
+// If a theme or plugin loads its own copy without compatibility mode, we can still use the copy we loaded the Challonge jQuery plugin into.
+var Challonge_jQuery = jQuery;

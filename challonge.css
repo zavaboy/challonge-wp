@@ -40,6 +40,9 @@
 	position: relative;
 	top: 50%;
 	left: 50%;
+	width: 10px;
+	height: 10px;
+	overflow: visible;
 }
 .challonge-denied-message-inner {
 	position: relative;
@@ -237,4 +240,14 @@ td.challonge-progress progress {
 	text-align: center;
 	width: 50%;
 	padding: 1em 0;
+}
+#challonge-loginform p {
+	margin-bottom: 1em;
+}
+#challonge-loginform #user_login,
+#challonge-loginform #user_pass {
+	width: 80%;
+}
+#branding {
+	z-index: 103; /* Fix to prevent twentyeleven theme header from showing over thickbox. */
 }

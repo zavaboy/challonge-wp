@@ -19,8 +19,8 @@ Do you use [Challonge](http://challonge.com/ "Free online tournament management 
 * Only registered users may sign up to your tournaments.
 * Likewise, your users may forfeit a tournament after signing up, but only before it begins.
 * Participating users may report their own scores.
-* Includes role capabilities. You will need a role managment plugin to change who has these capabilities.
-* Adjustible caching to speed up page load time.
+* Includes role capabilities. You will need a role management plugin to change who has these capabilities.
+* Adjustable caching to speed up page load time.
 
 = Latest Information =
 
@@ -127,6 +127,15 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Changelog ==
 
+= 1.1.1 =
+* Fixed API Caching from handling non-XML responses as XML and throwing a fatal error.
+* Added a way around secondary copies of jQuery from overriding the Challonge plugin.
+* Fixed score reporting when scoring is on second setting and opponent scoring is disabled and the participant is matched with a opponent that signed up via other means.
+* Fixed a minor security issue.
+* Fixed the Signup button actions for unregistered users.
+* Added some CSS to prevent twentyeleven theme header from showing over thickboxes.
+* Some general code cleanup.
+
 = 1.1.0 =
 * Added participant name templating with tokens.
 * Added scoring settings.
@@ -171,6 +180,15 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Fixed API Caching from handling non-XML responses as XML and throwing a fatal error.
+Added a way around secondary copies of jQuery from overriding the Challonge plugin.
+Fixed score reporting when scoring is on second setting and opponent scoring is disabled and the participant is matched with a opponent that signed up via other means.
+Fixed a minor security issue.
+Fixed the Signup button actions for unregistered users.
+Added some CSS to prevent twentyeleven theme header from showing over thickboxes.
+Some general code cleanup.
 
 = 1.1.0 =
 Added participant name templating with tokens.

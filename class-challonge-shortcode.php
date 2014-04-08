@@ -211,8 +211,8 @@ class Challonge_Shortcode
 			. $css . '>'
 			. '<div class="challonge-loading" title="' . __( 'Loading Challonge tournament...', Challonge_Plugin::TEXT_DOMAIN ) . '"></div>'
 			. '</div>'
-			. '<script>jQuery(document).ready(function(){'
-			. 'jQuery(\'#challonge_embed_' . $id . '\').challonge(\'' . $url . '\',' . $jsobj . ');'
+			. '<script>Challonge_jQuery(document).ready(function(){'
+			. 'Challonge_jQuery(\'#challonge_embed_' . $id . '\').challonge(\'' . $url . '\',' . $jsobj . ');'
 			. '});</script>';
 	}
 

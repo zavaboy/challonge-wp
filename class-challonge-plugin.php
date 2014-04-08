@@ -10,7 +10,7 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.1.0';
+	const VERSION     = '1.1.1';
 	const TEXT_DOMAIN = 'challonge';
 
 	protected $sPluginUrl;
@@ -94,6 +94,8 @@ class Challonge_Plugin
 			$this->oApi = new Challonge_Api_Adapter( $this->sApiKey );
 			$this->oApi->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 		}
+		if ( ! is_user_logged_in() )
+			wp_logout(); // Ensure logout (clears auth cookies for better security)
 		$this->oUsr = wp_get_current_user();
 	}
 
@@ -133,7 +135,12 @@ class Challonge_Plugin
 		}
 
 		// User key hash
-		$usrkey = md5( $tourny->url . ' ' . $this->oUsr->user_login . ' <' . $this->oUsr->user_email . '>' );
+		if ( is_user_logged_in() && current_user_can( 'challonge_signup' ) )
+			$usrkey = md5( $tourny->url . ' ' . $this->oUsr->user_login . ' <' . $this->oUsr->user_email . '>' ); // Shows signup
+		elseif ( ! is_user_logged_in() && $this->aOptions['public_widget_signup'] )
+			$usrkey = true; // Shows signup to login
+		else
+			$usrkey = false; // Shows nothing
 
 		// Is the user signed up?
 		// We will also cheack if all participants have signed up through the plugin while we're at it. :)
@@ -149,7 +156,7 @@ class Challonge_Plugin
 			$pmisc = $this->parseParticipantMisc( $participant->misc );
 			if ( empty( $pmisc[0] ) ) {
 				$all_have_misc = false;
-			} else if ( $pmisc[0] == $usrkey ) {
+			} elseif ( $pmisc[0] == $usrkey ) {
 				$signed_up = true;
 				$participant_id = (int) $participant->id;
 				$misc = $pmisc;
@@ -193,45 +200,47 @@ class Challonge_Plugin
 		$tbh = 550; // ThinkBox Height
 		$username = $this->getUsernameHtml();
 		$user_alt = 1;
-		if ( ! $signed_up && ( current_user_can( 'challonge_signup' ) || ( ! current_user_can( 'level_0' ) && $this->aOptions['public_widget_signup'] ) ) && 'pending' == $tourny->state && 'true' == $tourny->{'open-signup'} ) {
+		if ( $usrkey && ! $signed_up && 'pending' == $tourny->state && 'true' == $tourny->{'open-signup'} ) {
 			$lnk = 'join';
 			$lnk_button = __( 'Signup', Challonge_Plugin::TEXT_DOMAIN );
-			if ( ! current_user_can( 'level_0' ) ) {
+			if ( ! is_user_logged_in() ) {
 				$tbw = 300; // ThinkBox Width
 				$tbh = 350; // ThinkBox Height
-				$lnk_html = '<p>You must be logged in to sign up.</p>'
-					. wp_login_form( array(
-						'echo'     => false,
-						'redirect' => 'challonge_signup=' . urlencode( $lnk_tourny ),
-						'form_id'  => 'challonge-loginform',
-					) );
+				$lnk_html = '<p>' . __( 'You must be logged in to sign up to tournaments.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
+					. wp_login_form(
+						array(
+							'echo'     => false,
+							'redirect' => 'challonge_signup=' . urlencode( $lnk_tourny ),
+							'form_id'  => 'challonge-loginform',
+						)
+					);
 				$hide_button = true;
-			} else {
-				if ( '&infin;' == $signup_cap || (int) $tourny->{'participants-count'} < $signup_cap ) {
-					// Is username taken?
-					while ( in_array( $username, $participant_names ) ) {
-						$username = $this->oUsr->display_name . '_' . ( ++$user_alt );
-					}
-					$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
-						. '<div>'
-							. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
-							. '<span class="challonge-tournyinfo">'
-								. date_i18n( get_option( 'date_format' ), strtotime( $tourny->{'created-at'} ) ) . ' | '
-								. esc_html( ucwords( $tourny->{'tournament-type'} ) ) . ' | '
-								. esc_html( $tourny->{'participants-count'} ) . '/' . $signup_cap
-							. '</span><br />'
-						. '</div>'
-						. '<div class="challonge-tournydesc">' . $tourny->description . '</div>'
-						. '<p>' . __( 'You will join as:', Challonge_Plugin::TEXT_DOMAIN )
-						. '<br /><span class="challonge-playername">' . $username . '</span></p>';
-					if ( ! $all_have_misc && 'both' == $this->aOptions['scoring'] )
-						$lnk_html .= '<p class="challonge-error">' . __( 'Warning: One or more participants in this tournament have not'
-							. ' signed up through this website. The host or an authorized Challonge user must report'
-							. ' the score for their matches.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
-				} else {
-					$lnk_html = '<p>' . __( 'This tournament is full.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
-					$hide_button = true;
+			} elseif ( '&infin;' == $signup_cap || (int) $tourny->{'participants-count'} < $signup_cap ) {
+				// Is username taken?
+				while ( in_array( $username, $participant_names ) ) {
+					$username = $this->oUsr->display_name . '_' . ( ++$user_alt );
 				}
+				if ( empty( $tourny->description ) )
+					$tbh = 300; // ThinkBox Height
+				$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'// . print_r(array(wp_get_current_user(),current_user_can('read')))
+					. '<div>'
+						. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
+						. '<span class="challonge-tournyinfo">'
+							. date_i18n( get_option( 'date_format' ), strtotime( $tourny->{'created-at'} ) ) . ' | '
+							. esc_html( ucwords( $tourny->{'tournament-type'} ) ) . ' | '
+							. esc_html( $tourny->{'participants-count'} ) . '/' . $signup_cap
+						. '</span><br />'
+					. '</div>'
+					. '<div class="challonge-tournydesc">' . $tourny->description . '</div>'
+					. '<p>' . __( 'You will join as:', Challonge_Plugin::TEXT_DOMAIN )
+					. '<br /><span class="challonge-playername">' . $username . '</span></p>';
+				if ( ! $all_have_misc && 'both' == $this->aOptions['scoring'] )
+					$lnk_html .= '<p class="challonge-error">' . __( 'Warning: One or more participants in this tournament have not'
+						. ' signed up through this website. The host or an authorized Challonge user must report'
+						. ' the score for their matches.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
+			} else {
+				$lnk_html = '<p>' . __( 'This tournament is full.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
+				$hide_button = true;
 			}
 		} elseif ( $signed_up && current_user_can( 'challonge_signup' ) && 'pending' == $tourny->state ) {
 			$lnk = 'leave';
@@ -260,9 +269,10 @@ class Challonge_Plugin
 					// TODO: Use round labels when available
 					$round = (int) $match->round;
 					if ( 'true' != $tourny->{'quick-advance'} ) {
+						$tbh = 280; // ThinkBox Height
 						$scoring_row = '<label for="challonge-report-score">' . __( 'What was your score?', Challonge_Plugin::TEXT_DOMAIN ) . '</label><br />'
 							. '<input type="text" id="challonge-report-score" name="challonge_report_score" placeholder="0" />';
-						if ( $this->aOptions['scoring_opponent'] || 'any' == $this->aOptions['scoring'] ) {
+						if ( $this->aOptions['scoring_opponent'] || 'any' == $this->aOptions['scoring'] || ( empty( $omisc[0] ) && 'one' == $this->aOptions['scoring'] ) ) {
 							$scoring_row = '<tr class="challonge-score"><td colspan="2">'
 									. $scoring_row
 								. '</td><td colspan="2">'
@@ -332,7 +342,7 @@ class Challonge_Plugin
 			$lnk_html = '<p class="challonge-error">' . __( 'ERROR: No tournament actions available.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
 			$lnk_button = $lnk_button_html = '';
 		}
-		$lnk_html = '<dic class="challonge-container-tb">' . $lnk_html . '</div>';
+		$lnk_html = '<div class="challonge-container-tb">' . $lnk_html . '</div>';
 
 		return array(
 			'tourny'         => $tourny,
@@ -381,14 +391,30 @@ class Challonge_Plugin
 		// Actions
 		switch ( $action ) {
 			case 'view':
-				die( 
-					'<div id="challonge_embed_tb" class="challonge-embed-tb">'
-					. '<div class="challonge-loading" title="' . __( 'Loading Challonge tournament...', Challonge_Plugin::TEXT_DOMAIN ) . '"></div>'
-					. '</div>'
-					. '<script>jQuery(document).ready(function(){'
-					. 'jQuery(\'#challonge_embed_tb\').challonge(\'' . $tourny->url . '\',{subdomain:\'' . $tourny->subdomain . '\'});'
-					. '});</script>'
-				);
+				if ( is_user_logged_in() || $this->aOptions['public_shortcode'] ) {
+					die( 
+						'<div id="challonge_embed_tb" class="challonge-embed-tb">'
+						. '<div class="challonge-loading" title="' . __( 'Loading Challonge tournament...', Challonge_Plugin::TEXT_DOMAIN ) . '"></div>'
+						. '</div>'
+						. '<script>Challonge_jQuery(document).ready(function(){'
+						. 'Challonge_jQuery(\'#challonge_embed_tb\').challonge(\'' . $tourny->url . '\',{subdomain:\'' . $tourny->subdomain . '\'});'
+						. '});</script>'
+					);
+				} else {
+					die( '<div id="challonge_embed_tb" class="challonge-embed-tb challonge-denied">'
+							. '<div class="challonge-denied-message">'
+								. '<div class="challonge-denied-message-inner">'
+									. '<div class="challonge-denied-message-title">'
+										. __( 'Sorry bro...', Challonge_Plugin::TEXT_DOMAIN )
+									. '</div>'
+									. '<div class="challonge-denied-message-description">'
+										. __( 'You do not have permission to view this tournament.', Challonge_Plugin::TEXT_DOMAIN )
+										. '<br />' . __( 'Please login to view this tournament.', Challonge_Plugin::TEXT_DOMAIN )
+									. '</div>'
+								. '</div>'
+							. '</div>'
+						. '</div>');
+				}
 			case 'join':
 				$joined = false;
 				if ( ! empty( $_REQUEST['playername_input'] ) ) {
@@ -474,7 +500,7 @@ class Challonge_Plugin
 		// Validate opponent
 		if ( ! empty( $lnk['opponent'] ) && 'any' != $this->aOptions['scoring'] )
 			$omisc = $this->parseParticipantMisc( $lnk['opponent']->misc );
-		else if ( 'both' != $this->aOptions['scoring'] )
+		elseif ( 'both' != $this->aOptions['scoring'] )
 			$omisc = false;
 		else
 			return __( 'Invalid opponent', Challonge_Plugin::TEXT_DOMAIN );
@@ -510,7 +536,7 @@ class Challonge_Plugin
 		// Determine winner participant ID
 		if ( 'w' == $wl ) {
 			$winner_id = $lnk['participant_id'];
-		} else if ( 'l' == $wl ) {
+		} elseif ( 'l' == $wl ) {
 			$winner_id = (int) $lnk['opponent']->id;
 		} else {
 			$winner_id = 'tie';
@@ -542,7 +568,7 @@ class Challonge_Plugin
 			return $default;
 		if ( is_array( $misc ) )
 			$misc = implode( ',', $misc );
-		else if ( ! is_string( $misc ) )
+		elseif ( ! is_string( $misc ) )
 			$misc = (string) $misc;
 
 		// Parse
@@ -775,7 +801,7 @@ class Challonge_Plugin
 			if ( $lastWasToken ) {
 				$lastWasToken = false;
 				continue;
-			} else if ( $last == $k ) {
+			} elseif ( $last == $k ) {
 				$username[$k] = '%' . $v;
 				break;
 			}

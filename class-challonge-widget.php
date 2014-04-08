@@ -177,9 +177,9 @@ class Challonge_Widget extends WP_Widget
 		// Validate name filter
 		if ( empty( $name_filter ) || ! is_string( $name_filter ) ) // Empty or invalid filter
 			$name_filter = null;
-		else if ( 0 !== strpos( $name_filter, '/' ) ) // Astrisk "*" Wildcard to RegEx
+		elseif ( 0 !== strpos( $name_filter, '/' ) ) // Astrisk "*" Wildcard to RegEx
 			$name_filter = '/' . str_replace( '\*', '.*', preg_quote( $name_filter, '/' ) ) . '/i';
-		else if ( false === @preg_match( $name_filter, null ) ) // Validate RegEx - KLUDGE: Can haz alternate that doesn't use "@"?
+		elseif ( false === @preg_match( $name_filter, null ) ) // Validate RegEx - KLUDGE: Can haz alternate that doesn't use "@"?
 			$name_filter = false;
 
 		// Get tournament listing
@@ -199,10 +199,9 @@ class Challonge_Widget extends WP_Widget
 						$tname = (string) $tourny->url;
 					$lnk = $this->oCP->widgetTournyLink( $tname );
 					if ( ! empty( $lnk['name'] ) ) {
-						$ret .= $lnk['button_html'] . $lnk['title_html'];
-					} else {
-						$ret .= $lnk['title_html']; //esc_html( $tourny->name );
+						$ret .= $lnk['button_html'];
 					}
+					$ret .= $lnk['title_html'];
 					$ret .= '<br /><span class="challonge-info">'
 							. esc_html( $lnk['participants'] ) . '/' . $lnk['signup_cap']
 							. ' | ' . esc_html( ucwords( str_replace( '_', ' ', $tourny->state ) ) )
