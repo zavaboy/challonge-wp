@@ -127,7 +127,7 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Changelog ==
 
-= 1.1.1 =
+= 1.1.2 =
 * Fixed a few misspellings in the settings page.
 * Removed the minor security fix I released with last update. It caused a redirection loop with some plugins.
 * Updated CSS to force thickbox on top of theme elements. This takes the place of the previous CSS fix for the twentyeleven theme.
@@ -187,7 +187,7 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Upgrade Notice ==
 
-= 1.1.1 =
+= 1.1.2 =
 Fixed a few misspellings in the settings page.
 Removed the minor security fix I released with last update. It caused a redirection loop with some plugins.
 Updated CSS to force thickbox on top of theme elements. This takes the place of the previous CSS fix for the twentyeleven theme.
