@@ -3,7 +3,7 @@ Contributors: zavaboy
 Donate link: http://zavaboy.org/challonge-wordpress-plugin/
 Tags: plugin, widget, shortcode, api, integration, embed, events, games, tournaments, matches, Challonge, brackets
 Requires at least: 3.1
-Tested up to: 3.8
+Tested up to: 3.9
 Stable tag: trunk
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
@@ -128,6 +128,12 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 == Changelog ==
 
 = 1.1.1 =
+* Fixed a few misspellings in the settings page.
+* Removed the minor security fix I released with last update. It caused a redirection loop with some plugins.
+* Updated CSS to force thickbox on top of theme elements. This takes the place of the previous CSS fix for the twentyeleven theme.
+* Tested in WordPress 3.9.
+
+= 1.1.1 =
 * Fixed API Caching from handling non-XML responses as XML and throwing a fatal error.
 * Added a way around secondary copies of jQuery from overriding the Challonge plugin.
 * Fixed score reporting when scoring is on second setting and opponent scoring is disabled and the participant is matched with a opponent that signed up via other means.
@@ -180,6 +186,12 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Fixed a few misspellings in the settings page.
+Removed the minor security fix I released with last update. It caused a redirection loop with some plugins.
+Updated CSS to force thickbox on top of theme elements. This takes the place of the previous CSS fix for the twentyeleven theme.
+Tested in WordPress 3.9.
 
 = 1.1.1 =
 Fixed API Caching from handling non-XML responses as XML and throwing a fatal error.

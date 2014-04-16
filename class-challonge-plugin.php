@@ -10,7 +10,7 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.1.1';
+	const VERSION     = '1.1.2';
 	const TEXT_DOMAIN = 'challonge';
 
 	protected $sPluginUrl;
@@ -94,8 +94,13 @@ class Challonge_Plugin
 			$this->oApi = new Challonge_Api_Adapter( $this->sApiKey );
 			$this->oApi->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 		}
-		if ( ! is_user_logged_in() )
-			wp_logout(); // Ensure logout (clears auth cookies for better security)
+
+		// http://wordpress.org/support/topic/elemental-problem-loading-loop
+		// Causes a logout loop if another plugin has logout hooks that redirect the page.
+		// I do not consider this a serious enough fix to justify seeking alternatives.
+		//if ( ! is_user_logged_in() )
+		//	wp_logout(); // Ensure logout (clears auth cookies for better security)
+
 		$this->oUsr = wp_get_current_user();
 	}
 
@@ -609,7 +614,7 @@ class Challonge_Plugin
 			$min = '.min';
 		else
 			$min = '';
-		wp_register_style( 'challonge.css', $this->sPluginUrl . 'challonge.css', array(), self::VERSION );
+		wp_register_style( 'challonge.css', $this->sPluginUrl . 'challonge.css', array( 'thickbox' ), self::VERSION );
 		wp_enqueue_style( 'challonge.css' );
 		wp_register_script( 'challonge.js', $this->sPluginUrl . 'challonge' . $min . '.js', array( 'jquery' ), self::VERSION );
 		wp_localize_script( 'challonge.js', 'challongeVar', array(

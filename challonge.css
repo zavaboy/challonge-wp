@@ -248,6 +248,12 @@ td.challonge-progress progress {
 #challonge-loginform #user_pass {
 	width: 80%;
 }
-#branding {
-	z-index: 103; /* Fix to prevent twentyeleven theme header from showing over thickbox. */
+
+/* A fix to prevent theme elements from showing over thickbox. */
+#TB_overlay,
+#TB_window {
+	z-index: 10510; /* Original TB z-index value + 10000 */
+}
+#TB_load {
+	z-index: 10103; /* Original TB z-index value + 10000 */
 }

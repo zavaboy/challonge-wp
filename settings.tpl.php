@@ -48,7 +48,7 @@ defined( 'ABSPATH' ) OR exit;
 				<td>
 					<label for="challonge-public_shortcode"><input type="checkbox" id="challonge-public_shortcode"
 						name="challonge_options[public_shortcode]" <?php checked($options['public_shortcode'], true) ?>/>
-					<?php _e('Embeded Challonge tournaments are publicly displayed by default.', Challonge_Plugin::TEXT_DOMAIN) ?></label><br />
+					<?php _e('Embedded Challonge tournaments are publicly displayed by default.', Challonge_Plugin::TEXT_DOMAIN) ?></label><br />
 					<label for="challonge-public_widget"><input type="checkbox" id="challonge-public_widget"
 						name="challonge_options[public_widget]" <?php checked($options['public_widget'], true) ?>/>
 					<?php _e('Challonge widgets are publicly displayed by default.', Challonge_Plugin::TEXT_DOMAIN) ?></label><br />
@@ -167,7 +167,7 @@ defined( 'ABSPATH' ) OR exit;
 					<?php _e('Disable score reporting; no participants may report a score.', Challonge_Plugin::TEXT_DOMAIN) ?></label><br /><br />
 					<label for="challonge-scoring_opponent"><input type="checkbox" id="challonge-scoring_opponent"
 						name="challonge_options[scoring_opponent]" <?php checked($options['scoring_opponent'], true) ?>/>
-					<?php _e('Participants report their oponents\' scores when reporting their own.', Challonge_Plugin::TEXT_DOMAIN) ?></label>
+					<?php _e('Participants report their opponents\' scores when reporting their own.', Challonge_Plugin::TEXT_DOMAIN) ?></label>
 				</td>
 			</tr>
 			<tr valign="top">
