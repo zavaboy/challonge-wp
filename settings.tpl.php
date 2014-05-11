@@ -18,13 +18,14 @@ defined( 'ABSPATH' ) OR exit;
 			<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 			<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 		</form>
-		<p><small><?php _e( 'If you like this plugin, please consider donating to show your appreciation.<br /><strong>Thank you!</strong>', Challonge_Plugin::TEXT_DOMAIN ); ?></small></p>
+		<p><small><?php _e( 'If you like this plugin, please consider donating to show your appreciation.<br /><strong>Thank you!</strong>', Challonge_Plugin::TEXT_DOMAIN ); ?><br /><a id="challonge-donate-hide" href="#"><?php _e( 'Hide', Challonge_Plugin::TEXT_DOMAIN ); ?></a></small></p>
+		
 	</div>
 	<h2><?php _e('Challonge', Challonge_Plugin::TEXT_DOMAIN) ?> <?php _e('Settings', Challonge_Plugin::TEXT_DOMAIN) ?></h2>
 	<p><?php _e('The only setup needed is your API key. Simple, right?', Challonge_Plugin::TEXT_DOMAIN) ?></p>
 	<form action="options.php" method="post">
 		<?php
-		settings_fields('challonge_options');
+		settings_fields( 'challonge_options' );
 		$options = $this->aOptions;
 		$user = wp_get_current_user();
 		?>

@@ -2,7 +2,7 @@
 Contributors: zavaboy
 Donate link: http://zavaboy.org/challonge-wordpress-plugin/
 Tags: plugin, widget, shortcode, api, integration, embed, events, games, tournaments, matches, Challonge, brackets
-Requires at least: 3.1
+Requires at least: 3.2
 Tested up to: 3.9
 Stable tag: trunk
 License: MIT License
@@ -21,6 +21,11 @@ Do you use [Challonge](http://challonge.com/ "Free online tournament management 
 * Participating users may report their own scores.
 * Includes role capabilities. You will need a role management plugin to change who has these capabilities.
 * Adjustable caching to speed up page load time.
+* Custom participant name templating.
+
+= Requirements =
+
+In order to use the API, you will need [cURL](http://www.php.net/manual/en/book.curl.php). Most PHP installations include cURL.
 
 = Latest Information =
 
@@ -124,8 +129,22 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 2. If no "url" attribute is set in your shortcode, a tournament listing will be displayed.
 3. Signing up to a tournament is easy.
 4. Reporting your score is also easy.
+5. Control things like how player names are defined and how scoring works in the settings page.
 
 == Changelog ==
+
+= 1.1.3 =
+* Increased CSS z-index for thickbox.
+* Added proper support for SSL verification.
+* The API key verification on the settings page will now catch response failures and display an error.
+* Added cURL detection to notify user if cURL is not installed.
+* Added a way to hide the donation box in case it gets in the way.
+* Changed default caching value to "0".
+* Added method to handle version update changes. (I didn't need it until now.)
+* Improved admin notice transient.
+* Added a screenshot of the settings page.
+* Increased minimum WordPress version requirement from 3.1 to 3.2.
+* Made additional minor changes.
 
 = 1.1.2 =
 * Fixed a few misspellings in the settings page.
@@ -186,6 +205,19 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.3 =
+Increased CSS z-index for thickbox.
+Added proper support for SSL verification.
+The API key verification on the settings page will now catch response failures and display an error.
+Added cURL detection to notify user if cURL is not installed.
+Added a way to hide the donation box in case it gets in the way.
+Changed default caching value to "0".
+Added method to handle version update changes. (I didn't need it until now.)
+Improved admin notice transient.
+Added a screenshot of the settings page.
+Increased minimum WordPress version requirement from 3.1 to 3.2.
+Made additional minor changes.
 
 = 1.1.2 =
 Fixed a few misspellings in the settings page.

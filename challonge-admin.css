@@ -84,6 +84,9 @@
 	float: left;
 	margin-right: 6px;
 }
+#challonge-donate-hide {
+	float: right;
+}
 .challonge-important {
 	color: red;
 	font-weight: bold;

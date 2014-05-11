@@ -10,8 +10,12 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.1.2';
+	const VERSION     = '1.1.3';
 	const TEXT_DOMAIN = 'challonge';
+
+	// TODO: Before release, minify JS and turn USE_MIN_JS on.
+	const USE_MIN_JS  = true; // Use minified/compressed (.min.js) JavaScript files?
+	const DEV_MODE    = false; // Development mode? (Use 'FORCE' instead of true to ignore hostname.)
 
 	protected $sPluginUrl;
 	protected $oUsr;
@@ -19,21 +23,24 @@ class Challonge_Plugin
 	protected $sApiKey;
 	protected $aOptions;
 	protected $aOptionsDefault = array(
-		'api_key'              => '',
+		'api_key'              => '', // API key used - always valid or empty
+		'api_key_input'        => '', // API key input value as submitted
 		'public_shortcode'     => false,
 		'public_widget'        => false,
 		'public_widget_signup' => false,
-		'enable_teams'         => false,
+		'enable_teams'         => false, // NOT USED
 		'participant_name'     => '%whatev% (%login%)',
 		'scoring'              => 'one',
 		'scoring_opponent'     => false,
-		'caching'              => 600,
+		'caching'              => 0,
 		'no_ssl_verify'        => false,
+		// TODO: Safely remove 'no_ssl_verify' in version 1.2
+		'VERSION'              => null,
+		'LAST_UPDATED_VER'     => null,
+		'LAST_UPDATED'         => null,
 	);
-	// TODO: Before release, minify JS and turn $bUseMinJs ON
-	protected $bUseMinJs = true;
 	protected $bIgnoreCached = false;
-	protected $bDevMode = false; // Development mode?
+	protected $sAdminPage; // Administration page name
 
 	static $oInstance;
 
@@ -88,6 +95,14 @@ class Challonge_Plugin
 	public function init()
 	{
 		$this->getOptions();
+		if ( Challonge_Plugin::VERSION != $this->aOptions['VERSION'] ) { // Needs updated?
+			if ( $this->updateVersion() && Challonge_Plugin::VERSION == $this->aOptions['VERSION'] ) // Got updated?
+				$this->addNotice( __( 'Challonge has been updated.', Challonge_Plugin::TEXT_DOMAIN ), 'updated', 'update-version' );
+			else
+				$this->addNotice( __( 'An error ocurred. Challonge could not update.', Challonge_Plugin::TEXT_DOMAIN ), 'error', 'update-version' );
+		}
+
+
 		$this->sApiKey = $this->aOptions['api_key'];
 		require_once( 'class-challonge-api-adapter.php' );
 		if ( $this->hasApiKey() ) {
@@ -106,7 +121,10 @@ class Challonge_Plugin
 
 	public function getOptions()
 	{
-		return $this->aOptions = wp_parse_args( get_option( 'challonge_options' ), $this->aOptionsDefault );
+		$aOptions = get_option( 'challonge_options' );
+		if ( empty( $aOptions ) )
+			$aOptions = array();
+		return $this->aOptions = wp_parse_args( $aOptions, $this->aOptionsDefault );
 	}
 
 	public function registerWidgets()
@@ -204,7 +222,6 @@ class Challonge_Plugin
 		$tbw = 750; // ThinkBox Width
 		$tbh = 550; // ThinkBox Height
 		$username = $this->getUsernameHtml();
-		$user_alt = 1;
 		if ( $usrkey && ! $signed_up && 'pending' == $tourny->state && 'true' == $tourny->{'open-signup'} ) {
 			$lnk = 'join';
 			$lnk_button = __( 'Signup', Challonge_Plugin::TEXT_DOMAIN );
@@ -221,10 +238,6 @@ class Challonge_Plugin
 					);
 				$hide_button = true;
 			} elseif ( '&infin;' == $signup_cap || (int) $tourny->{'participants-count'} < $signup_cap ) {
-				// Is username taken?
-				while ( in_array( $username, $participant_names ) ) {
-					$username = $this->oUsr->display_name . '_' . ( ++$user_alt );
-				}
 				if ( empty( $tourny->description ) )
 					$tbh = 300; // ThinkBox Height
 				$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'// . print_r(array(wp_get_current_user(),current_user_can('read')))
@@ -610,7 +623,7 @@ class Challonge_Plugin
 
 	public function loadAssets()
 	{
-		if ( $this->bUseMinJs )
+		if ( self::USE_MIN_JS )
 			$min = '.min';
 		else
 			$min = '';
@@ -629,7 +642,7 @@ class Challonge_Plugin
 
 	public function loadAssetsAdmin()
 	{
-		if ( $this->bUseMinJs )
+		if ( self::USE_MIN_JS )
 			$min = '.min';
 		else
 			$min = '';
@@ -649,6 +662,9 @@ class Challonge_Plugin
 		$this->bIgnoreCached = true; // AJAX requests never should use cached API data
 
 		header( 'Content-Type: application/json; charset=utf-8' );
+		if ( ! extension_loaded( 'curl' ) ) {
+			die( '{"errors":["API requests require cURL"]}' );
+		}
 		if ( isset( $_GET['api_key'] ) && preg_match( '/^[a-z0-9]{40}$/i', $_GET['api_key'] ) && current_user_can( 'manage_options' ) ) {
 			$apikey = $_GET['api_key'];
 
@@ -665,18 +681,22 @@ class Challonge_Plugin
 
 	public function menu()
 	{
-		add_options_page( 'Challonge', 'Challonge', 'manage_options', 'challonge-settings', array( $this, 'settings' ) );
+		$this->sAdminPage = add_options_page( 'Challonge', 'Challonge', 'manage_options', 'challonge-settings', array( $this, 'settings' ) );
 	}
 
 	public function initAdmin()
 	{
 		register_setting( 'challonge_options', 'challonge_options', array( $this, 'optionsValidate' ) );
 
+		if ( ! extension_loaded( 'curl' ) ) {
+			$this->addNotice( __( 'Challonge requires cURL to be enabled on your webserver. Please ask your server administrator or hosting provider to install cURL so you may use the Challonge API.', Challonge_Plugin::TEXT_DOMAIN ), 'error', 'no-curl' );
+		}
+
 		// BEGIN PLUGIN DEVELOPMENT STUFF
 		// If in Dev Mode and on localhost, throw some notices to help with development.
 		// This is for myself while developing so I remember what I need to complete before release.
 		// Yeah, I'm a lazy sod.
-		if ( ( $this->bDevMode && 'localhost' == $_SERVER['SERVER_NAME'] ) || 'FORCE' == $this->bDevMode ) {
+		if ( ( self::DEV_MODE && 'localhost' == $_SERVER['SERVER_NAME'] ) || 'FORCE' == self::DEV_MODE ) {
 			// Find TODO items
 			$todos = array();
 			$dir = dirname( __FILE__ );
@@ -697,10 +717,10 @@ class Challonge_Plugin
 			// Send admin notice if there are TODO items found
 			// If the plugin is released with TODO items, I have determined they should be completed in a later release.
 			if ( ! empty( $todos ) )
-				$this->addNotice('Found ' . count( $todos ) . ' TODO items:<br />' . implode( '<br />', $todos ) );
+				$this->addNotice('Found ' . count( $todos ) . ' TODO items:<br />' . implode( '<br />', $todos ), 'updated', 'todo-items-found' );
 			// Send admin notice if UseMinJS is OFF
-			if ( ! $this->bUseMinJs && $_SERVER['SERVER_NAME'] == 'localhost' )
-				$this->addNotice( Challonge_Plugin::NAME . ': UseMinJS is OFF!', 'error' );
+			if ( ! self::USE_MIN_JS && 'localhost' == $_SERVER['SERVER_NAME'] )
+				$this->addNotice( Challonge_Plugin::NAME . ': UseMinJS is OFF!', 'error', 'minjs-is-off' );
 		}
 		// END PLUGIN DEVELOPMENT STUFF
 	}
@@ -711,7 +731,7 @@ class Challonge_Plugin
 
 		// API Key
 		$options['api_key_input'] = preg_replace( '/[\W_]+/', '', $input['api_key'] );
-		if (40 == strlen( $options['api_key_input'] ) ) {
+		if (40 == strlen( $options['api_key_input'] ) && extension_loaded( 'curl' ) ) {
 			$c = new Challonge_Api( $options['api_key_input'] );
 			$c->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 			$t = $c->getTournaments( array( 'created_after' => date( 'Y-m-d', time() + 86400 ) ) );
@@ -740,12 +760,13 @@ class Challonge_Plugin
 		$options['caching'] = (int) $input['caching'];
 		if ( $input['caching_clear'] ) {
 			$this->clearCache();
-			$this->addNotice( __( 'The Challonge API cache was cleared.', Challonge_Plugin::TEXT_DOMAIN ) );
-			//die('foo');
+			$this->addNotice( __( 'The Challonge API cache was cleared.', Challonge_Plugin::TEXT_DOMAIN ), 'updated', 'cache-cleared' );
 		}
 
 		// Disable SSL verification
 		$options['no_ssl_verify'] = ! empty( $input['no_ssl_verify'] );
+
+		$options['LAST_UPDATED'] = time();
 
 		return $options;
 	}
@@ -775,19 +796,21 @@ class Challonge_Plugin
 		if ( $type != 'updated' && $type != 'error' && $type != 'updated-nag' )
 			$type = 'updated';
 		$notice = array( 'type' => $type, 'message' => $message );
-		$transient_data[ md5( serialize( $notice ) ) ] = $notice;
+		if ( empty( $id ) ) $id = md5( serialize( $notice ) );
+		$transient_data[ $id ] = $notice;
 		$transient_set = set_transient( $notice_transient, $transient_data, HOUR_IN_SECONDS );
 	}
 
 	public function adminNotice()
 	{
+		// Only show on the Challonge settings page
+		$screen = get_current_screen();
+		if ( $screen->id != $this->sAdminPage ) return;
+
+		// Use transients in case the request is redirected
 		$notice_transient = 'challonge_notices';
 		if ( false !== ( $transient_data = get_transient( $notice_transient ) ) ) {
-			$notices = array();
 			foreach ( $transient_data AS $notice ) {
-				$notices[ md5( serialize( $notice ) ) ] = $notice;
-			}
-			foreach ( $notices AS $notice ) {
 				echo '<div class="' . $notice['type'] . '"><p>' . $notice['message'] . '</p></div>';
 			}
 			delete_transient( $notice_transient );
@@ -879,5 +902,28 @@ class Challonge_Plugin
 
 	public function isCacheIgnored() {
 		return $this->bIgnoreCached;
+	}
+
+	public function updateVersion() {
+		$aOptions = get_option( 'challonge_options' );
+		if ( empty( $aOptions ) || ! is_array( $aOptions ) ) {
+			// Probably a new install
+			$aOptions = array();
+		} elseif ( ! isset( $aOptions['VERSION'] ) ) {
+			// Probably from a version prior to 1.1.3
+			if ( isset( $aOptions['no_ssl_verify'] ) && $aOptions['no_ssl_verify'] ) {
+				// SSL verification was finally fixed in version 1.1.3.
+				// Let's turn SSL verification ON for the user.
+				// They can always turn it back off if they need to. (for now)
+				$aOptions['no_ssl_verify'] = false; // Turn SSL verification ON
+			}
+		}
+		$aOptions['VERSION'] = Challonge_Plugin::VERSION;
+		$aOptions['LAST_UPDATED_VER'] = time();
+		if ( update_option( 'challonge_options', $aOptions ) ) {
+			$this->getOptions(); // Reload the options
+			return true;
+		}
+		return false;
 	}
 }

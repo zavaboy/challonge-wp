@@ -23,7 +23,12 @@ jQuery(document).ready( function ( $ ) {
 						}
 					} );
 				}
-			);
+			).fail( function () {
+				$('#challonge-apikey-check').fadeOut( 'fast', function () {
+					$('#challonge-apikey-errmsg').html('Sorry, an error occurred.');
+					$('#challonge-apikey-error').fadeIn('fast');
+				} );
+			} );
 		} else if ( apiKey ) {
 			$('#challonge-apikey-fail').fadeIn('fast');
 		}
@@ -40,4 +45,8 @@ jQuery(document).ready( function ( $ ) {
 			$(this).nextAll('td.userdata').text(userdata[key]);
 		} );
 	} ).change();
+	$('#challonge-donate-hide').click( function ( e ) {
+		$('#challonge-donate').fadeOut();
+		e.preventDefault();
+	} );
 } );

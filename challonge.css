@@ -252,8 +252,8 @@ td.challonge-progress progress {
 /* A fix to prevent theme elements from showing over thickbox. */
 #TB_overlay,
 #TB_window {
-	z-index: 10510; /* Original TB z-index value + 10000 */
+	z-index: 200100510; /* Original TB z-index value + 200100000 */
 }
 #TB_load {
-	z-index: 10103; /* Original TB z-index value + 10000 */
+	z-index: 200100103; /* Original TB z-index value + 200100000 */
 }

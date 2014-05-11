@@ -5,8 +5,8 @@
 /*
 Plugin Name: Challonge
 Plugin URI: http://wordpress.org/plugins/challonge
-Description: Integrates <a href="http://challonge.com/">Challonge</a>, a handy bracket generator, in WordPress.
-Version: 1.1.2
+Description: Integrates <a href="http://challonge.com/">Challonge</a>, a handy bracket generator, into WordPress.
+Version: 1.1.3
 Author: Ivik Injerd
 Author URI: http://zavaboy.org/
 License: MIT

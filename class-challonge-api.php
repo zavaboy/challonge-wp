@@ -5,6 +5,13 @@
   Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 */
 
+/*
+  Modifications have been made to this file by Ivik Injerd (zavaboy) for the Challonge WordPress plugin.
+
+  The original, unmodified version may be found at:
+  https://bitbucket.org/t27duck/challonge-php
+*/
+
 class Challonge_Api {
   // Attributes
   private $api_key;
@@ -49,7 +56,11 @@ class Challonge_Api {
     if (!$this->verify_ssl) {
       // WARNING: this would prevent curl from detecting a 'man in the middle' attack
       curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYHOST, 0);
-      curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYPEER, 0); 
+      curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYPEER, 0);
+    } else {
+      curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYHOST, 2);
+      curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYPEER, true);
+      curl_setopt ($curl_handle, CURLOPT_CAINFO, plugin_dir_path( __FILE__ ) . 'cacert.pem');
     }
     
     $curlheaders = array(); //array('Content-Type: text/xml','Accept: text/xml');
