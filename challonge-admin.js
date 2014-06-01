@@ -25,7 +25,7 @@ jQuery(document).ready( function ( $ ) {
 				}
 			).fail( function () {
 				$('#challonge-apikey-check').fadeOut( 'fast', function () {
-					$('#challonge-apikey-errmsg').html('Sorry, an error occurred.');
+					$('#challonge-apikey-errmsg').html(challongeVar.errorMsg);
 					$('#challonge-apikey-error').fadeIn('fast');
 				} );
 			} );

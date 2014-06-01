@@ -133,6 +133,11 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Changelog ==
 
+= 1.1.4-dev1 =
+* Added version information to settings page.
+* Made plugin translation ready.
+* Added version mismatch check to development notices.
+
 = 1.1.3 =
 * Increased CSS z-index for thickbox.
 * Added proper support for SSL verification.
@@ -205,6 +210,11 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.4-dev1 =
+Added version information to settings page.
+Made plugin translation ready.
+Added version mismatch check to development notices.
 
 = 1.1.3 =
 Increased CSS z-index for thickbox.

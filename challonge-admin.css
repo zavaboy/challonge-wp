@@ -87,6 +87,9 @@
 #challonge-donate-hide {
 	float: right;
 }
+#challonge-donate-ty {
+	font-size: 80%;
+}
 .challonge-important {
 	color: red;
 	font-weight: bold;
@@ -100,4 +103,8 @@
 }
 .challonge-widget-status_filter label.challonge-status_filter_awaiting_review {
 	width: 80%;
+}
+#challonge-version {
+	float: right;
+	color: #777;
 }

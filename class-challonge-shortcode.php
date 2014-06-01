@@ -162,8 +162,8 @@ class Challonge_Shortcode
 		}
 
 		// Denied?
-		if ( ( ! empty( $usr->ID ) && ! current_user_can( 'challonge_view' ) ) || ( empty( $usr->ID ) && empty( $options['public_shortcode'] ) ) ) {
-			if ( empty( $usr->ID ) ) {
+		if ( ( is_user_logged_in() && ! current_user_can( 'challonge_view' ) ) || ( ! is_user_logged_in() && empty( $options['public_shortcode'] ) ) ) {
+			if ( ! is_user_logged_in() ) {
 				$loginmessage = '<br />' . __( 'Please login to view this tournament.', Challonge_Plugin::TEXT_DOMAIN );
 			} else {
 				$loginmessage = '';
@@ -173,6 +173,9 @@ class Challonge_Shortcode
 					. '<div class="challonge-denied-message">'
 						. '<div class="challonge-denied-message-inner">'
 							. '<div class="challonge-denied-message-title">'
+								/* translators:
+									The phrase "sorry bro" should not be translated literally.
+								*/
 								. __( 'Sorry bro...', Challonge_Plugin::TEXT_DOMAIN )
 							. '</div>'
 							. '<div class="challonge-denied-message-description">'
@@ -209,7 +212,13 @@ class Challonge_Shortcode
 		// The result
 		return '<div id="challonge_embed_' . $id . '" class="challonge-embed"'
 			. $css . '>'
-			. '<div class="challonge-loading" title="' . __( 'Loading Challonge tournament...', Challonge_Plugin::TEXT_DOMAIN ) . '"></div>'
+			. '<div class="challonge-loading" title="' . sprintf(
+				/* translators:
+					%s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
+				*/
+				esc_attr__( 'Loading %s tournament...', Challonge_Plugin::TEXT_DOMAIN ),
+				Challonge_Plugin::THIRD_PARTY
+			) . '"></div>'
 			. '</div>'
 			. '<script>Challonge_jQuery(document).ready(function(){'
 			. 'Challonge_jQuery(\'#challonge_embed_' . $id . '\').challonge(\'' . $url . '\',' . $jsobj . ');'
@@ -224,7 +233,7 @@ class Challonge_Shortcode
 
 		// Denied?
 		if ( ( ! empty( $usr->ID ) && ! current_user_can( 'challonge_view' ) ) || ( empty( $usr->ID ) && empty( $options['public_shortcode'] ) ) ) {
-			return '<p><em>(' . __( 'no tournaments', Challonge_Plugin::TEXT_DOMAIN ) . ')</em></p>';
+			return '<p><em>' . __( '(no tournaments)', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
 		}
 
 		// No API Key?
@@ -309,7 +318,7 @@ class Challonge_Shortcode
 			}
 		}
 		if ( empty( $tournys ) ) {
-			return '<p><em>(' . __( 'no tournaments', Challonge_Plugin::TEXT_DOMAIN ) . ')</em></p>';
+			return '<p><em>' . __( '(no tournaments)', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
 		} else {
 			add_thickbox();
 			ksort( $tournys );

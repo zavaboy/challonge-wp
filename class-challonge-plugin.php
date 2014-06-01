@@ -10,12 +10,13 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.1.3';
+	const VERSION     = '1.1.4-dev1';
 	const TEXT_DOMAIN = 'challonge';
+	const THIRD_PARTY = 'Challonge.com'; // The name of the website this plugin interfaces with.
 
 	// TODO: Before release, minify JS and turn USE_MIN_JS on.
-	const USE_MIN_JS  = true; // Use minified/compressed (.min.js) JavaScript files?
-	const DEV_MODE    = false; // Development mode? (Use 'FORCE' instead of true to ignore hostname.)
+	const USE_MIN_JS  = false; // Use minified/compressed (.min.js) JavaScript files?
+	const DEV_MODE    = true; // Development mode? (Use 'FORCE' instead of true to ignore hostname.)
 
 	protected $sPluginUrl;
 	protected $oUsr;
@@ -94,28 +95,38 @@ class Challonge_Plugin
 
 	public function init()
 	{
+		// Localization!
+		load_plugin_textdomain( Challonge_Plugin::TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		// Load Options!
 		$this->getOptions();
+		// Update!
 		if ( Challonge_Plugin::VERSION != $this->aOptions['VERSION'] ) { // Needs updated?
 			if ( $this->updateVersion() && Challonge_Plugin::VERSION == $this->aOptions['VERSION'] ) // Got updated?
-				$this->addNotice( __( 'Challonge has been updated.', Challonge_Plugin::TEXT_DOMAIN ), 'updated', 'update-version' );
+				$this->addNotice( sprintf(
+					/* translators:
+						%s is the title of the plugin (hint: it will always be "Challonge")
+					*/
+					__( '%s has been updated.', Challonge_Plugin::TEXT_DOMAIN ),
+					Challonge_Plugin::TITLE ),
+				'updated', 'update-version' );
 			else
-				$this->addNotice( __( 'An error ocurred. Challonge could not update.', Challonge_Plugin::TEXT_DOMAIN ), 'error', 'update-version' );
+				$this->addNotice( sprintf(
+					/* translators:
+						%s is the title of the plugin (hint: it will always be "Challonge")
+					*/
+					__( 'An error ocurred. %s could not update.', Challonge_Plugin::TEXT_DOMAIN ),
+					Challonge_Plugin::TITLE ),
+				'error', 'update-version');
 		}
-
-
+		// Get API Key!
 		$this->sApiKey = $this->aOptions['api_key'];
+		// Initiate the API!
 		require_once( 'class-challonge-api-adapter.php' );
 		if ( $this->hasApiKey() ) {
 			$this->oApi = new Challonge_Api_Adapter( $this->sApiKey );
 			$this->oApi->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 		}
-
-		// http://wordpress.org/support/topic/elemental-problem-loading-loop
-		// Causes a logout loop if another plugin has logout hooks that redirect the page.
-		// I do not consider this a serious enough fix to justify seeking alternatives.
-		//if ( ! is_user_logged_in() )
-		//	wp_logout(); // Ensure logout (clears auth cookies for better security)
-
+		// Load the Current User!
 		$this->oUsr = wp_get_current_user();
 	}
 
@@ -240,7 +251,7 @@ class Challonge_Plugin
 			} elseif ( '&infin;' == $signup_cap || (int) $tourny->{'participants-count'} < $signup_cap ) {
 				if ( empty( $tourny->description ) )
 					$tbh = 300; // ThinkBox Height
-				$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'// . print_r(array(wp_get_current_user(),current_user_can('read')))
+				$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
 					. '<div>'
 						. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
 						. '<span class="challonge-tournyinfo">'
@@ -253,9 +264,12 @@ class Challonge_Plugin
 					. '<p>' . __( 'You will join as:', Challonge_Plugin::TEXT_DOMAIN )
 					. '<br /><span class="challonge-playername">' . $username . '</span></p>';
 				if ( ! $all_have_misc && 'both' == $this->aOptions['scoring'] )
-					$lnk_html .= '<p class="challonge-error">' . __( 'Warning: One or more participants in this tournament have not'
-						. ' signed up through this website. The host or an authorized Challonge user must report'
-						. ' the score for their matches.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
+					/* translators:
+						%s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
+					*/
+					$lnk_html .= '<p class="challonge-error">' . sprintf( __( 'Warning: One or more participants in this tournament have not'
+						. ' signed up through this website. The host or an authorized %s user must report'
+						. ' the score for their matches.', Challonge_Plugin::TEXT_DOMAIN ), Challonge_Plugin::THIRD_PARTY ) . '</p>';
 			} else {
 				$lnk_html = '<p>' . __( 'This tournament is full.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
 				$hide_button = true;
@@ -307,8 +321,21 @@ class Challonge_Plugin
 					}
 					$lnk_html = '<p>'
 						. sprintf(
-							__( 'Did you win against <strong>%s</strong> in <strong>Round %d</strong> of <strong>%s</strong>?', Challonge_Plugin::TEXT_DOMAIN ),
-							$opponent->name, $round, $tourny->name
+							/* translators:
+								%1$s is the name of the participant's opponent
+								%2$s is the name of the current round (see: "Round %d")
+								%3$s is the name of the tournament
+							*/
+							__( 'Did you win against %1$s in %2$s of %3$s?', Challonge_Plugin::TEXT_DOMAIN ),
+								'<strong>' . $opponent->name . '</strong>',
+								'<strong>' . sprintf(
+									/* translators:
+										%d is a number
+									*/
+									__( 'Round %d', Challonge_Plugin::TEXT_DOMAIN ),
+									$round
+								) . '</strong>',
+								'<strong>' . $tourny->name . '</strong>'
 							) . '</p>'
 						. '<form id="challonge-report">'
 							. '<table id="challonge-report-table"><tr class="challonge-wlt">'
@@ -326,7 +353,11 @@ class Challonge_Plugin
 							. '</tr>' . $scoring_row . '</table>'
 						. '</form>';
 				} else {
-					$lnk_html = '<p>' . sprintf( __( 'Your opponent, <strong>%s</strong>, did not sign up through this website. The host or an authorized Challonge user must report the score.', Challonge_Plugin::TEXT_DOMAIN ), $opponent->name ) . '</p>';
+					/* translators:
+						$1$s is the name of the participant's opponent
+						%2$s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
+					*/
+					$lnk_html = '<p>' . sprintf( __( 'Your opponent, %1$s, did not sign up through this website. The host or an authorized %2$s user must report the score.', Challonge_Plugin::TEXT_DOMAIN ), '<strong>' . $opponent->name . '</strong>', Challonge_Plugin::THIRD_PARTY ) . '</p>';
 					$hide_button = true;
 				}
 			} elseif ( $reported_scores ) {
@@ -412,7 +443,10 @@ class Challonge_Plugin
 				if ( is_user_logged_in() || $this->aOptions['public_shortcode'] ) {
 					die( 
 						'<div id="challonge_embed_tb" class="challonge-embed-tb">'
-						. '<div class="challonge-loading" title="' . __( 'Loading Challonge tournament...', Challonge_Plugin::TEXT_DOMAIN ) . '"></div>'
+						/* translators:
+							%s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
+						*/
+						. '<div class="challonge-loading" title="' . sprintf( esc_attr__( 'Loading %s tournament...', Challonge_Plugin::TEXT_DOMAIN ), Challonge_Plugin::THIRD_PARTY ) . '"></div>'
 						. '</div>'
 						. '<script>Challonge_jQuery(document).ready(function(){'
 						. 'Challonge_jQuery(\'#challonge_embed_tb\').challonge(\'' . $tourny->url . '\',{subdomain:\'' . $tourny->subdomain . '\'});'
@@ -450,12 +484,18 @@ class Challonge_Plugin
 					// Refresh lnk
 					$lnk = $this->widgetTournyLink( $tournyId );
 					die( '<p class="challonge-ok">'
-						. sprintf( __( 'You have joined <strong>%s</strong>.', Challonge_Plugin::TEXT_DOMAIN ), $lnk['tourny']->name )
+						/* translators:
+							%s is the name of the tournament
+						*/
+						. sprintf( __( 'You have joined %s.', Challonge_Plugin::TEXT_DOMAIN ), '<strong>' . $lnk['tourny']->name . '</strong>' )
 						. ' -- <a href="#done" onclick="tb_remove();return false;">' . __( 'Done', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>'
 						. '<div class="challonge-metahtml">' . $lnk['button_html'] . '</div>' );
 				} else {
 					die( '<p class="challonge-error">'
-						. sprintf( __( 'ERROR: You did not join <strong>%s</strong>.', Challonge_Plugin::TEXT_DOMAIN ), $lnk['tourny']->name )
+						/* translators:
+							%s is the name of the tournament
+						*/
+						. sprintf( __( 'ERROR: You did not join %s.', Challonge_Plugin::TEXT_DOMAIN ), '<strong>' . $lnk['tourny']->name . '</strong>' )
 						. ' -- <a href="#close" onclick="tb_remove();return false;">' . __( 'Close', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>' );
 				}
 				break;
@@ -465,12 +505,18 @@ class Challonge_Plugin
 					// Refresh lnk
 					$lnk = $this->widgetTournyLink( $tournyId );
 					die( '<p class="challonge-ok">'
-						. sprintf( __( 'You have forfeited <strong>%s</strong>.', Challonge_Plugin::TEXT_DOMAIN ), $lnk['tourny']->name )
+						/* translators:
+							%s is the name of the tournament
+						*/
+						. sprintf( __( 'You have forfeited %s.', Challonge_Plugin::TEXT_DOMAIN ), '<strong>' . $lnk['tourny']->name . '</strong>' )
 						. ' -- <a href="#done" onclick="tb_remove();return false;">' . __( 'Done', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>'
 						. '<div class="challonge-metahtml">' . $lnk['button_html'] . '</div>' );
 				} else {
 					die( '<p class="challonge-error">'
-						. sprintf( __( 'ERROR: You did not forfeit <strong>%s</strong>.', Challonge_Plugin::TEXT_DOMAIN ), $lnk['tourny']->name )
+						/* translators:
+							%s is the name of the tournament
+						*/
+						. sprintf( __( 'ERROR: You did not forfeit %s.', Challonge_Plugin::TEXT_DOMAIN ), '<strong>' . $lnk['tourny']->name . '</strong>' )
 						. ' -- <a href="#close" onclick="tb_remove();return false;">' . __( 'Close', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>' );
 				}
 				break;
@@ -650,6 +696,9 @@ class Challonge_Plugin
 		wp_enqueue_style( 'challonge.css' );
 		wp_register_script( 'challonge.js', $this->sPluginUrl . 'challonge-admin' . $min . '.js', array( 'jquery' ), self::VERSION );
 		wp_enqueue_script( 'challonge.js' );
+		wp_localize_script( 'challonge.js', 'challongeVar', array(
+			'errorMsg' => __( 'Sorry, an error occurred.', Challonge_Plugin::TEXT_DOMAIN ),
+		) );
 	}
 
 	public function hasApiKey()
@@ -681,7 +730,7 @@ class Challonge_Plugin
 
 	public function menu()
 	{
-		$this->sAdminPage = add_options_page( 'Challonge', 'Challonge', 'manage_options', 'challonge-settings', array( $this, 'settings' ) );
+		$this->sAdminPage = add_options_page( Challonge_Plugin::TITLE, Challonge_Plugin::TITLE, 'manage_options', 'challonge-settings', array( $this, 'settings' ) );
 	}
 
 	public function initAdmin()
@@ -689,38 +738,101 @@ class Challonge_Plugin
 		register_setting( 'challonge_options', 'challonge_options', array( $this, 'optionsValidate' ) );
 
 		if ( ! extension_loaded( 'curl' ) ) {
-			$this->addNotice( __( 'Challonge requires cURL to be enabled on your webserver. Please ask your server administrator or hosting provider to install cURL so you may use the Challonge API.', Challonge_Plugin::TEXT_DOMAIN ), 'error', 'no-curl' );
+			$this->addNotice( sprintf(
+				/* translators:
+					%1$s is the title of the plugin (hint: it will always be "Challonge")
+					%2$s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
+				*/
+				__( '%1$s requires cURL to be enabled on your webserver.'
+					. ' Please ask your server administrator or hosting provider to install cURL so you may use the %2$s API.',
+					Challonge_Plugin::TEXT_DOMAIN ),
+				Challonge_Plugin::TITLE,
+				Challonge_Plugin::THIRD_PARTY
+			), 'error', 'no-curl' );
 		}
 
 		// BEGIN PLUGIN DEVELOPMENT STUFF
-		// If in Dev Mode and on localhost, throw some notices to help with development.
+		// If in Dev Mode and on localhost (or dev version), throw some notices to help with development.
 		// This is for myself while developing so I remember what I need to complete before release.
 		// Yeah, I'm a lazy sod.
-		if ( ( self::DEV_MODE && 'localhost' == $_SERVER['SERVER_NAME'] ) || 'FORCE' == self::DEV_MODE ) {
+		if ( ( self::DEV_MODE && ( 'localhost' == $_SERVER['SERVER_NAME'] || false !== strpos( self::VERSION, 'dev' ) ) ) || 'FORCE' == self::DEV_MODE ) {
 			// Find TODO items
 			$todos = array();
+			$ver_1 = $ver_2 = $ver_3 = $ver_4 = array('','...');
 			$dir = dirname( __FILE__ );
 			if (is_dir($dir)) {
 				if ($dh = opendir($dir)) {
 					while (($file = readdir($dh)) !== false) {
-						if ( '.' != $file[0] ) {
+						if ( '.' != $file[0] && false !== strpos( $file, '.' ) ) {
 							$content = file( $dir . '/' . $file );
 							foreach ( $content AS $k => $v ) {
 								if ( strpos( $v, '// ' . 'TODO' ) !== false )
 									$todos[] = $file . ' at line ' . ( $k + 1 ) . ': <tt>' . htmlentities( trim( $v ) ) . '</tt>';
+							}
+							if ( basename( __FILE__ ) == $file ) {
+								foreach ( $content AS $k => $v ) {
+									if ( preg_match( '/const\s+VERSION\s*=\s*[\'"](.*)[\'"]\s*;/i', $v, $m ) )
+										$ver_2 = array(
+											trim( $m[1] ),
+											$file . ' at line ' . ( $k + 1 )
+												. ': <strong style="color:red">Version: ' . $m[1] . '</strong>',
+										);
+								}
+							} elseif ( 'challonge.php' == $file ) {
+								foreach ( $content AS $k => $v ) {
+									if ( preg_match( '/^Version:\s*(.*)$/i', $v, $m ) )
+										$ver_1 = array(
+											trim( $m[1] ),
+											$file . ' at line ' . ( $k + 1 )
+												. ': <strong style="color:red">Version: ' . $m[1] . '</strong>',
+										);
+								}
+							} elseif ( 'readme.txt' == $file ) {
+								$start1 = $start2 = false;
+								foreach ( $content AS $k => $v ) {
+									if ( strpos( $v, '== Changelog ==' ) !== false ) {
+										$start1 = true;
+									} elseif ( $start1 && preg_match( '/=\s*(.*)\s*=/i', $v, $m ) ) {
+										$ver_3 = array(
+											trim( $m[1] ),
+											$file . ' at line ' . ( $k + 1 )
+												. ': <strong style="color:red">(Changelog) Version: ' . $m[1] . '</strong>',
+										);
+										$start1 = false;
+									} elseif ( strpos( $v, '== Upgrade Notice ==' ) !== false ) {
+										$start2 = true;
+									} elseif ( $start2 && preg_match( '/=\s*(.*)\s*=/i', $v, $m ) ) {
+										$ver_4 = array(
+											trim( $m[1] ),
+											$file . ' at line ' . ( $k + 1 )
+												. ': <strong style="color:red">(Upgrade Notice) Version: ' . $m[1] . '</strong>',
+										);
+										$start2 = false;
+									}
+								}
 							}
 						}
 					}
 					closedir($dh);
 				}
 			}
+			if ( $ver_1[0] != $ver_2[0] || $ver_1[0] != $ver_3[0] || $ver_1[0] != $ver_4[0] ) {
+				$this->addNotice( '<strong style="color:red">VERSION MISMATCH!</strong>'
+					. '<br />' . $ver_1[1]
+					. '<br />' . $ver_2[1]
+					. '<br />' . $ver_3[1]
+					. '<br />' . $ver_4[1]
+					, 'error', 'version-info' );
+			} else {
+				$this->addNotice( '<strong style="color:green">VERSION: ' . $ver_1[0] . '</strong>', 'updated', 'version-info' );
+			}
 			// Send admin notice if there are TODO items found
 			// If the plugin is released with TODO items, I have determined they should be completed in a later release.
 			if ( ! empty( $todos ) )
 				$this->addNotice('Found ' . count( $todos ) . ' TODO items:<br />' . implode( '<br />', $todos ), 'updated', 'todo-items-found' );
 			// Send admin notice if UseMinJS is OFF
-			if ( ! self::USE_MIN_JS && 'localhost' == $_SERVER['SERVER_NAME'] )
-				$this->addNotice( Challonge_Plugin::NAME . ': UseMinJS is OFF!', 'error', 'minjs-is-off' );
+			if ( ! self::USE_MIN_JS )
+				$this->addNotice( Challonge_Plugin::NAME . ': USE_MIN_JS is OFF!', 'error', 'minjs-is-off' );
 		}
 		// END PLUGIN DEVELOPMENT STUFF
 	}

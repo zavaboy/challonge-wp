@@ -212,7 +212,7 @@ class Challonge_Widget extends WP_Widget
 			}
 		}
 		if ( empty( $tournys ) ) {
-			$ret = '<p><em>(' . __( 'no tournaments', Challonge_Plugin::TEXT_DOMAIN ) . ')</em></p>';
+			$ret = '<p><em>' . __( '(no tournaments)', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
 		} else {
 			add_thickbox();
 			ksort( $tournys );
