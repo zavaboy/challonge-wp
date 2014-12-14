@@ -1,11 +1,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Challonge 1.1.4\n"
-"POT-Creation-Date: 2014-12-14 15:32-0500\n"
-"PO-Revision-Date: 2014-12-14 15:32-0500\n"
+"POT-Creation-Date: 2014-12-12 23:14-0500\n"
+"PO-Revision-Date: 2014-12-12 23:15-0500\n"
 "Last-Translator: Ivik Injerd <zavaboy@gmail.com>\n"
-"Language-Team: Ivik Injerd <zavaboy@gmail.com>\n"
-"Language: en_US\n"
+"Language-Team: Andrew Kurtis <andrewk@webhostinghub.com>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -46,15 +46,15 @@ msgstr ""
 #: ../class-challonge-plugin.php:588 ../class-challonge-plugin.php:609
 #: ../class-challonge-plugin.php:752
 msgid "Close"
-msgstr ""
+msgstr "Cerrado"
 
 #: ../class-challonge-ajax.php:172 ../class-challonge-plugin.php:429
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelado"
 
 #: ../class-challonge-ajax.php:178 ../class-challonge-plugin.php:435
 msgid "ERROR: No tournament actions available."
-msgstr ""
+msgstr "ERROR: No hay acciones de torneo disponibles."
 
 #. translators:
 #. %s is the title of the plugin (hint: it will always be "Challonge")
@@ -62,7 +62,7 @@ msgstr ""
 #: ../class-challonge-plugin.php:114
 #, php-format
 msgid "%s has been updated."
-msgstr ""
+msgstr "%s ha sido actualizado."
 
 #. translators:
 #. %s is the title of the plugin (hint: it will always be "Challonge")
@@ -70,23 +70,23 @@ msgstr ""
 #: ../class-challonge-plugin.php:122
 #, php-format
 msgid "An error ocurred. %s could not update."
-msgstr ""
+msgstr "Ocurrió un error. %s no se pudo actualizar."
 
 #: ../class-challonge-plugin.php:284
 msgid "Signup"
-msgstr ""
+msgstr "Regístrese"
 
 #: ../class-challonge-plugin.php:288
 msgid "You must be logged in to sign up to tournaments."
-msgstr ""
+msgstr "Debe estar registrado para inscribirse a los torneos."
 
 #: ../class-challonge-plugin.php:300
 msgid "Signup to the following tournament?"
-msgstr ""
+msgstr "¿Suscribirse al siguiente torneo?"
 
 #: ../class-challonge-plugin.php:305
 msgid "You will join as:"
-msgstr ""
+msgstr "Usted se unirá como:"
 
 #. translators:
 #. %s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
@@ -98,18 +98,21 @@ msgid ""
 "through this website. The host or an authorized %s user must report the "
 "score for their matches."
 msgstr ""
+"Advertencia: Uno o más participantes en este torneo no se han inscrito a "
+"través de este sitio web. El anfitrión o usuario autorizado %s debe informar "
+"la puntuación de sus partidos."
 
 #: ../class-challonge-plugin.php:315
 msgid "This tournament is full."
-msgstr ""
+msgstr "El torneo está completo."
 
 #: ../class-challonge-plugin.php:320
 msgid "Forfeit"
-msgstr ""
+msgstr "Perder"
 
 #: ../class-challonge-plugin.php:323
 msgid "Forfeit the following tournament?"
-msgstr ""
+msgstr "¿Desea perder el siguiente torneo?"
 
 #: ../class-challonge-plugin.php:329
 msgid "Check In"
@@ -121,15 +124,15 @@ msgstr ""
 
 #: ../class-challonge-plugin.php:338
 msgid "Report"
-msgstr ""
+msgstr "Reportar"
 
 #: ../class-challonge-plugin.php:349
 msgid "What was your score?"
-msgstr ""
+msgstr "¿Cuál fue su puntuación?"
 
 #: ../class-challonge-plugin.php:355
 msgid "What was your opponent's score?"
-msgstr ""
+msgstr "¿Cuál fue la puntuación de su oponente?"
 
 #. translators:
 #. %1$s is the name of the participant's opponent
@@ -139,7 +142,7 @@ msgstr ""
 #: ../class-challonge-plugin.php:373
 #, php-format
 msgid "Did you win against %1$s in %2$s of %3$s?"
-msgstr ""
+msgstr "¿Ganó contra %1$s en la %2$s de %3$s?"
 
 #. translators:
 #. %d is a number
@@ -147,19 +150,19 @@ msgstr ""
 #: ../class-challonge-plugin.php:379
 #, php-format
 msgid "Round %d"
-msgstr ""
+msgstr "Ronda %d"
 
 #: ../class-challonge-plugin.php:388
 msgid "Won"
-msgstr ""
+msgstr "Ganados"
 
 #: ../class-challonge-plugin.php:391
 msgid "Lost"
-msgstr ""
+msgstr "Perdidos"
 
 #: ../class-challonge-plugin.php:395
 msgid "Tied"
-msgstr ""
+msgstr "Empatados"
 
 #. translators:
 #. $1$s is the name of the participant's opponent
@@ -171,35 +174,39 @@ msgid ""
 "Your opponent, %1$s, did not sign up through this website. The host or an "
 "authorized %2$s user must report the score."
 msgstr ""
+"Su oponente, %1$s, no se inscribió a través de este sitio web. El anfitrión "
+"o un usuario autorizado %2$s debe reportar la puntuación."
 
 #: ../class-challonge-plugin.php:408
 msgid ""
 "You have already reported your score for this round. Please wait for the "
 "round to end."
 msgstr ""
+"Acaba de informar su puntuación para esa ronda. Por favor espere a que la "
+"ronda finalice."
 
 #: ../class-challonge-plugin.php:411
 msgid "You are not included in this round."
-msgstr ""
+msgstr "Usted no está incluido en esta ronda."
 
 #: ../class-challonge-plugin.php:466 ../class-challonge-plugin.php:470
 #: ../class-challonge-shortcode.php:240 ../class-challonge-shortcode.php:244
 #: ../class-challonge-widget.php:170 ../class-challonge-widget.php:174
 msgid "No API Key!"
-msgstr ""
+msgstr "¡No hay clave de API!"
 
 #: ../class-challonge-plugin.php:468 ../class-challonge-shortcode.php:242
 #: ../class-challonge-widget.php:172
 msgid "Set one."
-msgstr ""
+msgstr "Establecer una."
 
 #: ../class-challonge-plugin.php:479
 msgid "ERROR: No tournament defined."
-msgstr ""
+msgstr "ERROR: No hay torneo definido."
 
 #: ../class-challonge-plugin.php:483
 msgid "ERROR: Invalid tournament."
-msgstr ""
+msgstr "ERROR: Torneo Inválido."
 
 #. translators:
 #. %s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
@@ -207,22 +214,22 @@ msgstr ""
 #: ../class-challonge-plugin.php:494 ../class-challonge-shortcode.php:217
 #, php-format
 msgid "Loading %s tournament..."
-msgstr ""
+msgstr "Cargando torneo %s..."
 
 #. translators:
 #. The phrase "sorry bro" should not be translated literally.
 #.
 #: ../class-challonge-plugin.php:507 ../class-challonge-shortcode.php:177
 msgid "Sorry bro..."
-msgstr ""
+msgstr "Lo sentimos hermano..."
 
 #: ../class-challonge-plugin.php:510 ../class-challonge-shortcode.php:180
 msgid "You do not have permission to view this tournament."
-msgstr ""
+msgstr "Usted no tiene permiso para ver este torneo."
 
 #: ../class-challonge-plugin.php:511 ../class-challonge-shortcode.php:165
 msgid "Please login to view this tournament."
-msgstr ""
+msgstr "Inicie su sesión para ver este torneo."
 
 #. translators:
 #. %s is the name of the tournament
@@ -230,13 +237,13 @@ msgstr ""
 #: ../class-challonge-plugin.php:537
 #, php-format
 msgid "You have joined %s."
-msgstr ""
+msgstr "Se ha unido a %s."
 
 #: ../class-challonge-plugin.php:538 ../class-challonge-plugin.php:559
 #: ../class-challonge-plugin.php:580 ../class-challonge-plugin.php:604
 #: ../class-challonge-shortcode.php:275
 msgid "Done"
-msgstr ""
+msgstr "¡Listo!"
 
 #. translators:
 #. %s is the name of the tournament
@@ -244,7 +251,7 @@ msgstr ""
 #: ../class-challonge-plugin.php:545
 #, php-format
 msgid "ERROR: You did not join %s."
-msgstr ""
+msgstr "ERROR: Usted no se inscribió en %s."
 
 #. translators:
 #. %s is the name of the tournament
@@ -252,7 +259,7 @@ msgstr ""
 #: ../class-challonge-plugin.php:558
 #, php-format
 msgid "You have forfeited %s."
-msgstr ""
+msgstr "Ha perdido %s."
 
 #. translators:
 #. %s is the name of the tournament
@@ -260,7 +267,7 @@ msgstr ""
 #: ../class-challonge-plugin.php:566
 #, php-format
 msgid "ERROR: You did not forfeit %s."
-msgstr ""
+msgstr "ERROR: No ha perdido %s."
 
 #. translators:
 #. %s is the name of the tournament
@@ -280,56 +287,56 @@ msgstr ""
 
 #: ../class-challonge-plugin.php:597
 msgid "Invalid request"
-msgstr ""
+msgstr "Petición no válida"
 
 #: ../class-challonge-plugin.php:603
 msgid "You have reported your score."
-msgstr ""
+msgstr "Usted ha reportado su puntuación."
 
 #: ../class-challonge-plugin.php:608
 #, php-format
 msgid "Your score was not reported. Reason: %s"
-msgstr ""
+msgstr "Su puntuación no ha sido reportada. Razón: %s"
 
 #: ../class-challonge-plugin.php:621
 msgid "Scoring disabled"
-msgstr ""
+msgstr "Puntuación deshabilitada"
 
 #: ../class-challonge-plugin.php:626
 msgid "Invalid W/L status"
-msgstr ""
+msgstr "Estado de W/L inválido"
 
 #: ../class-challonge-plugin.php:638
 msgid "Invalid opponent"
-msgstr ""
+msgstr "Oponente inválido"
 
 #: ../class-challonge-plugin.php:646
 msgid "Opponent W/L/T disagreement"
-msgstr ""
+msgstr "Rival W/L/T en desacuerdo"
 
 #: ../class-challonge-plugin.php:649
 msgid "Opponent score disagreement"
-msgstr ""
+msgstr "Puntuación del oponente en desacuerdo"
 
 #: ../class-challonge-plugin.php:656
 msgid "Unable to clear opponent report"
-msgstr ""
+msgstr "Imposible  limpiar el reporte del oponente"
 
 #: ../class-challonge-plugin.php:663
 msgid "Unable to set your report"
-msgstr ""
+msgstr "Imposible cambiar su reporte"
 
 #: ../class-challonge-plugin.php:688
 msgid "Unable to update match"
-msgstr ""
+msgstr "Imposible actualizar el partido"
 
 #: ../class-challonge-plugin.php:750
 msgid "Please select if you Won, Lost, or Tied."
-msgstr ""
+msgstr "Por favor seleccione si usted Ganó, Perdió, o Empató."
 
 #: ../class-challonge-plugin.php:751 ../class-challonge-plugin.php:770
 msgid "Sorry, an error occurred."
-msgstr ""
+msgstr "Lo sentimos, ocurrió un error."
 
 #. translators:
 #. %1$s is the title of the plugin (hint: it will always be "Challonge")
@@ -342,14 +349,17 @@ msgid ""
 "administrator or hosting provider to install cURL so you may use the %2$s "
 "API."
 msgstr ""
+"%1$s requiere que  cURL esté habilitado en su servidor web. Pregunte al "
+"administrador del servidor o al proveedor de hosting para instalar cURL para "
+"que pueda utilizar el API %2$s."
 
 #: ../class-challonge-plugin.php:973
 msgid "The Challonge API cache was cleared."
-msgstr ""
+msgstr "La caché de API de Challonge fue limpiada."
 
 #: ../class-challonge-plugin.php:987
 msgid "You do not have sufficient permissions to access this page."
-msgstr ""
+msgstr "Usted no tiene suficientes permisos para acceder a esta página."
 
 #: ../class-challonge-plugin.php:1059
 msgid "type here"
@@ -358,7 +368,7 @@ msgstr ""
 #: ../class-challonge-shortcode.php:234 ../class-challonge-shortcode.php:323
 #: ../class-challonge-widget.php:217
 msgid "(no tournaments)"
-msgstr ""
+msgstr "(no hay torneos)"
 
 #: ../class-challonge-shortcode.php:320 ../class-challonge-widget.php:215
 msgid "Sorry, the tournament listing is unavailable. Please try again later."
@@ -366,60 +376,63 @@ msgstr ""
 
 #: ../class-challonge-shortcode.php:328
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #: ../class-challonge-shortcode.php:329
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: ../class-challonge-shortcode.php:330 ../settings.tpl.php:71
 msgid "Participants"
-msgstr ""
+msgstr "Participantes"
 
 #: ../class-challonge-shortcode.php:331
 msgid "Created On"
-msgstr ""
+msgstr "Creado En"
 
 #: ../class-challonge-shortcode.php:332
 msgid "Progress"
-msgstr ""
+msgstr "Progreso"
 
 #: ../class-challonge-widget.php:30
 msgid "List in-progress tournaments and signups for unstarted tournaments."
 msgstr ""
+"Lista de torneos en curso y suscripciones para los torneos sin empezar."
 
 #: ../class-challonge-widget.php:71
 msgid "Title:"
-msgstr ""
+msgstr "Título:"
 
 #: ../class-challonge-widget.php:75
 msgid "Subdomain:"
-msgstr ""
+msgstr "Sub-dominio:"
 
 #: ../class-challonge-widget.php:79
 msgid "Tournament Filter:"
-msgstr ""
+msgstr "Filtro del Torneo:"
 
 #: ../class-challonge-widget.php:83
 msgid "Status Filter:"
-msgstr ""
+msgstr "Estado del filtro:"
 
 #: ../class-challonge-widget.php:94
 msgid "Max tournaments listed:"
-msgstr ""
+msgstr "Torneos máximos listados:"
 
 #: ../settings.tpl.php:21
 msgid ""
 "If you like this plugin, please consider donating to show your appreciation."
 msgstr ""
+"Si le gusta este plugin, por favor considere hacer una donación para mostrar "
+"su agradecimiento."
 
 #: ../settings.tpl.php:22
 msgid "Thank you!"
-msgstr ""
+msgstr "¡Gracias!"
 
 #: ../settings.tpl.php:23
 msgid "Hide"
-msgstr ""
+msgstr "Ocultar "
 
 #. translators:
 #. %s is the title of the plugin (hint: it will always be "Challonge")
@@ -427,131 +440,137 @@ msgstr ""
 #: ../settings.tpl.php:31
 #, php-format
 msgid "%s Settings"
-msgstr ""
+msgstr "%s Configuraciones"
 
 #: ../settings.tpl.php:34
 msgid "The only setup needed is your API key. Simple, right?"
-msgstr ""
+msgstr "La única configuración necesaria es la clave de API. Sencillo, ¿no?"
 
 #: ../settings.tpl.php:43
 msgid "API Key"
-msgstr ""
+msgstr "Clave de API"
 
 #: ../settings.tpl.php:47
 msgid "Verifying..."
-msgstr ""
+msgstr "Verificando..."
 
 #: ../settings.tpl.php:48
 msgid "Valid"
-msgstr ""
+msgstr "Válido"
 
 #: ../settings.tpl.php:49
 msgid "Invalid"
-msgstr ""
+msgstr "Inválido"
 
 #: ../settings.tpl.php:52
 msgid "Don't have an API key?"
-msgstr ""
+msgstr "¿No tiene una clave de API?"
 
 #: ../settings.tpl.php:53
 msgid "Get one."
-msgstr ""
+msgstr "Obtener una."
 
 #: ../settings.tpl.php:57
 msgid "Privacy"
-msgstr ""
+msgstr "Privacidad"
 
 #: ../settings.tpl.php:61
 msgid "Embedded Challonge tournaments are publicly displayed by default."
-msgstr ""
+msgstr "Los Torneos Challonge Embedded se muestran públicamente por defecto."
 
 #: ../settings.tpl.php:64
 msgid "Challonge widgets are publicly displayed by default."
-msgstr ""
+msgstr "Los Widgets Challonge se muestran públicamente por defecto."
 
 #: ../settings.tpl.php:67
 msgid ""
 "The Signup buttons in the widget are publicly displayed. (The user will be "
 "asked to login before signing up to a tournament.)"
 msgstr ""
+"Los botones Registrar en el widget se muestran públicamente. (Se le pedirá "
+"al usuario iniciar sesión antes de inscribirse a un torneo.)"
 
 #: ../settings.tpl.php:73
 msgid "Use the following template for participant names:"
-msgstr ""
+msgstr "Utilice la siguiente plantilla para los nombres de los participantes:"
 
 #: ../settings.tpl.php:76
 msgid "Show me all of the available tokens!"
-msgstr ""
+msgstr "¡Muéstreme todas las fichas disponibles!"
 
 #: ../settings.tpl.php:78
 msgid "Here are all of the tokens you may use:"
-msgstr ""
+msgstr "Aquí están todas las fichas que puede utilizar:"
 
 #: ../settings.tpl.php:82
 msgid "Token"
-msgstr ""
+msgstr "Ficha"
 
 #: ../settings.tpl.php:83
 msgid "Description"
-msgstr ""
+msgstr "Descripción"
 
 #: ../settings.tpl.php:109
 msgid "User ID"
-msgstr ""
+msgstr "ID del Usuario"
 
 #: ../settings.tpl.php:114
 msgid "Username"
-msgstr ""
+msgstr "Nombre de Usuario"
 
 #: ../settings.tpl.php:119
 msgid "Username without funk"
-msgstr ""
+msgstr "Nombre de Usuario normalizado"
 
 #: ../settings.tpl.php:124
 msgid "First Name"
-msgstr ""
+msgstr "Nombre"
 
 #: ../settings.tpl.php:129
 msgid "Last Name"
-msgstr ""
+msgstr "Apellido"
 
 #: ../settings.tpl.php:134
 msgid "Nickname"
-msgstr ""
+msgstr "Apodo"
 
 #: ../settings.tpl.php:139
 msgid "Display Name"
-msgstr ""
+msgstr "Nombre a Mostrar "
 
 #: ../settings.tpl.php:144
 msgid "User Role"
-msgstr ""
+msgstr "Rol de Usuario"
 
 #: ../settings.tpl.php:149
 msgid "Custom input field"
-msgstr ""
+msgstr "Campo de entrada personalizado"
 
 #: ../settings.tpl.php:150
 msgid "example"
-msgstr ""
+msgstr "ejemplo"
 
 #: ../settings.tpl.php:154
 msgid "Custom input field with set width"
-msgstr ""
+msgstr "Campo de entrada personalizado con el ancho establecido"
 
 #: ../settings.tpl.php:163
 msgid "Scoring"
-msgstr ""
+msgstr "Puntuación"
 
 #: ../settings.tpl.php:171
 #, php-format
 msgid ""
 "Remember, you can always correct any reported scores with your %s account."
 msgstr ""
+"Recuerde, usted siempre puede corregir cualquier puntaje reportado con su "
+"cuenta %s."
 
 #: ../settings.tpl.php:179
 msgid "Both participants must report a score and both reports must agree."
 msgstr ""
+"Ambos participantes deben informar la puntuación y ambos informes deben "
+"estar de acuerdo."
 
 #: ../settings.tpl.php:188
 #, php-format
@@ -559,43 +578,55 @@ msgid ""
 "A participant may report the score if they were matched with an opponent "
 "that has signed up by other means. (eg: via %s)"
 msgstr ""
+"Un participante podrá reportar la puntuación si se emparejó con un oponente "
+"que se ha logueado por otros medios. (por ejemplo: a través de %s)"
 
 #: ../settings.tpl.php:196
 msgid "Either participant may report the score."
-msgstr ""
+msgstr "Cualquiera de los participantes puede reportar la puntuación."
 
 #: ../settings.tpl.php:199
 msgid "Disable score reporting; no participants may report a score."
 msgstr ""
+"Deshabilitar informe de la puntuación; ningún participante puede reportar "
+"una puntuación."
 
 #: ../settings.tpl.php:202
 msgid "Participants report their opponents' scores when reporting their own."
 msgstr ""
+"Los participantes reportaron las puntuaciones de los oponentes al reportar "
+"la suya."
 
 #: ../settings.tpl.php:206
 msgid "Caching"
-msgstr ""
+msgstr "Caching"
 
 #: ../settings.tpl.php:213
 #, php-format
 msgid ""
 "Cache API responses for %s seconds. (Set this to \"0\" to disable caching.)"
 msgstr ""
+"Las respuestas del API de caché para %s segundos. (Asigne \"0\" para "
+"desactivar el almacenamiento en caché.)"
 
 #: ../settings.tpl.php:220
 msgid "Clear any cached API responses when I click save."
 msgstr ""
+"Elimine cualquiera de las respuestas del API en caché cuando haga clic en "
+"guardar."
 
 #: ../settings.tpl.php:224
 msgid "Security"
-msgstr ""
+msgstr "Seguridad"
 
 #: ../settings.tpl.php:228
 msgid "Disable SSL verification."
-msgstr ""
+msgstr "Deshabilitar verificación SSL"
 
 #: ../settings.tpl.php:229
 msgid ""
 "Disabling SSL verification is a security risk. This may be, however, a way "
 "around SSL errors if you are getting them."
 msgstr ""
+"Desactivar la verificación SSL es un riesgo de seguridad. Esto puede ser, "
+"sin embargo, una forma de evitar errores SSL si se beneficia de ellos."

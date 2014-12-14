@@ -6,9 +6,11 @@
 Plugin Name: Challonge
 Plugin URI: http://wordpress.org/plugins/challonge
 Description: Integrates <a href="http://challonge.com/">Challonge</a>, a handy bracket generator, into WordPress.
-Version: 1.1.4-dev1
+Version: 1.1.4
 Author: Ivik Injerd
 Author URI: http://zavaboy.org/
+Text Domain: Challonge
+Domain Path: /languages/
 License: MIT
 */
 
@@ -39,10 +41,10 @@ THE SOFTWARE.
 /*
 3rd Party Software included in this package:
 
-File: class-challonge-api.php
-challonge-php 1.0.0
+File: t27duck-challonge-php/challonge.class.php
+challonge-php 1.0.1
 https://bitbucket.org/t27duck/challonge-php
-(c) 2011 Tony Drake
+(c) 2014 Tony Drake
 License: MIT
 License URL: http://www.opensource.org/licenses/mit-license.php
 

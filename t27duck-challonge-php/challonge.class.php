@@ -1,18 +1,11 @@
 <?php
 /*
-  challonge-php v1.0.0 - A PHP API wrapper class for Challonge! (http://challonge.com)
-  (c) 2011 Tony Drake - www.t27duck.com - t27duck@gmail.com
+  challonge-php v1.0.1 - A PHP API wrapper class for Challonge! (http://challonge.com)
+  (c) 2014 Tony Drake
   Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
 */
 
-/*
-  Modifications have been made to this file by Ivik Injerd (zavaboy) for the Challonge WordPress plugin.
-
-  The original, unmodified version may be found at:
-  https://bitbucket.org/t27duck/challonge-php
-*/
-
-class Challonge_Api {
+class ChallongeAPI {
   // Attributes
   private $api_key;
   public $errors = array();
@@ -46,7 +39,7 @@ class Challonge_Api {
     $params['api_key'] = $this->api_key;
     
     // Build the URL that'll be hit. If the request is GET, params will be appended later
-    $call_url = "https://api.challonge.com/v1/".$path.'.xml';
+    $call_url = "https://challonge.com/api/v1/".$path.'.xml';
     
     $curl_handle=curl_init();
     // Common settings
@@ -56,11 +49,7 @@ class Challonge_Api {
     if (!$this->verify_ssl) {
       // WARNING: this would prevent curl from detecting a 'man in the middle' attack
       curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYHOST, 0);
-      curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYPEER, 0);
-    } else {
-      curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYHOST, 2);
-      curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYPEER, true);
-      curl_setopt ($curl_handle, CURLOPT_CAINFO, plugin_dir_path( __FILE__ ) . 'cacert.pem');
+      curl_setopt ($curl_handle, CURLOPT_SSL_VERIFYPEER, 0); 
     }
     
     $curlheaders = array(); //array('Content-Type: text/xml','Accept: text/xml');

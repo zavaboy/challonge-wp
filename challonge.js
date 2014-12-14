@@ -52,7 +52,13 @@ jQuery(document).ready(function ( $ ) {
 						$('.challonge-tournyid-'+lnkTourny).filter(':first').replaceWith( $metaHtml.html() );
 				} );
 			}
-		);
+		).fail( function () {
+			$lnkConfirm.finish().hide().html(
+				'<p class="challonge-error">' + challongeVar.errorMsg
+					+ ' -- <a href="#close" onclick="tb_remove();return false;">'
+					+ challongeVar.closeMsg + '</a></p>'
+			).fadeIn('slow');
+		} );
 	} ).on( 'submit', '#challonge-loginform', function ( e ) {
 		var $redirect = $( this ).find('input[name="redirect_to"]');
 		var idx = $redirect.val().indexOf('challonge_signup=');
@@ -63,8 +69,23 @@ jQuery(document).ready(function ( $ ) {
 		var tournyid = window.location.search.substr( idx + 17 );
 		if ( tournyid.indexOf('&') != -1 )
 			tournyid = tournyid.substr( 0, tournyid.indexOf('&') );
-		setTimeout( "jQuery('.challonge-button.thickbox.challonge-tournyid-" + tournyid + "').get(0).click();", 1000 );
+		setTimeout( "Challonge_jQuery('.challonge-button.thickbox.challonge-tournyid-" + tournyid + "').get(0).click();", 1000 );
 	}
+	var onResize = function () {
+		var $win = $(this);
+		var winW = $win.width()-80;
+		var winH = $win.height()-80;
+		var rex = /(\?action=challonge_widget&width)=\d+(&height)=\d+\b(.*&lnk_action=view)$/;
+		$('a.thickbox').each( function () {
+			var $this = $(this);
+			var href = $this.attr('href');
+			var newHref = href.replace( rex, '$1=' + winW + '$2=' + winH + '$3' );
+			if ( href != newHref )
+				$this.attr( 'href', newHref );
+		} );
+	};
+	$(window).resize( onResize );
+	setTimeout( onResize, 10 );
 } );
 
 // Our own jQuery variable that points to WP's own copy of jQuery. We shouldn't lose this. ;)

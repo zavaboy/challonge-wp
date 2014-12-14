@@ -3,6 +3,8 @@
  * @package Challonge
  */
 
+// TODO: Move widget content methods to a separate class.
+
 // Exit on direct request.
 defined( 'ABSPATH' ) OR exit;
 
@@ -10,13 +12,13 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.1.4-dev1';
+	const VERSION     = '1.1.4';
 	const TEXT_DOMAIN = 'challonge';
 	const THIRD_PARTY = 'Challonge.com'; // The name of the website this plugin interfaces with.
 
 	// TODO: Before release, minify JS and turn USE_MIN_JS on.
-	const USE_MIN_JS  = false; // Use minified/compressed (.min.js) JavaScript files?
-	const DEV_MODE    = true; // Development mode? (Use 'FORCE' instead of true to ignore hostname.)
+	const USE_MIN_JS  = true; // Use minified/compressed (.min.js) JavaScript files?
+	const DEV_MODE    = false; // Development mode? (Use 'FORCE' instead of true to ignore hostname.)
 
 	protected $sPluginUrl;
 	protected $oUsr;
@@ -74,6 +76,7 @@ class Challonge_Plugin
 		// Admin
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_init', array( $this, 'initAdmin' ) );
+		add_action( 'admin_head', array( $this, 'headAdmin' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'loadAssetsAdmin' ) );
 		add_action( 'wp_ajax_challonge_verify_apikey', array( $this, 'verifyApiKey' ) );
 		add_action( 'admin_notices', array( $this, 'adminNotice' ) );
@@ -101,14 +104,16 @@ class Challonge_Plugin
 		$this->getOptions();
 		// Update!
 		if ( Challonge_Plugin::VERSION != $this->aOptions['VERSION'] ) { // Needs updated?
+			$aOptions = get_option( 'challonge_options' );
 			if ( $this->updateVersion() && Challonge_Plugin::VERSION == $this->aOptions['VERSION'] ) // Got updated?
-				$this->addNotice( sprintf(
-					/* translators:
-						%s is the title of the plugin (hint: it will always be "Challonge")
-					*/
-					__( '%s has been updated.', Challonge_Plugin::TEXT_DOMAIN ),
-					Challonge_Plugin::TITLE ),
-				'updated', 'update-version' );
+				if ( ! empty( $aOptions ) ) // Only show update notice on existing installs
+					$this->addNotice( sprintf(
+						/* translators:
+							%s is the title of the plugin (hint: it will always be "Challonge")
+						*/
+						__( '%s has been updated.', Challonge_Plugin::TEXT_DOMAIN ),
+						Challonge_Plugin::TITLE ),
+					'updated', 'update-version' );
 			else
 				$this->addNotice( sprintf(
 					/* translators:
@@ -233,6 +238,47 @@ class Challonge_Plugin
 		$tbw = 750; // ThinkBox Width
 		$tbh = 550; // ThinkBox Height
 		$username = $this->getUsernameHtml();
+		
+		// Build tournament info HTML
+		$tournyinfo = array();
+		// Tournyinfo: CREATED
+		$created = date_i18n( get_option( 'date_format' ), strtotime( $tourny->{'created-at'} ) + ( get_option( 'gmt_offset' ) * 3600 ) );
+		$tournyinfo['created'] = '<span title="' . esc_attr( sprintf(
+				/* translators:
+					%s is the created date in the date format from general settings
+				*/
+				__( 'Created on %s', Challonge_Plugin::TEXT_DOMAIN ),
+				$created
+			) ) . '">' . $created . '</span>';
+		// Tournyinfo: START
+		if ( ! empty( $tourny->{'start-at'} ) ) {
+			$start_at = sprintf(
+					/* translators:
+						%s is remaining time until starting time in human readable format (eg. "3 weeks" or "34 minutes")
+					*/
+					__( 'Starts in %s', Challonge_Plugin::TEXT_DOMAIN ),
+					$this->timeDiff( $tourny->{'start-at'} )
+				);
+			$tournyinfo['start'] = '<span title="' . esc_attr( $start_at ) . '">'
+				. esc_html( $start_at ) . '</span>';
+		}
+		// Tournyinfo: TYPE
+		$tournyinfo['type'] = '<span>' . esc_html( ucwords( $tourny->{'tournament-type'} ) ) . '</span>';
+		// Tournyinfo: PARTICIPANTS
+		$tournyinfo['participants'] = '<span title="' . esc_attr( sprintf(
+				/* translators:
+					%1$d is the number of signed uo participants
+					%2$s is the participant cap (may be infinity)
+				*/
+				__( '%1$d participants of %2$s', Challonge_Plugin::TEXT_DOMAIN ),
+				$tourny->{'participants-count'},
+				$signup_cap
+			) ) . '">' . ( (int) $tourny->{'participants-count'} ) . '/' . $signup_cap . '</span>';
+		// Tournyinfo together
+		$tournyinfo = '<span class="challonge-tournyname">' . esc_html( $tourny->name ) . '</span><br />'
+			. '<span class="challonge-tournyinfo">' . implode( ' &nbsp;&middot;&nbsp; ', $tournyinfo ) . '</span>';
+		
+		// TODO: Replace these conditionals with something better. (They're getting a little hard to work with.)
 		if ( $usrkey && ! $signed_up && 'pending' == $tourny->state && 'true' == $tourny->{'open-signup'} ) {
 			$lnk = 'join';
 			$lnk_button = __( 'Signup', Challonge_Plugin::TEXT_DOMAIN );
@@ -253,12 +299,7 @@ class Challonge_Plugin
 					$tbh = 300; // ThinkBox Height
 				$lnk_html = '<p>' . __( 'Signup to the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
 					. '<div>'
-						. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
-						. '<span class="challonge-tournyinfo">'
-							. date_i18n( get_option( 'date_format' ), strtotime( $tourny->{'created-at'} ) ) . ' | '
-							. esc_html( ucwords( $tourny->{'tournament-type'} ) ) . ' | '
-							. esc_html( $tourny->{'participants-count'} ) . '/' . $signup_cap
-						. '</span><br />'
+						. $tournyinfo
 					. '</div>'
 					. '<div class="challonge-tournydesc">' . $tourny->description . '</div>'
 					. '<p>' . __( 'You will join as:', Challonge_Plugin::TEXT_DOMAIN )
@@ -274,21 +315,24 @@ class Challonge_Plugin
 				$lnk_html = '<p>' . __( 'This tournament is full.', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
 				$hide_button = true;
 			}
-		} elseif ( $signed_up && current_user_can( 'challonge_signup' ) && 'pending' == $tourny->state ) {
+		} elseif ( $signed_up && current_user_can( 'challonge_signup' ) && ( 'pending' == $tourny->state || ( 'checking_in' == $tourny->state && !empty( $participants_by_id[ $participant_id ]->{'checked-in-at'} ) ) ) ) {
 			$lnk = 'leave';
 			$lnk_button = __( 'Forfeit', Challonge_Plugin::TEXT_DOMAIN );
 			$tbw = 600; // ThinkBox Width
 			$tbh = 200; // ThinkBox Height
 			$lnk_html = '<p>' . __( 'Forfeit the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
-				. '<p>'
-					. '<span class="challonge-tournyname">' . $tourny->name . '</span><br />'
-					. '<span class="challonge-tournyinfo">'
-						. date_i18n( get_option( 'date_format' ), strtotime( $tourny->{'created-at'} ) ) . ' | '
-						. esc_html( ucwords( $tourny->{'tournament-type'} ) ) . ' | '
-						. esc_html( $tourny->{'participants-count'} ) . '/' . $signup_cap
-					. '</span>'
-				. '</p>';
-			$tbh = 200;
+				. '<div>'
+					. $tournyinfo
+				. '</div>';
+		} elseif ( $signed_up && current_user_can( 'challonge_signup' ) && 'checking_in' == $tourny->state && empty( $participants_by_id[ $participant_id ]->{'checked-in-at'} ) ) {
+			$lnk = 'checkin';
+			$lnk_button = __( 'Check In', Challonge_Plugin::TEXT_DOMAIN );
+			$tbw = 600; // ThinkBox Width
+			$tbh = 200; // ThinkBox Height
+			$lnk_html = '<p>' . __( 'Check in on the following tournament?', Challonge_Plugin::TEXT_DOMAIN ) . '</p>'
+				. '<div>'
+					. $tournyinfo
+				. '</div>';
 		} elseif ( $signed_up && current_user_can( 'challonge_report_own' ) && 'underway' == $tourny->state && 'true' == $tourny->{'allow-participant-match-reporting'} && 'none' != $this->aOptions['scoring'] ) {
 			$lnk = 'report';
 			$lnk_button = __( 'Report', Challonge_Plugin::TEXT_DOMAIN );
@@ -413,6 +457,7 @@ class Challonge_Plugin
 
 	public function widgetReply()
 	{
+		$this->getOptions();
 		$this->bIgnoreCached = true; // AJAX requests never should use cached API data
 
 		// No API Key?
@@ -449,7 +494,9 @@ class Challonge_Plugin
 						. '<div class="challonge-loading" title="' . sprintf( esc_attr__( 'Loading %s tournament...', Challonge_Plugin::TEXT_DOMAIN ), Challonge_Plugin::THIRD_PARTY ) . '"></div>'
 						. '</div>'
 						. '<script>Challonge_jQuery(document).ready(function(){'
-						. 'Challonge_jQuery(\'#challonge_embed_tb\').challonge(\'' . $tourny->url . '\',{subdomain:\'' . $tourny->subdomain . '\'});'
+						. 'var a=Challonge_jQuery(\'#challonge_embed_tb\');'
+						. 'a.parent().css({overflow:\'hidden\',padding:1,width:\'auto\'});'
+						. 'a.challonge(\'' . $tourny->url . '\',{subdomain:\'' . $tourny->subdomain . '\'});'
 						. '});</script>'
 					);
 				} else {
@@ -517,6 +564,27 @@ class Challonge_Plugin
 							%s is the name of the tournament
 						*/
 						. sprintf( __( 'ERROR: You did not forfeit %s.', Challonge_Plugin::TEXT_DOMAIN ), '<strong>' . $lnk['tourny']->name . '</strong>' )
+						. ' -- <a href="#close" onclick="tb_remove();return false;">' . __( 'Close', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>' );
+				}
+				break;
+			case 'checkin':
+				$checkedin = $this->oApi->checkInParticipant( $lnk['tourny']->id, $lnk['participant_id'] );
+				if ( $checkedin ) {
+					// Refresh lnk
+					$lnk = $this->widgetTournyLink( $tournyId );
+					die( '<p class="challonge-ok">'
+						/* translators:
+							%s is the name of the tournament
+						*/
+						. sprintf( __( 'You have been checked into %s.', Challonge_Plugin::TEXT_DOMAIN ), '<strong>' . $lnk['tourny']->name . '</strong>' )
+						. ' -- <a href="#done" onclick="tb_remove();return false;">' . __( 'Done', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>'
+						. '<div class="challonge-metahtml">' . $lnk['button_html'] . '</div>' );
+				} else {
+					die( '<p class="challonge-error">'
+						/* translators:
+							%s is the name of the tournament
+						*/
+						. sprintf( __( 'ERROR: You were not checked into %s.', Challonge_Plugin::TEXT_DOMAIN ), '<strong>' . $lnk['tourny']->name . '</strong>' )
 						. ' -- <a href="#close" onclick="tb_remove();return false;">' . __( 'Close', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>' );
 				}
 				break;
@@ -677,9 +745,11 @@ class Challonge_Plugin
 		wp_enqueue_style( 'challonge.css' );
 		wp_register_script( 'challonge.js', $this->sPluginUrl . 'challonge' . $min . '.js', array( 'jquery' ), self::VERSION );
 		wp_localize_script( 'challonge.js', 'challongeVar', array(
-			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'spinUrl' => includes_url( 'images/wpspin.gif' ),
-			'wltMsg' => __( 'Please select if you Won, Lost, or Tied.', Challonge_Plugin::TEXT_DOMAIN ),
+			'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+			'spinUrl'  => includes_url( 'images/wpspin.gif' ),
+			'wltMsg'   => __( 'Please select if you Won, Lost, or Tied.', Challonge_Plugin::TEXT_DOMAIN ),
+			'errorMsg' => __( 'Sorry, an error occurred.', Challonge_Plugin::TEXT_DOMAIN ),
+			'closeMsg' => __( 'Close', Challonge_Plugin::TEXT_DOMAIN ),
 		) );
 		wp_enqueue_script( 'challonge.js' );
 		wp_register_script( 'jquery.challonge.js', $this->sPluginUrl . 'jquery.challonge' . $min . '.js', array( 'jquery' ), self::VERSION );
@@ -717,7 +787,7 @@ class Challonge_Plugin
 		if ( isset( $_GET['api_key'] ) && preg_match( '/^[a-z0-9]{40}$/i', $_GET['api_key'] ) && current_user_can( 'manage_options' ) ) {
 			$apikey = $_GET['api_key'];
 
-			$c = new Challonge_Api( $apikey );
+			$c = new Challonge_Api_Adapter( $apikey );
 			$c->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 			$t = $c->getTournaments( array( 'created_after' => date( 'Y-m-d', time() + 86400 ) ) );
 			if ( $c->errors )
@@ -763,7 +833,11 @@ class Challonge_Plugin
 			if (is_dir($dir)) {
 				if ($dh = opendir($dir)) {
 					while (($file = readdir($dh)) !== false) {
-						if ( '.' != $file[0] && false !== strpos( $file, '.' ) ) {
+						if ( '.' != $file[0] && false !== strpos( $file, '.' ) && false === strpos( $file, '~' ) ) {
+							if ( ! is_readable( $dir . '/' . $file ) ) {
+								$this->addNotice( 'File unreadable: ' . $file, 'error' );
+								continue;
+							}
 							$content = file( $dir . '/' . $file );
 							foreach ( $content AS $k => $v ) {
 								if ( strpos( $v, '// ' . 'TODO' ) !== false )
@@ -837,6 +911,30 @@ class Challonge_Plugin
 		// END PLUGIN DEVELOPMENT STUFF
 	}
 
+	public function headAdmin( $input )
+	{
+	    // check user permissions
+	    if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) )
+	        return;
+	    // check if WYSIWYG is enabled
+	    if ( 'true' == get_user_option( 'rich_editing' ) && version_compare( get_bloginfo('version'), '3.9', '>=' ) ) {
+	        add_filter( 'mce_external_plugins', array( $this, 'addTinyMcePlugin' ) );
+	        add_filter( 'mce_buttons', array( $this, 'registerTinyMceButton' ) );
+	    }
+	}
+
+	public function addTinyMcePlugin( $plugin_array )
+	{
+		$plugin_array['challonge_mce_button'] = $this->sPluginUrl . 'challonge-mce-button.js';
+	    return $plugin_array;
+	}
+
+	public function registerTinyMceButton( $buttons )
+	{
+		array_push( $buttons, 'challonge_mce_button' );
+		return $buttons;
+	}
+
 	public function optionsValidate( $input )
 	{
 		$options = $this->aOptions;
@@ -844,7 +942,7 @@ class Challonge_Plugin
 		// API Key
 		$options['api_key_input'] = preg_replace( '/[\W_]+/', '', $input['api_key'] );
 		if (40 == strlen( $options['api_key_input'] ) && extension_loaded( 'curl' ) ) {
-			$c = new Challonge_Api( $options['api_key_input'] );
+			$c = new Challonge_Api_Adapter( $options['api_key_input'] );
 			$c->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 			$t = $c->getTournaments( array( 'created_after' => date( 'Y-m-d', time() + 86400 ) ) );
 			if ( $c->errors && 'Result set empty' == $c->errors[0] )
@@ -958,7 +1056,7 @@ class Challonge_Plugin
 				case 'role'   : $v = htmlspecialchars( current( $this->oUsr->roles ) ); break;
 				default:
 					if ( preg_match( '/^whatev:?(\d*)$/', $v, $m ) )
-						$v = '<input type="text" style="width:' . ( $m[1] > 0 ? (int) $m[1] : 12 ) . 'em" value="" placeholder="type here" />';
+						$v = '<input type="text" style="width:' . ( $m[1] > 0 ? (int) $m[1] : 12 ) . 'em" value="" placeholder="' . __( 'type here', Challonge_Plugin::TEXT_DOMAIN ) . '" />';
 					else {
 						$v = '%' . $v;
 						$lastWasToken = false;
@@ -1037,5 +1135,15 @@ class Challonge_Plugin
 			return true;
 		}
 		return false;
+	}
+	
+	public function timeDiff( $time, $now = null ) {
+		if ( ! is_int( $time ) )
+			$time = strtotime( (string) $time ) + ( get_option( 'gmt_offset' ) * 3600 );
+		if ( is_null( $now ) )
+			$now = time();
+		if ( $now == $time )
+			return 'just now';
+		return human_time_diff( $time, $now );
 	}
 }

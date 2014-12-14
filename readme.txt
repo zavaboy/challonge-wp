@@ -2,8 +2,8 @@
 Contributors: zavaboy
 Donate link: http://zavaboy.org/challonge-wordpress-plugin/
 Tags: plugin, widget, shortcode, api, integration, embed, events, games, tournaments, matches, Challonge, brackets
-Requires at least: 3.2
-Tested up to: 3.9
+Requires at least: 3.3
+Tested up to: 4.0
 Stable tag: trunk
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
@@ -22,6 +22,11 @@ Do you use [Challonge](http://challonge.com/ "Free online tournament management 
 * Includes role capabilities. You will need a role management plugin to change who has these capabilities.
 * Adjustable caching to speed up page load time.
 * Custom participant name templating.
+
+= Languages =
+
+* English
+* Spanish - Thanks to Andrew Kurtis from [WebHostingHub](http://www.webhostinghub.com/) for translating!
 
 = Requirements =
 
@@ -133,10 +138,27 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Changelog ==
 
-= 1.1.4-dev1 =
+= 1.1.4 =
 * Added version information to settings page.
 * Made plugin translation ready.
 * Added version mismatch check to development notices.
+* Added Spanish translation by Andrew Kurtis from WebHostingHub.com
+* Fixed limits from displaying oldest instead of newest.
+* Increased minimum WordPress version requirement from 3.2 to 3.3.
+* Bumped tested WordPress version from 3.9 to 4.0.
+* Fixed a issue when viewing a bracket from the widget on secondary multisite.
+* Tournament information now displays the amount of time before a tournament is scheduled to start in addition to its created date.
+* Added support for checking in during the check in period if the participant isn't already checked in.
+* Participants may now forfeit during the check in period.
+* Widget and shortcode displays an "unavailable" message instead of displaying "no tournaments" when the API request fails.
+* Added "checking in" and "checked in" to widget status filter. Additionally added "Unknown/Other" to cover new or unknown statuses.
+* Return an error if an AJAX request fails.
+* Fixed dates from API. (I was doing it wrong.)
+* Thickbox is sized to fit the screen when viewing a tournament bracket.
+* Improved regular expressions for more flexibility for input values.
+* Added flexibilty to Subdomain input in widget settings. (eg. now accepts "my-subdomain.challonge.com")
+* Added a Challonge TinyMCE editor button. (Just copy/paste the URL of the listing or tournament you want to add to the page.)
+* Made minor improvements in the code and some cleanup.
 
 = 1.1.3 =
 * Increased CSS z-index for thickbox.
@@ -211,10 +233,27 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 
 == Upgrade Notice ==
 
-= 1.1.4-dev1 =
+= 1.1.4 =
 Added version information to settings page.
 Made plugin translation ready.
 Added version mismatch check to development notices.
+Added Spanish translation by Andrew Kurtis from WebHostingHub.com
+Fixed limits from displaying oldest instead of newest.
+Increased minimum WordPress version requirement from 3.2 to 3.3.
+Bumped tested WordPress version from 3.9 to 4.0.
+Fixed a issue when viewing a bracket from the widget on secondary multisite.
+Tournament information now displays the amount of time before a tournament is scheduled to start in addition to its created date.
+Added support for checking in during the check in period if the participant isn't already checked in.
+Participants may now forfeit during the check in period.
+Widget and shortcode displays an "unavailable" message instead of displaying "no tournaments" when the API request fails.
+Added "checking in" and "checked in" to widget status filter. Additionally added "Unknown/Other" to cover new or unknown statuses.
+Return an error if an AJAX request fails.
+Fixed dates from API. (I was doing it wrong.)
+Thickbox is sized to fit the screen when viewing a tournament bracket.
+Improved regular expressions for more flexibility for input values.
+Added flexibilty to Subdomain input in widget settings. (eg. now accepts "my-subdomain.challonge.com")
+Added a Challonge TinyMCE editor button. (Just copy/paste the URL of the listing or tournament you want to add to the page.)
+Made minor improvements in the code and some cleanup.
 
 = 1.1.3 =
 Increased CSS z-index for thickbox.

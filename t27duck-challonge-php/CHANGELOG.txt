@@ -1,0 +1,2 @@
+1.0.1 (2014-08-05)
+* Updated base url for v1

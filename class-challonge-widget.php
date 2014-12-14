@@ -11,6 +11,16 @@ class Challonge_Widget extends WP_Widget
 	protected $oCP;
 	protected $oApi;
 
+	private $aStatuses = array(
+		'pending',
+		'underway',
+		'awaiting_review',
+		'complete',
+		'checking_in',
+		'checked_in',
+		//'unknown',
+	);
+
 	public function __construct() {
 		parent::__construct(
 			'challonge',
@@ -29,10 +39,9 @@ class Challonge_Widget extends WP_Widget
 		$title = '';
 		$subdomain = '';
 		$name_filter = '';
-		$status_filter_pending         = false;
-		$status_filter_underway        = false;
-		$status_filter_awaiting_review = false;
-		$status_filter_complete        = false;
+		foreach ($this->aStatuses AS $status)
+			$status_filter_{$status} = false;
+		$status_filter_unknown = false;
 		$limit = '';
 		if ( $instance ) {
 			if ( isset( $instance['title'] ) ) {
@@ -44,17 +53,14 @@ class Challonge_Widget extends WP_Widget
 			if ( isset( $instance['name_filter'] ) ) {
 				$name_filter = esc_attr( $instance['name_filter'] );
 			}
-			if ( isset( $instance['status_filter_pending'] ) ) {
-				$status_filter_pending = (bool) $instance['status_filter_pending'];
+			foreach ($this->aStatuses AS $status)
+			{
+				if ( isset( $instance['status_filter_' . $status] ) ) {
+					$status_filter_{$status} = (bool) $instance['status_filter_' . $status];
+				}
 			}
-			if ( isset( $instance['status_filter_underway'] ) ) {
-				$status_filter_underway = (bool) $instance['status_filter_underway'];
-			}
-			if ( isset( $instance['status_filter_awaiting_review'] ) ) {
-				$status_filter_awaiting_review = (bool) $instance['status_filter_awaiting_review'];
-			}
-			if ( isset( $instance['status_filter_complete'] ) ) {
-				$status_filter_complete = (bool) $instance['status_filter_complete'];
+			if ( isset( $instance['status_filter_unknown'] ) ) {
+				$status_filter_unknown = (bool) $instance['status_filter_unknown'];
 			}
 			if ( isset( $instance['limit'] ) ) {
 				$limit = esc_attr( $instance['limit'] );
@@ -75,17 +81,13 @@ class Challonge_Widget extends WP_Widget
 		</p>
 		<p class="challonge-widget-status_filter">
 			<?php _e( 'Status Filter:', Challonge_Plugin::TEXT_DOMAIN ); ?><br />
-			<label for="<?php echo $this->get_field_id( 'status_filter_pending' ); ?>">
-				<input id="<?php echo $this->get_field_id( 'status_filter_pending' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_pending' ); ?>" type="checkbox" <?php checked($status_filter_pending, true) ?>/> Pending
-			</label>
-			<label for="<?php echo $this->get_field_id( 'status_filter_underway' ); ?>">
-				<input id="<?php echo $this->get_field_id( 'status_filter_underway' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_underway' ); ?>" type="checkbox" <?php checked($status_filter_underway, true) ?>/> Underway
-			</label>
-			<label for="<?php echo $this->get_field_id( 'status_filter_complete' ); ?>">
-				<input id="<?php echo $this->get_field_id( 'status_filter_complete' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_complete' ); ?>" type="checkbox" <?php checked($status_filter_complete, true) ?>/> Complete
-			</label>
-			<label for="<?php echo $this->get_field_id( 'status_filter_awaiting_review' ); ?>" class="challonge-status_filter_awaiting_review">
-				<input id="<?php echo $this->get_field_id( 'status_filter_awaiting_review' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_awaiting_review' ); ?>" type="checkbox" <?php checked($status_filter_awaiting_review, true) ?>/> Awaiting Review
+			<?php foreach ($this->aStatuses AS $status) { ?>
+				<label for="<?php echo $this->get_field_id( 'status_filter_' . $status ); ?>">
+					<input id="<?php echo $this->get_field_id( 'status_filter_' . $status ); ?>" name="<?php echo $this->get_field_name( 'status_filter_' . $status ); ?>" type="checkbox" <?php checked($status_filter_{$status}, true) ?>/> <?php echo ucwords( str_replace( '_', ' ', $status ) ); ?>
+				</label>
+			<?php } ?>
+			<label for="<?php echo $this->get_field_id( 'status_filter_unknown' ); ?>">
+				<input id="<?php echo $this->get_field_id( 'status_filter_unknown' ); ?>" name="<?php echo $this->get_field_name( 'status_filter_unknown' ); ?>" type="checkbox" <?php checked($status_filter_unknown, true) ?>/> <em>Unknown/Other</em>
 			</label>
 		</p>
 		<p>
@@ -99,10 +101,9 @@ class Challonge_Widget extends WP_Widget
 		$instance['title']                         = strip_tags( $new_instance['title']       );
 		$instance['subdomain']                     = strip_tags( $new_instance['subdomain']   );
 		$instance['name_filter']                   = strip_tags( $new_instance['name_filter'] );
-		$instance['status_filter_pending']         = (bool) $new_instance['status_filter_pending'];
-		$instance['status_filter_underway']        = (bool) $new_instance['status_filter_underway'];
-		$instance['status_filter_awaiting_review'] = (bool) $new_instance['status_filter_awaiting_review'];
-		$instance['status_filter_complete']        = (bool) $new_instance['status_filter_complete'];
+		foreach ($this->aStatuses AS $status)
+			$instance['status_filter_' . $status]  = (bool) $new_instance['status_filter_' . $status];
+		$instance['status_filter_unknown']         = (bool) $new_instance['status_filter_unknown'];
 		if ( 0 < $new_instance['limit'] )
 			$instance['limit']                     = (int) $new_instance['limit'];
 		else
@@ -142,8 +143,8 @@ class Challonge_Widget extends WP_Widget
 		$this->oApi = $this->oCP->getApi();
 		$usr = wp_get_current_user();
 		$ajaxurl = admin_url( 'admin-ajax.php' );
-		if ( isset( $instance['subdomain'] ) )
-			$subdomain = $instance['subdomain'];
+		if ( isset( $instance['subdomain'] ) && preg_match( '/^(?:https?\:\/\/)?([\w\-]+)/i', $instance['subdomain'], $m ) )
+			$subdomain = $m[1];
 		else
 			$subdomain = null;
 		if ( isset( $instance['name_filter'] ) )
@@ -151,14 +152,13 @@ class Challonge_Widget extends WP_Widget
 		else
 			$name_filter = null;
 		$status_filter = array();
-		if ( isset( $instance['status_filter_pending']         ) && $instance['status_filter_pending']         )
-			$status_filter[] = 'pending';
-		if ( isset( $instance['status_filter_underway']        ) && $instance['status_filter_underway']        )
-			$status_filter[] = 'underway';
-		if ( isset( $instance['status_filter_awaiting_review'] ) && $instance['status_filter_awaiting_review'] )
-			$status_filter[] = 'awaiting_review';
-		if ( isset( $instance['status_filter_complete']        ) && $instance['status_filter_complete']        )
-			$status_filter[] = 'complete';
+		foreach ($this->aStatuses AS $status)
+			if ( isset( $instance['status_filter_' . $status] ) && $instance['status_filter_' . $status] )
+				$status_filter[] = $status;
+		if ( isset( $instance['status_filter_unknown']        ) && $instance['status_filter_unknown']    )
+			$status_filter_unknown = true;
+		else
+			$status_filter_unknown = false;
 		if ( ! empty( $instance['limit'] ) )
 			$limit = $instance['limit'];
 		else
@@ -189,9 +189,9 @@ class Challonge_Widget extends WP_Widget
 			$t = $this->oApi->getTournaments( array( 'subdomain' => $subdomain ) );
 		}
 		$tournys = array();
-		if ( count( $t->tournament ) ) {
+		if ( ! empty( $t->tournament ) ) {
 			foreach ( $t->tournament AS $tourny ) {
-				if ( 'false' == $tourny->private && false !== $name_filter && ( null === $name_filter || preg_match( $name_filter, $tourny->name ) ) && ( empty( $status_filter ) || in_array( strtolower( $tourny->state ), $status_filter ) ) && ( $limit-- ) > 0 ) {
+				if ( 'false' == $tourny->private && false !== $name_filter && ( null === $name_filter || preg_match( $name_filter, $tourny->name ) ) && ( ( empty( $status_filter ) && ! $status_filter_unknown ) || in_array( strtolower( $tourny->state ), $status_filter ) || ( ! in_array( strtolower( $tourny->state ), $this->aStatuses ) && $status_filter_unknown ) ) ) {
 					$ret = '<li>';
 					if ( strlen( $tourny->subdomain ) )
 						$tname = (string) $tourny->subdomain . '-' . $tourny->url;
@@ -211,12 +211,14 @@ class Challonge_Widget extends WP_Widget
 				}
 			}
 		}
-		if ( empty( $tournys ) ) {
+		if ( empty( $t ) ) {
+			$ret = '<p><em>' . __( 'Sorry, the tournament listing is unavailable. Please try again later.', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
+		} elseif ( empty( $tournys ) ) {
 			$ret = '<p><em>' . __( '(no tournaments)', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
 		} else {
 			add_thickbox();
 			ksort( $tournys );
-			$ret = '<ul class="challonge-widget-tournaments">' . implode( '', array_reverse( $tournys ) ) . '</ul>';
+			$ret = '<ul class="challonge-widget-tournaments">' . implode( '', array_slice( array_reverse( $tournys ), 0, $limit ) ) . '</ul>';
 		}
 		return $ret;
 	}

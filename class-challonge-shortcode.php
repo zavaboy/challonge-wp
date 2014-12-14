@@ -40,18 +40,16 @@ class Challonge_Shortcode
 		foreach ( $atts AS $k => $v ) {
 			switch ( $k ) {
 				case 'url' :
-					if ( preg_match( '/^(?:\w+\:)?(?:(\w+)\.)?challonge\.com\/(\w+)(?:\/.*)?$/i', strtolower( $v ), $m ) ) {
+					if ( preg_match( '/^(?:(?:https?\:\/\/)?(?:www\.|([\w\-]+)\.)?challonge\.com\/?)?((?<=\/)\w*|^\w+$)/i', $v, $m ) ) {
 						if ( ! empty( $m[1] ) && empty( $atts['subdomain'] ) ) {
 							$atts['subdomain'] = $m[1];
 						}
-						if ( ! empty( $m[2] ) ) {
-							$atts['url'] = $m[2];
-						}
+						$atts['url'] = $m[2];
 					}
 					break;
 				case 'subdomain' :
-					if ( ! empty( $v ) )
-						$atts['subdomain'] = strtolower( preg_replace( array( '/^(?:.*\W)?(\w+)\.challonge\.com.*$/i', '/[\W]+/' ), array( '$1', '' ), $v ) );
+					if ( ! empty( $v ) && preg_match( '/^(?:https?\:\/\/)?([\w\-]+)/i', $v, $m ) )
+						$atts['subdomain'] = $m[1];
 					break;
 				case 'theme' :
 					if ( $v ) {
@@ -87,7 +85,7 @@ class Challonge_Shortcode
 					$atts['height'] = $this->toCssUnit( $v );
 					break;
 				case 'limit' :
-					if ( $v ) {
+					if ( 0 < $v ) {
 						$atts['limit'] = (int) $v;
 					} else {
 						$atts['limit'] = $this->aAttsDefault['limit'];
@@ -257,65 +255,69 @@ class Challonge_Shortcode
 			$t = $this->oApi->getTournaments( array( 'subdomain' => $atts[ 'subdomain' ] ) );
 		}
 		$tournys = array();
-		if ( count( $t->tournament ) ) {
-			$ajaxurl = admin_url( 'admin-ajax.php' );
-			$limit = $atts['limit'];
-			foreach ( $t->tournament AS $tourny ) {
-				if ( 'false' == $tourny->private && ( $limit-- ) > 0 ) {
-					if ( strlen( $tourny->subdomain ) ) {
-						$lnk_tourny = $tourny->subdomain . '-' . $tourny->url;
-					} else {
-						$lnk_tourny = $tourny->url;
-					}
-					$tbw = 750; // ThinkBox Width
-					$tbh = 550; // ThinkBox Height
-					$lnk_url = $ajaxurl . '?action=challonge_widget&amp;width=' . $tbw . '&amp;height=' . $tbh;
-					$lnk_title_html = '<a href="' . $lnk_url . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
-						. '&amp;lnk_action=view" class="challonge-tournyid-' . esc_attr( $lnk_tourny ) . ' thickbox" title="' . esc_html( $tourny->name ) . '">'
-						. esc_html( $tourny->name ) . '</a>';
-					if ( 100 == $tourny->{ 'progress-meter' } ) {
-						$progress = __( 'Done', Challonge_Plugin::TEXT_DOMAIN );
-					} else {
-						$progress = '<progress value="'
-							. esc_attr( $tourny->{ 'progress-meter' } )
-							. '" max="100"></progress>';
-					}
-					$tournys[ $tourny->{ 'created-at' } . $tourny->id ] = '<tr>'
+		if ( ! empty( $t ) ) {
+			if ( count( $t->tournament ) ) {
+				$ajaxurl = admin_url( 'admin-ajax.php' );
+				foreach ( $t->tournament AS $tourny ) {
+					if ( 'false' == $tourny->private ) {
+						if ( strlen( $tourny->subdomain ) ) {
+							$lnk_tourny = $tourny->subdomain . '-' . $tourny->url;
+						} else {
+							$lnk_tourny = $tourny->url;
+						}
+						$tbw = 750; // ThinkBox Width
+						$tbh = 550; // ThinkBox Height
+						$lnk_url = $ajaxurl . '?action=challonge_widget&amp;width=' . $tbw . '&amp;height=' . $tbh;
+						$lnk_title_html = '<a href="' . $lnk_url . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
+							. '&amp;lnk_action=view" class="challonge-tournyid-' . esc_attr( $lnk_tourny ) . ' thickbox" title="' . esc_html( $tourny->name ) . '">'
+							. esc_html( $tourny->name ) . '</a>';
+						if ( 100 == $tourny->{ 'progress-meter' } ) {
+							$progress = __( 'Done', Challonge_Plugin::TEXT_DOMAIN );
+						} else {
+							$progress = '<progress value="'
+								. esc_attr( $tourny->{ 'progress-meter' } )
+								. '" max="100"></progress>';
+						}
+						$tournys[ $tourny->{ 'created-at' } . $tourny->id ] = '<tr>'
 
-						. '<td class="challonge-name">'
-						. $lnk_title_html
-						. '</td>'
+							. '<td class="challonge-name">'
+							. $lnk_title_html
+							. '</td>'
 
-						. '<td class="challonge-type">'
-						. esc_html(
-								preg_replace( // eg. Swiss --> Sw, Single Elimination --> SE
-									'/^(?:([A-Z]).*([A-Z]).*|([A-Z][a-z]).*)$/',
-									'\1\2\3',
-									ucwords( $tourny->{ 'tournament-type' } )
+							. '<td class="challonge-type">'
+							. esc_html(
+									preg_replace( // eg. Swiss --> Sw, Single Elimination --> SE
+										'/^(?:([A-Z]).*([A-Z]).*|([A-Z][a-z]).*)$/',
+										'\1\2\3',
+										ucwords( $tourny->{ 'tournament-type' } )
+									)
 								)
-							)
-						. '</td>'
+							. '</td>'
 
-						. '<td class="challonge-participants">'
-						. esc_html(
-								$tourny->{ 'participants-count' }
-							)
-						. '</td>'
+							. '<td class="challonge-participants">'
+							. esc_html(
+									$tourny->{ 'participants-count' }
+								)
+							. '</td>'
 
-						. '<td class="challonge-created">'
-						. date_i18n(
-								get_option( 'date_format' ),
-								strtotime( $tourny->{ 'created-at' } )
-							)
-						. '</td>'
+							. '<td class="challonge-created">'
+							. date_i18n(
+									get_option( 'date_format' ),
+									strtotime( $tourny->{ 'created-at' } )
+										+ ( get_option( 'gmt_offset' ) * 3600 )
+								)
+							. '</td>'
 
-						. '<td class="challonge-progress">'
-						. $progress
-						. '</td>'
+							. '<td class="challonge-progress">'
+							. $progress
+							. '</td>'
 
-						. '</tr>';
+							. '</tr>';
+					}
 				}
 			}
+		} else {
+			return '<p><em>' . __( 'Sorry, the tournament listing is unavailable. Please try again later.', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
 		}
 		if ( empty( $tournys ) ) {
 			return '<p><em>' . __( '(no tournaments)', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
@@ -329,7 +331,7 @@ class Challonge_Shortcode
 				. '<th class="challonge-created">'      . __( 'Created On'  , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
 				. '<th class="challonge-progress">'     . __( 'Progress'    , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
 				. '</tr></thead><tbody>'
-			    . implode( '', array_reverse( $tournys ) )
+			    . implode( '', array_slice( array_reverse( $tournys ), 0, $atts['limit'] ) )
 				. '</tbody></table>';
 		}
 	}
