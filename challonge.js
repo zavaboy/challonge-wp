@@ -49,7 +49,7 @@ jQuery(document).ready(function ( $ ) {
 				$lnkConfirm.finish().hide().html( data ).fadeIn('slow', function () {
 					$metaHtml = $(this).find('.challonge-metahtml');
 					if ( $metaHtml.length )
-						$('.challonge-tournyid-'+lnkTourny).filter(':first').replaceWith( $metaHtml.html() );
+						$('.challonge-button.challonge-tournyid-'+lnkTourny).replaceWith( $metaHtml.html() );
 				} );
 			}
 		).fail( function () {

@@ -146,8 +146,10 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Added status-specific visibility options to shortcodes.
 * Added option to manage shortcode tournament listings.
 * Added user meta fields to participant name templating.
-* Some general code cleanup.
 * Bumped tested WordPress version from 4.0 to 4.5.
+* Fixed action buttons from replacing tournament link in listing.
+* All buttons for the tournament now update after an action has taken place.
+* Some general code cleanup.
 
 = 1.1.4 =
 * Added version information to settings page.
@@ -251,8 +253,10 @@ Made an option to disable the exclusion setting in each tournament from Challong
 Added status-specific visibility options to shortcodes.
 Added option to manage shortcode tournament listings.
 Added user meta fields to participant name templating.
-Some general code cleanup.
 Bumped tested WordPress version from 4.0 to 4.5.
+Fixed action buttons from replacing tournament link in listing.
+All buttons for the tournament now update after an action has taken place.
+Some general code cleanup.
 
 = 1.1.4 =
 Added version information to settings page.
