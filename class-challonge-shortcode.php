@@ -27,6 +27,8 @@ class Challonge_Shortcode
 		'denyusers'              => ''   ,
 		'allowroles'             => ''   ,
 		'denyroles'              => ''   ,
+		'statuses'               => ''   ,
+		'excludestatuses'        => ''   ,
 	);
 
 	public function __construct()
@@ -128,6 +130,26 @@ class Challonge_Shortcode
 						$role = trim( $role );
 						if ( ! empty( $role ) ) {
 							$atts['denyroles'][] = strtolower( $role );
+						}
+					}
+					break;
+				case 'statuses' :
+					$statuses = explode( ',', $v );
+					$atts['statuses'] = array();
+					foreach ( $statuses AS $status ) {
+						$status = trim($status);
+						if ( ! empty( $status ) ) {
+							$atts['statuses'][] = str_replace(' ','_',strtolower($status));
+						}
+					}
+					break;
+				case 'excludestatuses' :
+					$statuses = explode( ',', $v );
+					$atts['excludestatuses'] = array();
+					foreach ( $statuses AS $status ) {
+						$status = trim($status);
+						if ( ! empty( $status ) ) {
+							$atts['excludestatuses'][] = str_replace(' ','_',strtolower($status));
 						}
 					}
 					break;
@@ -258,61 +280,280 @@ class Challonge_Shortcode
 		if ( ! empty( $t ) ) {
 			if ( count( $t->tournament ) ) {
 				$ajaxurl = admin_url( 'admin-ajax.php' );
+				$tbw = 750; // ThinkBox Width
+				$tbh = 550; // ThinkBox Height
+				$lnk_url = $ajaxurl . '?action=challonge_widget&amp;width=' . $tbw . '&amp;height=' . $tbh;
 				foreach ( $t->tournament AS $tourny ) {
-					if ( 'false' == $tourny->private ) {
-						if ( strlen( $tourny->subdomain ) ) {
-							$lnk_tourny = $tourny->subdomain . '-' . $tourny->url;
-						} else {
-							$lnk_tourny = $tourny->url;
+					if (
+						( 'false' == $tourny->private || $options[ 'public_ignore_exclusion' ] )
+						&& ( empty( $atts[ 'statuses' ] )
+							|| in_array( strtolower( $tourny->state ), $atts[ 'statuses' ] ) )
+						&& ( empty( $atts[ 'excludestatuses' ] )
+							|| ! in_array( strtolower( $tourny->state ), $atts[ 'excludestatuses' ] ) )
+					) {
+						$cells = array();
+						foreach ( $options['headers_shortcode'] AS $v ) {
+							if ( ! $v['show'] ) {
+								continue;
+							}
+							$cell = null;
+							switch ( $v['prop'] ) {
+								case 'name' :
+									$cell = esc_html( $tourny->name );
+									if ( 'text' != $v['format'] ) {
+										if ( strlen( $tourny->subdomain ) ) {
+											$lnk_tourny = $tourny->subdomain . '-' . $tourny->url;
+											$ext_url = 'http://' . $tourny->subdomain . '.challonge.com/' . $tourny->url;
+										} else {
+											$lnk_tourny = $tourny->url;
+											$ext_url = 'http://challonge.com/' . $tourny->url;
+										}
+										switch ( $v['format'] ) {
+											case 'link'           :
+												$cell = '<a href="' . $ext_url . '" class="challonge-tournyid-'
+													. esc_attr( $lnk_tourny ) . '">' . $cell . '</a>';
+												break;
+											case 'link_new'       :
+												$cell = '<a href="' . $ext_url . '" class="challonge-tournyid-'
+													. esc_attr( $lnk_tourny ) . '" target="_blank">' . $cell . '</a>';
+												break;
+											case 'link_modal'     :
+												$cell = '<a href="'
+													. $lnk_url . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
+													. '&amp;lnk_action=view&amp;n=1" class="challonge-tournyid-'
+													. esc_attr( $lnk_tourny ) . ' thickbox" title="'
+													. esc_attr( $tourny->name ) . '">'
+													. $cell . '</a>';
+												break;
+											case 'link_modal_full':
+											default:
+												$cell = '<a href="'
+													. $lnk_url . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
+													. '&amp;lnk_action=view" class="challonge-tournyid-'
+													. esc_attr( $lnk_tourny ) . ' thickbox" title="'
+													. esc_attr( $tourny->name ) . '">'
+													. $cell . '</a>';
+												break;
+										}
+									}
+									break;
+								case 'type' :
+									if ( 'full' == $v['format'] ) {
+										$cell = esc_html(
+											ucwords( $tourny->{ 'tournament-type' } )
+										);
+									} else {
+										$cell = esc_html(
+											preg_replace( // eg. Swiss --> Sw, Single Elimination --> SE
+												'/^(?:([A-Z]).*([A-Z]).*|([A-Z][a-z]).*)$/',
+												'\1\2\3',
+												ucwords( $tourny->{ 'tournament-type' } )
+											)
+										);
+									}
+									break;
+								case 'participants' :
+									$count = (int) $tourny->{ 'participants-count' };
+									if ( 0 < $tourny->{ 'signup-cap' } ) {
+										$cap = (int) $tourny->{ 'signup-cap' };
+									} else {
+										$cap = '&infin;';
+									}
+									switch ( $v['format'] ) {
+										case 'p_of_t'     :
+											$cell = $count . ' of ' . $cap;
+											break;
+										case 'p_slash_t'  :
+											$cell = $count . '/' . $cap;
+											break;
+										case 'p'          :
+										default           :
+											$cell = $count;
+											break;
+									}
+									break;
+								case 'created' :
+									switch ( $v['format'] ) {
+										case 'date_time':
+											$cell = date_i18n(
+												get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+												strtotime( $tourny->{ 'created-at' } )
+													+ ( get_option( 'gmt_offset' ) * 3600 )
+											);
+											break;
+										case 'time_diff':
+											$cell = sprintf(
+												__( '%s ago', Challonge_Plugin::TEXT_DOMAIN ),
+												human_time_diff(
+													strtotime( $tourny->{ 'created-at' } )
+													+ ( get_option( 'gmt_offset' ) * 3600 )
+												)
+											);
+											break;
+										case 'date':
+										default:
+											$cell = date_i18n(
+												get_option( 'date_format' ),
+												strtotime( $tourny->{ 'created-at' } )
+													+ ( get_option( 'gmt_offset' ) * 3600 )
+											);
+											break;
+									}
+									break;
+								case 'progress' :
+									switch ( $v['format'] ) {
+										case 'text':
+											$cell = esc_html( $tourny->{ 'progress-meter' } ) . '%';
+											break;
+										case 'bar':
+										default:
+											if ( 100 == $tourny->{ 'progress-meter' } ) {
+												$cell = __( 'Done', Challonge_Plugin::TEXT_DOMAIN );
+											} else {
+												$cell = '<progress value="'
+													. esc_attr( $tourny->{ 'progress-meter' } )
+													. '" max="100"></progress>';
+											}
+											break;
+									}
+									break;
+								case 'checkin' :
+									$cell = human_time_diff(
+										time() + ( $tourny->{ 'check-in-duration' } * 60 )
+									);
+									break;
+								case 'description':
+									switch ( $v['format'] ) {
+										case 'full':
+											$cell = esc_html( strip_tags( $tourny->description ) );
+											break;
+										case 'full_html':
+											$cell = $tourny->description;
+											break;
+										case 'line':
+										default:
+											$cell = explode( "</p>", $tourny->description, 2 );
+											$cell = esc_html( strip_tags( $cell[0] ) );
+											break;
+									}
+									break;
+								case 'game'       :
+									$cell = esc_html( $tourny->{ 'game-name' } );
+									break;
+								case 'quick'      :
+									$cell = $tourny->{ 'quick-advance' };
+									switch ( $v['format'] ) {
+										case 'yes_no':
+											if ( 'false' == $tourny->{ 'quick-advance' } ) {
+												$cell = 'Yes';
+											} else {
+												$cell = 'No';
+											}
+											break;
+										case 'on_off':
+											if ( 'false' == $tourny->{ 'quick-advance' } ) {
+												$cell = 'On';
+											} else {
+												$cell = 'Off';
+											}
+											break;
+										case 'check':
+										default:
+											if ( 'false' == $tourny->{ 'quick-advance' } ) {
+												$cell = '&nbsp;';
+											} else {
+												$cell = '<span class="dashicons dashicons-yes"></span>';
+											}
+											break;
+									}
+									break;
+								case 'start'      :
+									if ( ! empty( $tourny->{ 'start-at' } ) ) {
+										switch ( $v['format'] ) {
+											case 'date':
+												$cell = date_i18n(
+													get_option( 'date_format' ),
+													strtotime( $tourny->{ 'start-at' } )
+														+ ( get_option( 'gmt_offset' ) * 3600 )
+												);
+												break;
+											case 'time_diff':
+												$cell = sprintf(
+													__( '%s ago', Challonge_Plugin::TEXT_DOMAIN ),
+													human_time_diff(
+														strtotime( $tourny->{ 'start-at' } )
+														+ ( get_option( 'gmt_offset' ) * 3600 )
+													)
+												);
+												break;
+											case 'date_time':
+											default:
+												$cell = date_i18n(
+													get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+													strtotime( $tourny->{ 'start-at' } )
+														+ ( get_option( 'gmt_offset' ) * 3600 )
+												);
+												break;
+										}
+									} else {
+										$cell = '&nbsp;';
+									}
+									break;
+								case 'started'    :
+									if ( ! empty( $tourny->{ 'started-at' } ) ) {
+										switch ( $v['format'] ) {
+											case 'date':
+												$cell = date_i18n(
+													get_option( 'date_format' ),
+													strtotime( $tourny->{ 'started-at' } )
+														+ ( get_option( 'gmt_offset' ) * 3600 )
+												);
+												break;
+											case 'date_time':
+												$cell = date_i18n(
+													get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+													strtotime( $tourny->{ 'started-at' } )
+														+ ( get_option( 'gmt_offset' ) * 3600 )
+												);
+												break;
+											case 'time_diff':
+											default:
+												$cell = sprintf(
+													__( '%s ago', Challonge_Plugin::TEXT_DOMAIN ),
+													human_time_diff(
+														strtotime( $tourny->{ 'started-at' } )
+														+ ( get_option( 'gmt_offset' ) * 3600 )
+													)
+												);
+												break;
+										}
+									} else {
+										$cell = '&nbsp;';
+									}
+									break;
+								case 'state'      :
+									$cell = esc_html( ucwords( str_replace( '_', ' ', $tourny->state ) ) );
+									break;
+								case 'signup'      :
+									$cell = '';
+									if ( strlen( $tourny->subdomain ) )
+										$tname = (string) $tourny->subdomain . '-' . $tourny->url;
+									else
+										$tname = (string) $tourny->url;
+									$lnk = $this->oCP->widgetTournyLink( $tname );
+									if ( ! empty( $lnk->name ) ) {
+										$cell = $lnk->button_html;
+									}
+									break;
+								default:
+									throw new Exception('Unexpected or missing property name in headers_shortcode option list.');
+									break;
+							}
+							if ( null !== $cell ) {
+								$cells[] = '<td class="challonge-' . $v['prop'] . '">' . $cell . '</td>';
+							}
 						}
-						$tbw = 750; // ThinkBox Width
-						$tbh = 550; // ThinkBox Height
-						$lnk_url = $ajaxurl . '?action=challonge_widget&amp;width=' . $tbw . '&amp;height=' . $tbh;
-						$lnk_title_html = '<a href="' . $lnk_url . '&amp;lnk_tourny=' . esc_attr( $lnk_tourny )
-							. '&amp;lnk_action=view" class="challonge-tournyid-' . esc_attr( $lnk_tourny ) . ' thickbox" title="' . esc_html( $tourny->name ) . '">'
-							. esc_html( $tourny->name ) . '</a>';
-						if ( 100 == $tourny->{ 'progress-meter' } ) {
-							$progress = __( 'Done', Challonge_Plugin::TEXT_DOMAIN );
-						} else {
-							$progress = '<progress value="'
-								. esc_attr( $tourny->{ 'progress-meter' } )
-								. '" max="100"></progress>';
-						}
-						$tournys[ $tourny->{ 'created-at' } . $tourny->id ] = '<tr>'
-
-							. '<td class="challonge-name">'
-							. $lnk_title_html
-							. '</td>'
-
-							. '<td class="challonge-type">'
-							. esc_html(
-									preg_replace( // eg. Swiss --> Sw, Single Elimination --> SE
-										'/^(?:([A-Z]).*([A-Z]).*|([A-Z][a-z]).*)$/',
-										'\1\2\3',
-										ucwords( $tourny->{ 'tournament-type' } )
-									)
-								)
-							. '</td>'
-
-							. '<td class="challonge-participants">'
-							. esc_html(
-									$tourny->{ 'participants-count' }
-								)
-							. '</td>'
-
-							. '<td class="challonge-created">'
-							. date_i18n(
-									get_option( 'date_format' ),
-									strtotime( $tourny->{ 'created-at' } )
-										+ ( get_option( 'gmt_offset' ) * 3600 )
-								)
-							. '</td>'
-
-							. '<td class="challonge-progress">'
-							. $progress
-							. '</td>'
-
-							. '</tr>';
+						$tournys[ $tourny->{ 'created-at' } . $tourny->id ] = '<tr>' . implode( '', $cells ) . '</tr>';
 					}
 				}
 			}
@@ -324,12 +565,19 @@ class Challonge_Shortcode
 		} else {
 			add_thickbox();
 			ksort( $tournys );
+			$cells = array();
+			foreach ( $options['headers_shortcode'] AS $v ) {
+				if ( $v['show'] ) {
+					$cells[] = '<th class="challonge-' . $v['prop'] . '">' . esc_html( $v['alias'] ?: $v['name'] ) . '</th>';
+				}
+			}
 			return '<table class="challonge-table"><thead><tr>'
-				. '<th class="challonge-name">'         . __( 'Name'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '<th class="challonge-type">'         . __( 'Type'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '<th class="challonge-participants">' . __( 'Participants', Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '<th class="challonge-created">'      . __( 'Created On'  , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. '<th class="challonge-progress">'     . __( 'Progress'    , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				// . '<th class="challonge-name">'         . __( 'Name'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				// . '<th class="challonge-type">'         . __( 'Type'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				// . '<th class="challonge-participants">' . __( 'Participants', Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				// . '<th class="challonge-created">'      . __( 'Created On'  , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				// . '<th class="challonge-progress">'     . __( 'Progress'    , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				. implode( '', $cells )
 				. '</tr></thead><tbody>'
 			    . implode( '', array_slice( array_reverse( $tournys ), 0, $atts['limit'] ) )
 				. '</tbody></table>';

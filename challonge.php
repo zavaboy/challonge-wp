@@ -6,7 +6,7 @@
 Plugin Name: Challonge
 Plugin URI: http://wordpress.org/plugins/challonge
 Description: Integrates <a href="http://challonge.com/">Challonge</a>, a handy bracket generator, into WordPress.
-Version: 1.1.4
+Version: 1.1.5
 Author: Ivik Injerd
 Author URI: http://zavaboy.org/
 Text Domain: Challonge
@@ -17,7 +17,7 @@ License: MIT
 /*
 The MIT License (MIT)
 
-Copyright (c) 2013-2014 Ivik Injerd
+Copyright (c) 2013-2016 Ivik Injerd
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -60,6 +60,7 @@ License URL: https://github.com/jquery/jquery-color/blob/2.1.2/MIT-LICENSE.txt
 
 // TODO: Add phpdoc (maybe someday...)
 // TODO: Before release, update version, changelog, readme, screenshots
+// TODO: Properly impliment context aware text l10n
 
 // Exit on direct request.
 defined( 'ABSPATH' ) OR exit;

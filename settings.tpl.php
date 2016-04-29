@@ -1,6 +1,8 @@
 <?php
 // Exit on direct request.
 defined( 'ABSPATH' ) OR exit;
+// Exit on direct request.
+$this instanceof Challonge_Plugin OR exit;
 ?>
 <div class="wrap challonge challonge-settings">
 	<div id="challonge-donate">
@@ -37,6 +39,7 @@ defined( 'ABSPATH' ) OR exit;
 		settings_fields( 'challonge_options' );
 		$options = $this->aOptions;
 		$user = wp_get_current_user();
+// echo'<pre>';print_r($options);echo'</pre>';
 		?>
 		<table class="form-table">
 			<tr valign="top">
@@ -44,10 +47,18 @@ defined( 'ABSPATH' ) OR exit;
 				<td>
 					<input type="text" id="challonge-apikey" name="challonge_options[api_key]" size="40"
 						value="<?php echo esc_attr($options['api_key_input']) ?>" />
-					<span id="challonge-apikey-check"><?php _e('Verifying...', Challonge_Plugin::TEXT_DOMAIN) ?></span>
-					<span id="challonge-apikey-ok">&#x2714; <?php _e('Valid', Challonge_Plugin::TEXT_DOMAIN) ?></span>
-					<span id="challonge-apikey-fail">&#x2718; <?php _e('Invalid', Challonge_Plugin::TEXT_DOMAIN) ?></span>
-					<span id="challonge-apikey-error">&#x2718; <span id="challonge-apikey-errmsg"></span></span>
+					<span id="challonge-apikey-check" class="dashicons-before dashicons-format-status">
+						<?php _e('Verifying...', Challonge_Plugin::TEXT_DOMAIN) ?>
+					</span>
+					<span id="challonge-apikey-ok" class="dashicons-before dashicons-yes">
+						<?php _e('Valid', Challonge_Plugin::TEXT_DOMAIN) ?>
+					</span>
+					<span id="challonge-apikey-fail" class="dashicons-before dashicons-no">
+						<?php _e('Invalid', Challonge_Plugin::TEXT_DOMAIN) ?>
+					</span>
+					<span id="challonge-apikey-error" class="dashicons-before dashicons-warning">
+						<span id="challonge-apikey-errmsg"></span>
+					</span>
 					<br />
 					<?php _e('Don\'t have an API key?', Challonge_Plugin::TEXT_DOMAIN) ?>
 					<a href="https://challonge.com/settings/developer" target="_blank"><?php _e('Get one.', Challonge_Plugin::TEXT_DOMAIN) ?></a>
@@ -64,7 +75,63 @@ defined( 'ABSPATH' ) OR exit;
 					<?php _e('Challonge widgets are publicly displayed by default.', Challonge_Plugin::TEXT_DOMAIN) ?></label><br />
 					<label for="challonge-public_widget_signup"><input type="checkbox" id="challonge-public_widget_signup"
 						name="challonge_options[public_widget_signup]" <?php checked($options['public_widget_signup'], true) ?>/>
-					<?php _e('The Signup buttons in the widget are publicly displayed. (The user will be asked to login before signing up to a tournament.)', Challonge_Plugin::TEXT_DOMAIN) ?></label>
+					<?php _e('The Signup buttons in the widget are publicly displayed. (The user will be asked to login before signing up to a tournament.)', Challonge_Plugin::TEXT_DOMAIN) ?></label><br />
+					<label for="challonge-public_ignore_exclusion"><input type="checkbox" id="challonge-public_ignore_exclusion"
+						name="challonge_options[public_ignore_exclusion]" <?php checked($options['public_ignore_exclusion'], true) ?>/>
+					<?php _e('Do not exclude tournaments that are excluded from search engines and the public browsable index.', Challonge_Plugin::TEXT_DOMAIN) ?></label>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><?php _e('Display', Challonge_Plugin::TEXT_DOMAIN) ?></th>
+				<td>
+					<?php _e('Manage the table headers for tournament listings:', Challonge_Plugin::TEXT_DOMAIN) ?><br />
+					<ul id="challonge-headers_shortcode-list">
+						<?php
+							if (is_array($options['headers_shortcode'])) {
+								$filter_out = array_flip(array_filter(array_keys($this->aOptionsDefault['headers_shortcode'][0]),function($v){
+									return $v[0]=='_';
+								}));
+								foreach ($options['headers_shortcode'] AS $k => $v) {
+						?>
+							<li class="ui-state-default <?php echo $v['show']?'show':'hide' ?>">
+								<input id="challonge-headers_shortcode-<?php echo esc_attr( $v['prop'] ) ?>"
+									type="hidden" name="challonge_options[headers_shortcode][]"
+									value="<?php echo esc_attr(json_encode(array_diff_key($v, $filter_out))) ?>" />
+								<span class="challonge-headers_shortcode-item">
+									<a class="challonge-headers_shortcode-togglevis dashicons dashicons-visibility togglevis show" tabindex="0"></a>
+									<a class="challonge-headers_shortcode-togglevis dashicons dashicons-hidden togglevis hide" tabindex="0"></a>
+									<span class="challonge-headers_shortcode-label"><?php echo $v['alias'] ?: $v['name'] ?></span>
+									<a class="challonge-headers_shortcode-edit dashicons dashicons-edit hover" tabindex="0"></a>
+								</span>
+								<span class="challonge-headers_shortcode-handle dashicons dashicons-menu handle" tabindex="0"></span>
+								<div class="challonge-headers_shortcode-editform" data-prop="<?php echo esc_attr( $v['prop'] ) ?>"
+									title="<?php echo esc_attr(__('Edit Header:', Challonge_Plugin::TEXT_DOMAIN) . ' ' . $v['name'] ) ?>">
+									<fieldset>
+										<label for="challonge-headers_shortcode-<?php echo esc_attr( $v['prop'] ) ?>-alias"><?php _e('Alias', Challonge_Plugin::TEXT_DOMAIN) ?></label>
+										<input id="challonge-headers_shortcode-<?php echo esc_attr( $v['prop'] ) ?>-alias"
+											type="text" value="<?php echo esc_attr( $v['alias'] ) ?>"
+											placeholder="<?php echo esc_attr( $v['name'] ) ?>" class="ui-widget-content ui-corner-all" />
+										<label for="challonge-headers_shortcode-<?php echo esc_attr( $v['prop'] ) ?>-format"><?php
+											/* translator:
+												This word "format" refers to the noun as in "date format" and NOT the verb as in "format C drive"
+											*/
+											_e('Format', Challonge_Plugin::TEXT_DOMAIN) ?></label>
+										<select id="challonge-headers_shortcode-<?php echo esc_attr( $v['prop'] ) ?>-format"
+											class="ui-widget-content ui-corner-all">
+											<?php foreach ( $v['_formats'] AS $fmt => $fmt_desc ) { ?>
+												<option value="<?php echo esc_attr( $fmt ) ?>" <?php selected( $v['format'], $fmt ) ?>><?php echo esc_html( $fmt_desc ) ?></option>
+											<?php } ?>
+										</select>
+									</fieldset>
+								</div>
+							</li>
+						<?php
+								}
+							} else {
+								echo '<li><em>there was an error</em><li>';
+							}
+						?>
+					</ul>
 				</td>
 			</tr>
 			<tr valign="top">
@@ -99,7 +166,7 @@ defined( 'ABSPATH' ) OR exit;
 												.'"'.($v->ID==$user->ID?' selected="selected"':'')
 												.'>'.$v->user_login.'</option>';
 										}
-										unset($all_users); // The variable may be too big to just leave around; we no longer need it.
+										//unset($all_users); // The variable may be too big to just leave around; we no longer need it.
 									?></select></th>
 								</tr>
 							</thead>
@@ -153,6 +220,48 @@ defined( 'ABSPATH' ) OR exit;
 									<td class="token">%whatev:<strong title="Any number">N</strong>%</td>
 									<td><?php _e('Custom input field with set width', Challonge_Plugin::TEXT_DOMAIN) ?></td>
 									<td><input type="text" size="16" placeholder="%whatev:7%" style="width:7em" /></td>
+								</tr>
+								<tr>
+									<td class="token">%meta:<strong title="Any user meta name">field_name</strong>%</td>
+									<td>
+										<?php _e('Any user meta field', Challonge_Plugin::TEXT_DOMAIN) ?>
+										<span>(<a href="#show-usermeta" id="challonge-participant_name-showusermetatokens"><?php
+											_e('Show List', Challonge_Plugin::TEXT_DOMAIN)
+										?></a>)</span>
+										<div id="challonge-participant_name-usermetatokens">
+											<p>
+												<strong><?php
+													_e( "Note: Just because a meta field is listed here, doesn't mean it should be used.",
+														Challonge_Plugin::TEXT_DOMAIN )
+												?></strong>
+												<?php
+													_e( 'This list is exhaustive and includes user meta data that is mostly useless for this purpose. Some of these fields may contain sensitive user information.',
+														Challonge_Plugin::TEXT_DOMAIN )
+												?>
+											</p>
+											<ul>
+												<?php
+													$usermeta = array();
+													foreach ($all_users AS $k=>$v) {
+														$usermeta = array_merge($usermeta,array_keys(get_user_meta($v->ID)));
+													}
+													sort($usermeta);
+													foreach ( $usermeta AS $k => $v ) {
+														switch ($v) {
+															case 'nickname':
+															case 'first_name':
+															case 'last_name':
+																continue 2;
+															default:
+																echo '<li>' . esc_html( $v ) . '</li>';
+																break;
+														}
+													}
+												?>
+											</ul>
+										</div>
+									</td>
+									<td><em>e.g.</em> <tt>%meta:clan_tag%</tt></td>
 								</tr>
 							</tbody>
 						</table>

@@ -1,7 +1,8 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Challonge 1.1.4\n"
-"POT-Creation-Date: 2014-12-14 15:32-0500\n"
+"POT-Creation-Date: 2016-04-28 22:32-0400\n"
 "PO-Revision-Date: 2014-12-14 15:32-0500\n"
 "Last-Translator: Ivik Injerd <zavaboy@gmail.com>\n"
 "Language-Team: Ivik Injerd <zavaboy@gmail.com>\n"
@@ -9,89 +10,72 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.7.1\n"
+"X-Generator: Poedit 1.8.7\n"
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;esc_attr__\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#. translators:
-#. %s is the created date in the date format from general settings
-#.
-#: ../class-challonge-ajax.php:128 ../class-challonge-plugin.php:250
+#: ../class-challonge-ajax.php:128 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:250
 #, php-format
 msgid "Created on %s"
 msgstr ""
 
-#. translators:
-#. %s is remaining time until starting time in human readable format (eg. "3 weeks" or "34 minutes")
-#.
-#: ../class-challonge-ajax.php:137 ../class-challonge-plugin.php:259
+#: ../class-challonge-ajax.php:137
 #, php-format
-msgid "Starts in %s"
+msgid "Starts %s"
 msgstr ""
 
-#. translators:
-#. %1$d is the number of signed uo participants
-#. %2$s is the participant cap (may be infinity)
-#.
-#: ../class-challonge-ajax.php:151 ../class-challonge-plugin.php:273
+#: ../class-challonge-ajax.php:151 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:273
 #, php-format
 msgid "%1$d participants of %2$s"
 msgstr ""
 
-#: ../class-challonge-ajax.php:167 ../class-challonge-plugin.php:424
-#: ../class-challonge-plugin.php:546 ../class-challonge-plugin.php:567
-#: ../class-challonge-plugin.php:588 ../class-challonge-plugin.php:609
-#: ../class-challonge-plugin.php:752
+#: ../class-challonge-ajax.php:197 ../class-challonge-ajax.php:467
+#: ../class-challonge-ajax.php:488 ../class-challonge-ajax.php:509
+#: ../class-challonge-ajax.php:530 ../class-challonge-plugin.php:187
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:424 2014-12-29).php:546 2014-12-29).php:567
+#: 2014-12-29).php:588 2014-12-29).php:609 2014-12-29).php:752
 msgid "Close"
 msgstr ""
 
-#: ../class-challonge-ajax.php:172 ../class-challonge-plugin.php:429
+#: ../class-challonge-ajax.php:202 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:429
 msgid "Cancel"
 msgstr ""
 
-#: ../class-challonge-ajax.php:178 ../class-challonge-plugin.php:435
+#: ../class-challonge-ajax.php:208 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:435
 msgid "ERROR: No tournament actions available."
 msgstr ""
 
-#. translators:
-#. %s is the title of the plugin (hint: it will always be "Challonge")
-#.
-#: ../class-challonge-plugin.php:114
-#, php-format
-msgid "%s has been updated."
-msgstr ""
-
-#. translators:
-#. %s is the title of the plugin (hint: it will always be "Challonge")
-#.
-#: ../class-challonge-plugin.php:122
-#, php-format
-msgid "An error ocurred. %s could not update."
-msgstr ""
-
-#: ../class-challonge-plugin.php:284
+#: ../class-challonge-ajax.php:236 ../class-challonge-plugin.php:537
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:284
 msgid "Signup"
 msgstr ""
 
-#: ../class-challonge-plugin.php:288
+#: ../class-challonge-ajax.php:241 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:288
 msgid "You must be logged in to sign up to tournaments."
 msgstr ""
 
-#: ../class-challonge-plugin.php:300
+#: ../class-challonge-ajax.php:252 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:300
 msgid "Signup to the following tournament?"
 msgstr ""
 
-#: ../class-challonge-plugin.php:305
+#: ../class-challonge-ajax.php:257 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:305
 msgid "You will join as:"
 msgstr ""
 
-#. translators:
-#. %s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
-#.
-#: ../class-challonge-plugin.php:311
+#: ../class-challonge-ajax.php:263 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:311
 #, php-format
 msgid ""
 "Warning: One or more participants in this tournament have not signed up "
@@ -99,243 +83,272 @@ msgid ""
 "score for their matches."
 msgstr ""
 
-#: ../class-challonge-plugin.php:315
+#: ../class-challonge-ajax.php:268 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:315
 msgid "This tournament is full."
 msgstr ""
 
-#: ../class-challonge-plugin.php:320
+#: ../class-challonge-ajax.php:276 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:320
 msgid "Forfeit"
 msgstr ""
 
-#: ../class-challonge-plugin.php:323
+#: ../class-challonge-ajax.php:279 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:323
 msgid "Forfeit the following tournament?"
 msgstr ""
 
-#: ../class-challonge-plugin.php:329
+#: ../class-challonge-ajax.php:289 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:329
 msgid "Check In"
 msgstr ""
 
-#: ../class-challonge-plugin.php:332
+#: ../class-challonge-ajax.php:292 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:332
 msgid "Check in on the following tournament?"
 msgstr ""
 
-#: ../class-challonge-plugin.php:338
+#: ../class-challonge-ajax.php:302 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:338
 msgid "Report"
 msgstr ""
 
-#: ../class-challonge-plugin.php:349
+#: ../class-challonge-ajax.php:314 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:349
 msgid "What was your score?"
 msgstr ""
 
-#: ../class-challonge-plugin.php:355
+#: ../class-challonge-ajax.php:320 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:355
 msgid "What was your opponent's score?"
 msgstr ""
 
-#. translators:
-#. %1$s is the name of the participant's opponent
-#. %2$s is the name of the current round (see: "Round %d")
-#. %3$s is the name of the tournament
-#.
-#: ../class-challonge-plugin.php:373
+#: ../class-challonge-ajax.php:338 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:373
 #, php-format
 msgid "Did you win against %1$s in %2$s of %3$s?"
 msgstr ""
 
-#. translators:
-#. %d is a number
-#.
-#: ../class-challonge-plugin.php:379
+#: ../class-challonge-ajax.php:344 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:379
 #, php-format
 msgid "Round %d"
 msgstr ""
 
-#: ../class-challonge-plugin.php:388
+#: ../class-challonge-ajax.php:353 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:388
 msgid "Won"
 msgstr ""
 
-#: ../class-challonge-plugin.php:391
+#: ../class-challonge-ajax.php:356 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:391
 msgid "Lost"
 msgstr ""
 
-#: ../class-challonge-plugin.php:395
+#: ../class-challonge-ajax.php:360 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:395
 msgid "Tied"
 msgstr ""
 
-#. translators:
-#. $1$s is the name of the participant's opponent
-#. %2$s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
-#.
-#: ../class-challonge-plugin.php:404
+#: ../class-challonge-ajax.php:370 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:404
 #, php-format
 msgid ""
 "Your opponent, %1$s, did not sign up through this website. The host or an "
 "authorized %2$s user must report the score."
 msgstr ""
 
-#: ../class-challonge-plugin.php:408
+#: ../class-challonge-ajax.php:373 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:408
 msgid ""
 "You have already reported your score for this round. Please wait for the "
 "round to end."
 msgstr ""
 
-#: ../class-challonge-plugin.php:411
+#: ../class-challonge-ajax.php:375 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:411
 msgid "You are not included in this round."
 msgstr ""
 
-#: ../class-challonge-plugin.php:466 ../class-challonge-plugin.php:470
-#: ../class-challonge-shortcode.php:240 ../class-challonge-shortcode.php:244
-#: ../class-challonge-widget.php:170 ../class-challonge-widget.php:174
+#: ../class-challonge-ajax.php:387 ../class-challonge-ajax.php:391
+#: ../class-challonge-shortcode.php:262 ../class-challonge-shortcode.php:266
+#: ../class-challonge-widget.php:163 ../class-challonge-widget.php:167
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:466 2014-12-29).php:470
 msgid "No API Key!"
 msgstr ""
 
-#: ../class-challonge-plugin.php:468 ../class-challonge-shortcode.php:242
-#: ../class-challonge-widget.php:172
+#: ../class-challonge-ajax.php:389 ../class-challonge-shortcode.php:264
+#: ../class-challonge-widget.php:165 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:468
 msgid "Set one."
 msgstr ""
 
-#: ../class-challonge-plugin.php:479
+#: ../class-challonge-ajax.php:400 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:479
 msgid "ERROR: No tournament defined."
 msgstr ""
 
-#: ../class-challonge-plugin.php:483
+#: ../class-challonge-ajax.php:404 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:483
 msgid "ERROR: Invalid tournament."
 msgstr ""
 
-#. translators:
-#. %s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
-#.
-#: ../class-challonge-plugin.php:494 ../class-challonge-shortcode.php:217
+#: ../class-challonge-ajax.php:415 ../class-challonge-shortcode.php:239
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:494
 #, php-format
 msgid "Loading %s tournament..."
 msgstr ""
 
-#. translators:
-#. The phrase "sorry bro" should not be translated literally.
-#.
-#: ../class-challonge-plugin.php:507 ../class-challonge-shortcode.php:177
+#: ../class-challonge-ajax.php:428 ../class-challonge-shortcode.php:199
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:507
 msgid "Sorry bro..."
 msgstr ""
 
-#: ../class-challonge-plugin.php:510 ../class-challonge-shortcode.php:180
+#: ../class-challonge-ajax.php:431 ../class-challonge-shortcode.php:202
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:510
 msgid "You do not have permission to view this tournament."
 msgstr ""
 
-#: ../class-challonge-plugin.php:511 ../class-challonge-shortcode.php:165
+#: ../class-challonge-ajax.php:432 ../class-challonge-shortcode.php:187
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:511
 msgid "Please login to view this tournament."
 msgstr ""
 
-#. translators:
-#. %s is the name of the tournament
-#.
-#: ../class-challonge-plugin.php:537
+#: ../class-challonge-ajax.php:458 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:537
 #, php-format
 msgid "You have joined %s."
 msgstr ""
 
-#: ../class-challonge-plugin.php:538 ../class-challonge-plugin.php:559
-#: ../class-challonge-plugin.php:580 ../class-challonge-plugin.php:604
-#: ../class-challonge-shortcode.php:275
+#: ../class-challonge-ajax.php:459 ../class-challonge-ajax.php:480
+#: ../class-challonge-ajax.php:501 ../class-challonge-ajax.php:525
+#: ../class-challonge-shortcode.php:411 ../old/class-challonge-plugin
+#: (zavaboy's conflicted copy 2014-12-29).php:538 2014-12-29).php:559
+#: 2014-12-29).php:580 2014-12-29).php:604
 msgid "Done"
 msgstr ""
 
-#. translators:
-#. %s is the name of the tournament
-#.
-#: ../class-challonge-plugin.php:545
+#: ../class-challonge-ajax.php:466 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:545
 #, php-format
 msgid "ERROR: You did not join %s."
 msgstr ""
 
-#. translators:
-#. %s is the name of the tournament
-#.
-#: ../class-challonge-plugin.php:558
+#: ../class-challonge-ajax.php:479 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:558
 #, php-format
 msgid "You have forfeited %s."
 msgstr ""
 
-#. translators:
-#. %s is the name of the tournament
-#.
-#: ../class-challonge-plugin.php:566
+#: ../class-challonge-ajax.php:487 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:566
 #, php-format
 msgid "ERROR: You did not forfeit %s."
 msgstr ""
 
-#. translators:
-#. %s is the name of the tournament
-#.
-#: ../class-challonge-plugin.php:579
+#: ../class-challonge-ajax.php:500 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:579
 #, php-format
 msgid "You have been checked into %s."
 msgstr ""
 
-#. translators:
-#. %s is the name of the tournament
-#.
-#: ../class-challonge-plugin.php:587
+#: ../class-challonge-ajax.php:508 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:587
 #, php-format
 msgid "ERROR: You were not checked into %s."
 msgstr ""
 
-#: ../class-challonge-plugin.php:597
+#: ../class-challonge-ajax.php:518 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:597
 msgid "Invalid request"
 msgstr ""
 
-#: ../class-challonge-plugin.php:603
+#: ../class-challonge-ajax.php:524 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:603
 msgid "You have reported your score."
 msgstr ""
 
-#: ../class-challonge-plugin.php:608
+#: ../class-challonge-ajax.php:529 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:608
 #, php-format
 msgid "Your score was not reported. Reason: %s"
 msgstr ""
 
-#: ../class-challonge-plugin.php:621
+#: ../class-challonge-ajax.php:542 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:621
 msgid "Scoring disabled"
 msgstr ""
 
-#: ../class-challonge-plugin.php:626
+#: ../class-challonge-ajax.php:547 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:626
 msgid "Invalid W/L status"
 msgstr ""
 
-#: ../class-challonge-plugin.php:638
+#: ../class-challonge-ajax.php:559 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:638
 msgid "Invalid opponent"
 msgstr ""
 
-#: ../class-challonge-plugin.php:646
+#: ../class-challonge-ajax.php:567 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:646
 msgid "Opponent W/L/T disagreement"
 msgstr ""
 
-#: ../class-challonge-plugin.php:649
+#: ../class-challonge-ajax.php:570 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:649
 msgid "Opponent score disagreement"
 msgstr ""
 
-#: ../class-challonge-plugin.php:656
+#: ../class-challonge-ajax.php:577 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:656
 msgid "Unable to clear opponent report"
 msgstr ""
 
-#: ../class-challonge-plugin.php:663
+#: ../class-challonge-ajax.php:584 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:663
 msgid "Unable to set your report"
 msgstr ""
 
-#: ../class-challonge-plugin.php:688
+#: ../class-challonge-ajax.php:609 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:688
 msgid "Unable to update match"
 msgstr ""
 
-#: ../class-challonge-plugin.php:750
+#: ../class-challonge-ajax.php:688 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:1059
+msgid "type here"
+msgstr ""
+
+#: ../class-challonge-plugin.php:130 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:114
+#, php-format
+msgid "%s has been updated."
+msgstr ""
+
+#: ../class-challonge-plugin.php:138 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:122
+#, php-format
+msgid "An error ocurred. %s could not update."
+msgstr ""
+
+#: ../class-challonge-plugin.php:185 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:750
 msgid "Please select if you Won, Lost, or Tied."
 msgstr ""
 
-#: ../class-challonge-plugin.php:751 ../class-challonge-plugin.php:770
+#: ../class-challonge-plugin.php:186 ../class-challonge-plugin.php:206
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:751 2014-12-29).php:770
 msgid "Sorry, an error occurred."
 msgstr ""
 
-#. translators:
-#. %1$s is the title of the plugin (hint: it will always be "Challonge")
-#. %2$s is the name of the third-party website this plugin interfaces with (hint: it will always be "Challonge.com")
-#.
-#: ../class-challonge-plugin.php:816
+#: ../class-challonge-plugin.php:252 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:816
 #, php-format
 msgid ""
 "%1$s requires cURL to be enabled on your webserver. Please ask your server "
@@ -343,258 +356,437 @@ msgid ""
 "API."
 msgstr ""
 
-#: ../class-challonge-plugin.php:973
+#: ../class-challonge-plugin.php:348 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:973
 msgid "The Challonge API cache was cleared."
 msgstr ""
 
-#: ../class-challonge-plugin.php:987
+#: ../class-challonge-plugin.php:362 ../old/class-challonge-plugin (zavaboy's
+#: conflicted copy 2014-12-29).php:987
 msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 
-#: ../class-challonge-plugin.php:1059
-msgid "type here"
+#: ../class-challonge-plugin.php:466
+msgid "right now"
 msgstr ""
 
-#: ../class-challonge-shortcode.php:234 ../class-challonge-shortcode.php:323
-#: ../class-challonge-widget.php:217
-msgid "(no tournaments)"
+#: ../class-challonge-plugin.php:471
+#, php-format
+msgid "in %s"
 msgstr ""
 
-#: ../class-challonge-shortcode.php:320 ../class-challonge-widget.php:215
-msgid "Sorry, the tournament listing is unavailable. Please try again later."
+#: ../class-challonge-plugin.php:475 ../class-challonge-shortcode.php:386
+#: ../class-challonge-shortcode.php:482 ../class-challonge-shortcode.php:522
+#, php-format
+msgid "%s ago"
 msgstr ""
 
-#: ../class-challonge-shortcode.php:328
+#: ../class-challonge-plugin.php:496
 msgid "Name"
 msgstr ""
 
-#: ../class-challonge-shortcode.php:329
+#: ../class-challonge-plugin.php:497
+msgid "Plain Text"
+msgstr ""
+
+#: ../class-challonge-plugin.php:498
+msgid "Link to Challonge.com"
+msgstr ""
+
+#: ../class-challonge-plugin.php:499
+msgid "Link to Challonge.com in new browser window/tab"
+msgstr ""
+
+#: ../class-challonge-plugin.php:500
+msgid "Link to open in modal"
+msgstr ""
+
+#: ../class-challonge-plugin.php:501
+msgid "Link to open in full modal"
+msgstr ""
+
+#: ../class-challonge-plugin.php:503
 msgid "Type"
 msgstr ""
 
-#: ../class-challonge-shortcode.php:330 ../settings.tpl.php:71
+#: ../class-challonge-plugin.php:504
+msgid "Full (eg. Single Elimination, Swiss)"
+msgstr ""
+
+#: ../class-challonge-plugin.php:505
+msgid "Short (eg. SE, Sw)"
+msgstr ""
+
+#: ../class-challonge-plugin.php:507 ../settings.tpl.php:138
 msgid "Participants"
 msgstr ""
 
-#: ../class-challonge-shortcode.php:331
+#: ../class-challonge-plugin.php:508
+msgid "Number of participants (eg. 5)"
+msgstr ""
+
+#: ../class-challonge-plugin.php:509
+msgid "Num. of participants of total (eg. 5 of 12)"
+msgstr ""
+
+#: ../class-challonge-plugin.php:510
+msgid "Num. of participants slash toal (eg. 5/12)"
+msgstr ""
+
+#: ../class-challonge-plugin.php:512
 msgid "Created On"
 msgstr ""
 
-#: ../class-challonge-shortcode.php:332
+#: ../class-challonge-plugin.php:513 ../class-challonge-plugin.php:541
+#: ../class-challonge-plugin.php:546
+msgid "Date"
+msgstr ""
+
+#: ../class-challonge-plugin.php:514 ../class-challonge-plugin.php:542
+#: ../class-challonge-plugin.php:547
+msgid "Date & Time"
+msgstr ""
+
+#: ../class-challonge-plugin.php:515 ../class-challonge-plugin.php:543
+#: ../class-challonge-plugin.php:548
+msgid "Time ago (eg. 2 days ago)"
+msgstr ""
+
+#: ../class-challonge-plugin.php:517
 msgid "Progress"
 msgstr ""
 
-#: ../class-challonge-widget.php:30
+#: ../class-challonge-plugin.php:518
+msgid "Percentage (eg. 27%)"
+msgstr ""
+
+#: ../class-challonge-plugin.php:519
+msgid "Progress bar"
+msgstr ""
+
+#: ../class-challonge-plugin.php:521
+msgid "Check-In Duration"
+msgstr ""
+
+#: ../class-challonge-plugin.php:522 ../class-challonge-plugin.php:530
+#: ../class-challonge-plugin.php:538 ../class-challonge-plugin.php:551
+msgid "Default"
+msgstr ""
+
+#: ../class-challonge-plugin.php:524 ../settings.tpl.php:150
+msgid "Description"
+msgstr ""
+
+#: ../class-challonge-plugin.php:525
+msgid "Full HTML"
+msgstr ""
+
+#: ../class-challonge-plugin.php:526
+msgid "Full Text"
+msgstr ""
+
+#: ../class-challonge-plugin.php:527
+msgid "First Line (without formatting)"
+msgstr ""
+
+#: ../class-challonge-plugin.php:529
+msgid "Game"
+msgstr ""
+
+#: ../class-challonge-plugin.php:532
+msgid "Quick Advance"
+msgstr ""
+
+#: ../class-challonge-plugin.php:533
+msgid "Yes/No"
+msgstr ""
+
+#: ../class-challonge-plugin.php:534
+msgid "On/Off"
+msgstr ""
+
+#: ../class-challonge-plugin.php:535
+msgid "Checkmark"
+msgstr ""
+
+#: ../class-challonge-plugin.php:540
+msgid "Start At"
+msgstr ""
+
+#: ../class-challonge-plugin.php:545
+msgid "Started At"
+msgstr ""
+
+#: ../class-challonge-plugin.php:550
+msgid "State"
+msgstr ""
+
+#: ../class-challonge-shortcode.php:256 ../class-challonge-shortcode.php:564
+#: ../class-challonge-widget.php:222
+msgid "(no tournaments)"
+msgstr ""
+
+#: ../class-challonge-shortcode.php:561 ../class-challonge-widget.php:220
+msgid "Sorry, the tournament listing is unavailable. Please try again later."
+msgstr ""
+
+#: ../class-challonge-widget.php:22
 msgid "List in-progress tournaments and signups for unstarted tournaments."
 msgstr ""
 
-#: ../class-challonge-widget.php:71
+#: ../class-challonge-widget.php:63
 msgid "Title:"
 msgstr ""
 
-#: ../class-challonge-widget.php:75
+#: ../class-challonge-widget.php:67
 msgid "Subdomain:"
 msgstr ""
 
-#: ../class-challonge-widget.php:79
+#: ../class-challonge-widget.php:71
 msgid "Tournament Filter:"
 msgstr ""
 
-#: ../class-challonge-widget.php:83
+#: ../class-challonge-widget.php:75
 msgid "Status Filter:"
 msgstr ""
 
-#: ../class-challonge-widget.php:94
+#: ../class-challonge-widget.php:86
 msgid "Max tournaments listed:"
 msgstr ""
 
-#: ../settings.tpl.php:21
+#: ../old/class-challonge-plugin (zavaboy's conflicted copy
+#: 2014-12-29).php:259
+#, php-format
+msgid "Starts in %s"
+msgstr ""
+
+#: ../settings.tpl.php:23
 msgid ""
 "If you like this plugin, please consider donating to show your appreciation."
 msgstr ""
 
-#: ../settings.tpl.php:22
+#: ../settings.tpl.php:24
 msgid "Thank you!"
 msgstr ""
 
-#: ../settings.tpl.php:23
+#: ../settings.tpl.php:25
 msgid "Hide"
 msgstr ""
 
-#. translators:
-#. %s is the title of the plugin (hint: it will always be "Challonge")
-#.
-#: ../settings.tpl.php:31
+#: ../settings.tpl.php:33
 #, php-format
 msgid "%s Settings"
 msgstr ""
 
-#: ../settings.tpl.php:34
+#: ../settings.tpl.php:36
 msgid "The only setup needed is your API key. Simple, right?"
 msgstr ""
 
-#: ../settings.tpl.php:43
+#: ../settings.tpl.php:46
 msgid "API Key"
 msgstr ""
 
-#: ../settings.tpl.php:47
+#: ../settings.tpl.php:51
 msgid "Verifying..."
 msgstr ""
 
-#: ../settings.tpl.php:48
+#: ../settings.tpl.php:54
 msgid "Valid"
 msgstr ""
 
-#: ../settings.tpl.php:49
+#: ../settings.tpl.php:57
 msgid "Invalid"
 msgstr ""
 
-#: ../settings.tpl.php:52
+#: ../settings.tpl.php:63
 msgid "Don't have an API key?"
 msgstr ""
 
-#: ../settings.tpl.php:53
+#: ../settings.tpl.php:64
 msgid "Get one."
 msgstr ""
 
-#: ../settings.tpl.php:57
+#: ../settings.tpl.php:68
 msgid "Privacy"
 msgstr ""
 
-#: ../settings.tpl.php:61
+#: ../settings.tpl.php:72
 msgid "Embedded Challonge tournaments are publicly displayed by default."
 msgstr ""
 
-#: ../settings.tpl.php:64
+#: ../settings.tpl.php:75
 msgid "Challonge widgets are publicly displayed by default."
 msgstr ""
 
-#: ../settings.tpl.php:67
+#: ../settings.tpl.php:78
 msgid ""
 "The Signup buttons in the widget are publicly displayed. (The user will be "
 "asked to login before signing up to a tournament.)"
 msgstr ""
 
-#: ../settings.tpl.php:73
+#: ../settings.tpl.php:81
+msgid ""
+"Do not exclude tournaments that are excluded from search engines and the "
+"public browsable index."
+msgstr ""
+
+#: ../settings.tpl.php:85
+msgid "Display"
+msgstr ""
+
+#: ../settings.tpl.php:87
+msgid "Manage the table headers for tournament listings:"
+msgstr ""
+
+#: ../settings.tpl.php:108
+msgid "Edit Header:"
+msgstr ""
+
+#: ../settings.tpl.php:110
+msgid "Alias"
+msgstr ""
+
+#: ../settings.tpl.php:118
+msgid "Format"
+msgstr ""
+
+#: ../settings.tpl.php:140
 msgid "Use the following template for participant names:"
 msgstr ""
 
-#: ../settings.tpl.php:76
+#: ../settings.tpl.php:143
 msgid "Show me all of the available tokens!"
 msgstr ""
 
-#: ../settings.tpl.php:78
+#: ../settings.tpl.php:145
 msgid "Here are all of the tokens you may use:"
 msgstr ""
 
-#: ../settings.tpl.php:82
+#: ../settings.tpl.php:149
 msgid "Token"
 msgstr ""
 
-#: ../settings.tpl.php:83
-msgid "Description"
-msgstr ""
-
-#: ../settings.tpl.php:109
+#: ../settings.tpl.php:176
 msgid "User ID"
 msgstr ""
 
-#: ../settings.tpl.php:114
+#: ../settings.tpl.php:181
 msgid "Username"
 msgstr ""
 
-#: ../settings.tpl.php:119
+#: ../settings.tpl.php:186
 msgid "Username without funk"
 msgstr ""
 
-#: ../settings.tpl.php:124
+#: ../settings.tpl.php:191
 msgid "First Name"
 msgstr ""
 
-#: ../settings.tpl.php:129
+#: ../settings.tpl.php:196
 msgid "Last Name"
 msgstr ""
 
-#: ../settings.tpl.php:134
+#: ../settings.tpl.php:201
 msgid "Nickname"
 msgstr ""
 
-#: ../settings.tpl.php:139
+#: ../settings.tpl.php:206
 msgid "Display Name"
 msgstr ""
 
-#: ../settings.tpl.php:144
+#: ../settings.tpl.php:211
 msgid "User Role"
 msgstr ""
 
-#: ../settings.tpl.php:149
+#: ../settings.tpl.php:216
 msgid "Custom input field"
 msgstr ""
 
-#: ../settings.tpl.php:150
+#: ../settings.tpl.php:217
 msgid "example"
 msgstr ""
 
-#: ../settings.tpl.php:154
+#: ../settings.tpl.php:221
 msgid "Custom input field with set width"
 msgstr ""
 
-#: ../settings.tpl.php:163
+#: ../settings.tpl.php:227
+msgid "Any user meta field"
+msgstr ""
+
+#: ../settings.tpl.php:229
+msgid "Show List"
+msgstr ""
+
+#: ../settings.tpl.php:234
+msgid ""
+"Note: Just because a meta field is listed here, doesn't mean it should be "
+"used."
+msgstr ""
+
+#: ../settings.tpl.php:238
+msgid ""
+"This list is exhaustive and includes user meta data that is mostly useless "
+"for this purpose. Some of these fields may contain sensitive user "
+"information."
+msgstr ""
+
+#: ../settings.tpl.php:272
 msgid "Scoring"
 msgstr ""
 
-#: ../settings.tpl.php:171
+#: ../settings.tpl.php:280
 #, php-format
 msgid ""
 "Remember, you can always correct any reported scores with your %s account."
 msgstr ""
 
-#: ../settings.tpl.php:179
+#: ../settings.tpl.php:288
 msgid "Both participants must report a score and both reports must agree."
 msgstr ""
 
-#: ../settings.tpl.php:188
+#: ../settings.tpl.php:297
 #, php-format
 msgid ""
 "A participant may report the score if they were matched with an opponent "
 "that has signed up by other means. (eg: via %s)"
 msgstr ""
 
-#: ../settings.tpl.php:196
+#: ../settings.tpl.php:305
 msgid "Either participant may report the score."
 msgstr ""
 
-#: ../settings.tpl.php:199
+#: ../settings.tpl.php:308
 msgid "Disable score reporting; no participants may report a score."
 msgstr ""
 
-#: ../settings.tpl.php:202
+#: ../settings.tpl.php:311
 msgid "Participants report their opponents' scores when reporting their own."
 msgstr ""
 
-#: ../settings.tpl.php:206
+#: ../settings.tpl.php:315
 msgid "Caching"
 msgstr ""
 
-#: ../settings.tpl.php:213
+#: ../settings.tpl.php:322
 #, php-format
 msgid ""
 "Cache API responses for %s seconds. (Set this to \"0\" to disable caching.)"
 msgstr ""
 
-#: ../settings.tpl.php:220
+#: ../settings.tpl.php:329
 msgid "Clear any cached API responses when I click save."
 msgstr ""
 
-#: ../settings.tpl.php:224
+#: ../settings.tpl.php:333
 msgid "Security"
 msgstr ""
 
-#: ../settings.tpl.php:228
+#: ../settings.tpl.php:337
 msgid "Disable SSL verification."
 msgstr ""
 
-#: ../settings.tpl.php:229
+#: ../settings.tpl.php:338
 msgid ""
 "Disabling SSL verification is a security risk. This may be, however, a way "
 "around SSL errors if you are getting them."

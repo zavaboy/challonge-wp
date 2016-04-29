@@ -67,15 +67,23 @@
 }
 td.challonge-type,
 td.challonge-participants,
-td.challonge-progress {
+td.challonge-progress,
+td.challonge-quick,
+td.challonge-state,
+td.challonge-signup {
 	text-align: center;
 }
-td.challonge-created {
+td.challonge-created,
+td.challonge-started,
+td.challonge-start {
 	text-align: right;
 }
 td.challonge-progress progress {
 	width: 64px;
 	background-clip: content-box; /* fixes Chrome v32+ */
+}
+td.challonge-quick .dashicons {
+	font-size: 30px;
 }
 
 .challonge-widget-tournaments li {
@@ -106,6 +114,8 @@ td.challonge-progress progress {
 	text-decoration: none;
 	text-align: center;
 	text-shadow: 0px 1px 1px #287ace;
+}
+.challonge-widget-tournaments .challonge-button {
 	float: right;
 }
 .challonge-button:hover {

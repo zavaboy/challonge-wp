@@ -1,6 +1,16 @@
 #challonge-apikey {
 	font-family: monospace;
 }
+#challonge-apikey-check::before,
+#challonge-apikey-ok::before,
+#challonge-apikey-fail::before,
+#challonge-apikey-error::before {
+	/* Dashicon Styling */
+	font-size: 2em;
+	display: inline-block;
+	width: 1em;
+	text-align: center;
+}
 #challonge-apikey-check {
 	color: #ccc;
 	display: none;
@@ -14,7 +24,8 @@
 	color: #f00;
 	display: none;
 }
-#challonge-participant_name-tokens {
+#challonge-participant_name-tokens,
+#challonge-participant_name-usermetatokens {
 	display: none;
 }
 #challonge-participant_name-tokens table {
@@ -34,6 +45,13 @@
 }
 #challonge-participant_name-tokens table tr td.token strong {
 	color: red;
+}
+#challonge-participant_name-usermetatokens {
+	width: 25em;
+	font-size: 80%;
+}
+#challonge-participant_name-usermetatokens ul {
+	font-family: monospace;
 }
 #challonge-donate {
 	float: right;
@@ -108,3 +126,108 @@
 i.mce-i-challonge-mce-icon {
 	background-image: url('challonge.png');
 }
+
+#challonge-headers_shortcode-list {
+	list-style-type: none;
+	margin: 0;
+	padding: 2px;
+	/*width: 256px;*/
+	border: 1px solid #ccc;
+	border-radius: 7px;
+	background: white;
+	display: table;
+	border-collapse: separate;
+}
+#challonge-headers_shortcode-list li {
+	margin: 1px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 0 0.4em;
+	vertical-align: baseline;
+	white-space: nowrap;
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,f1f1f1+50,e1e1e1+51,f6f6f6+100;White+Gloss+%231 */
+background: rgb(255,255,255); /* Old browsers */
+background: -moz-linear-gradient(top,  rgba(255,255,255,1) 0%, rgba(241,241,241,1) 50%, rgba(225,225,225,1) 51%, rgba(246,246,246,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top,  rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom,  rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f6f6f6',GradientType=0 ); /* IE6-9 */
+
+}
+#challonge-headers_shortcode-list li:hover {
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e6f0a3+0,d2e638+50,c3d825+51,dbf043+100;Green+Gloss+%232 */
+background: rgb(230,240,163); /* Old browsers */
+background: -moz-linear-gradient(top,  rgba(230,240,163,1) 0%, rgba(210,230,56,1) 50%, rgba(195,216,37,1) 51%, rgba(219,240,67,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top,  rgba(230,240,163,1) 0%,rgba(210,230,56,1) 50%,rgba(195,216,37,1) 51%,rgba(219,240,67,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom,  rgba(230,240,163,1) 0%,rgba(210,230,56,1) 50%,rgba(195,216,37,1) 51%,rgba(219,240,67,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e6f0a3', endColorstr='#dbf043',GradientType=0 ); /* IE6-9 */
+
+
+}
+#challonge-headers_shortcode-list li .challonge-headers_shortcode-item {
+	display: inline-block;
+}
+#challonge-headers_shortcode-list li .challonge-headers_shortcode-label {
+    display: inline-block;
+    min-width: 128px;
+    padding-left: 0.5em;
+}
+#challonge-headers_shortcode-list li .dashicons {
+	cursor: pointer;
+	vertical-align: text-top;
+}
+#challonge-headers_shortcode-list li .handle {
+	cursor: move;
+	color: #999;
+}
+#challonge-headers_shortcode-list li.show .hide {
+	display: none;
+}
+#challonge-headers_shortcode-list li.show .show {
+	display: inline-block;
+}
+#challonge-headers_shortcode-list li.hide,
+#challonge-headers_shortcode-list li.hide .handle {
+	color: #ccc;
+	border-color: white;
+}
+#challonge-headers_shortcode-list li.hide a.dashicons {
+	opacity: 0.5;
+}
+#challonge-headers_shortcode-list li.hide:hover {
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#f3f8d4+0,e9f39f+50,e3ed97+51,eef8a6+100 */
+background: rgb(243,248,212); /* Old browsers */
+background: -moz-linear-gradient(top,  rgba(243,248,212,1) 0%, rgba(233,243,159,1) 50%, rgba(227,237,151,1) 51%, rgba(238,248,166,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top,  rgba(243,248,212,1) 0%,rgba(233,243,159,1) 50%,rgba(227,237,151,1) 51%,rgba(238,248,166,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom,  rgba(243,248,212,1) 0%,rgba(233,243,159,1) 50%,rgba(227,237,151,1) 51%,rgba(238,248,166,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f3f8d4', endColorstr='#eef8a6',GradientType=0 ); /* IE6-9 */
+
+}
+#challonge-headers_shortcode-list li.hide .hide {
+	display: inline-block;
+}
+#challonge-headers_shortcode-list li.hide .show {
+	display: none;
+}
+#challonge-headers_shortcode-list li.hide a.hover,
+#challonge-headers_shortcode-list li .hover {
+	opacity: 0;
+}
+#challonge-headers_shortcode-list li:hover .hover,
+#challonge-headers_shortcode-list li .hover:focus,
+#challonge-headers_shortcode-list li :focus ~ .hover {
+	opacity: 1;
+}
+#challonge-headers_shortcode-list li.hide:hover .hover,
+#challonge-headers_shortcode-list li.hide .hover:focus,
+#challonge-headers_shortcode-list li.hide :focus ~ .hover {
+	opacity: 0.5;
+}
+
+/*#challonge-headers_shortcode-list li .challonge-headers_shortcode-editform {
+	display: none;
+}*/
+.challonge-headers_shortcode-editform label { display:block; }
+.challonge-headers_shortcode-editform select,
+.challonge-headers_shortcode-editform input { display:inline-block; width:100%; }
+.challonge-headers_shortcode-editform input { margin-bottom:12px; padding: .4em; }
+.challonge-headers_shortcode-editform fieldset { padding:0; border:0; }

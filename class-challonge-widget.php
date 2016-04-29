@@ -10,18 +10,10 @@ class Challonge_Widget extends WP_Widget
 {
 	protected $oCP;
 	protected $oApi;
-
-	private $aStatuses = array(
-		'pending',
-		'underway',
-		'awaiting_review',
-		'complete',
-		'checking_in',
-		'checked_in',
-		//'unknown',
-	);
+	protected $aStatuses;
 
 	public function __construct() {
+		$this->aStatuses = Challonge_Plugin::$aStatuses;
 		parent::__construct(
 			'challonge',
 			__( Challonge_Plugin::TITLE, Challonge_Plugin::TEXT_DOMAIN ),
@@ -140,6 +132,7 @@ class Challonge_Widget extends WP_Widget
 	public function content( $instance ) {
 		// Init
 		$this->oCP = Challonge_Plugin::getInstance();
+		$options = $this->oCP->getOptions();
 		$this->oApi = $this->oCP->getApi();
 		$usr = wp_get_current_user();
 		$ajaxurl = admin_url( 'admin-ajax.php' );
@@ -191,19 +184,31 @@ class Challonge_Widget extends WP_Widget
 		$tournys = array();
 		if ( ! empty( $t->tournament ) ) {
 			foreach ( $t->tournament AS $tourny ) {
-				if ( 'false' == $tourny->private && false !== $name_filter && ( null === $name_filter || preg_match( $name_filter, $tourny->name ) ) && ( ( empty( $status_filter ) && ! $status_filter_unknown ) || in_array( strtolower( $tourny->state ), $status_filter ) || ( ! in_array( strtolower( $tourny->state ), $this->aStatuses ) && $status_filter_unknown ) ) ) {
+				if (
+					( 'false' == $tourny->private || $options['public_ignore_exclusion'] )
+					&& false !== $name_filter
+					&& ( null === $name_filter || preg_match( $name_filter, $tourny->name ) )
+					&& (
+						( empty( $status_filter ) && ! $status_filter_unknown )
+						|| in_array( strtolower( $tourny->state ), $status_filter )
+						|| (
+							! in_array( strtolower( $tourny->state ), $this->aStatuses )
+							&& $status_filter_unknown
+						)
+					)
+				) {
 					$ret = '<li>';
 					if ( strlen( $tourny->subdomain ) )
 						$tname = (string) $tourny->subdomain . '-' . $tourny->url;
 					else
 						$tname = (string) $tourny->url;
 					$lnk = $this->oCP->widgetTournyLink( $tname );
-					if ( ! empty( $lnk['name'] ) ) {
-						$ret .= $lnk['button_html'];
+					if ( ! empty( $lnk->name ) ) {
+						$ret .= $lnk->button_html;
 					}
-					$ret .= $lnk['title_html'];
+					$ret .= $lnk->title_html;
 					$ret .= '<br /><span class="challonge-info">'
-							. esc_html( $lnk['participants'] ) . '/' . $lnk['signup_cap']
+							. esc_html( $lnk->participants_count ) . '/' . $lnk->signup_cap
 							. ' | ' . esc_html( ucwords( str_replace( '_', ' ', $tourny->state ) ) )
 						. '</span>';
 					$ret .= '</li>';

@@ -3,7 +3,7 @@ Contributors: zavaboy
 Donate link: http://zavaboy.org/challonge-wordpress-plugin/
 Tags: plugin, widget, shortcode, api, integration, embed, events, games, tournaments, matches, Challonge, brackets
 Requires at least: 3.3
-Tested up to: 4.0
+Tested up to: 4.5.1
 Stable tag: trunk
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
@@ -26,7 +26,7 @@ Do you use [Challonge](http://challonge.com/ "Free online tournament management 
 = Languages =
 
 * English
-* Spanish - Thanks to Andrew Kurtis from [WebHostingHub](http://www.webhostinghub.com/) for translating!
+* Spanish (68%) - Thanks to Andrew Kurtis from [WebHostingHub](http://www.webhostinghub.com/) for translating!
 
 = Requirements =
 
@@ -73,6 +73,7 @@ Here's all the shortcode attributes available to you:
 * **`height`** - The height of the embedded tournament bracket.
 * **`limit`** - Limit the number of returned results for tournament listings.
 * **`allowusers`** / **`denyusers`** / **`allowroles`** / **`denyroles`** - A comma separated list of users or roles you would like to specifically allow or deny from viewing the tournament bracket or tournament listings.
+* **`statuses`** / **`excludestatuses`** - A comma separated list of tournament statuses you would like to specifically show or hide from the tournament listings. All statuses: "Pending,Checking In,Checked In,Underway,Awaiting Review,Complete"
 
 = Widget =
 
@@ -118,7 +119,7 @@ Actually, no you don't. (Keep reading!) Without an account, you will only be abl
 
 = I think I found a bug. What do I do? =
 
-Although I do my best to avoid introducing bugs, especially with complexity growing every release, it gets increasingly difficult for me to squish them all before I make a release. That said, please report any bugs you come across in the [support forum](http://wordpress.org/support/plugin/challonge). I try to get to bug reports quickly and typically, but not always, I get bugs fixed within a week. If I'm already aware of the bug, you will find it in the [upcoming release notes](http://zavaboy.org/challonge-wordpress-plugin/) on my website.
+Although I do my best to avoid introducing bugs, especially with complexity growing every release, it gets increasingly difficult for me to squish them all before I make a release. That said, please report any bugs you come across in the [support forum](http://wordpress.org/support/plugin/challonge). I try to get to bug reports quickly depending on the severity. If I'm already aware of the bug, you will find it in the [upcoming release notes](http://zavaboy.org/challonge-wordpress-plugin/) on my website.
 
 = Can you make the plugin do this? =
 
@@ -137,6 +138,16 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 5. Control things like how player names are defined and how scoring works in the settings page.
 
 == Changelog ==
+
+= 1.1.5 =
+* Moved widget content functions to a new class for Ajax related methods.
+* Moved development features to separate class.
+* Made an option to disable the exclusion setting in each tournament from Challonge.com.
+* Added status-specific visibility options to shortcodes.
+* Added option to manage shortcode tournament listings.
+* Added user meta fields to participant name templating.
+* Some general code cleanup.
+* Bumped tested WordPress version from 4.0 to 4.5.
 
 = 1.1.4 =
 * Added version information to settings page.
@@ -232,6 +243,16 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.5 =
+Moved widget content functions to a new class for Ajax related methods.
+Moved development features to separate class.
+Made an option to disable the exclusion setting in each tournament from Challonge.com.
+Added status-specific visibility options to shortcodes.
+Added option to manage shortcode tournament listings.
+Added user meta fields to participant name templating.
+Some general code cleanup.
+Bumped tested WordPress version from 4.0 to 4.5.
 
 = 1.1.4 =
 Added version information to settings page.
