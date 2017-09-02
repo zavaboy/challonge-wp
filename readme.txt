@@ -1,9 +1,10 @@
 === Challonge ===
 Contributors: zavaboy
-Donate link: http://zavaboy.org/challonge-wordpress-plugin/
+Donate link: https://zavaboy.org/challonge-wordpress-plugin/
 Tags: plugin, widget, shortcode, api, integration, embed, events, games, tournaments, matches, Challonge, brackets
 Requires at least: 3.3
-Tested up to: 4.5
+Tested up to: 4.9
+Requires PHP: 5.5
 Stable tag: trunk
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
@@ -12,15 +13,15 @@ Integrates Challonge, a handy bracket generator, into WordPress.
 
 == Description ==
 
-Do you use [Challonge](http://challonge.com/ "Free online tournament management and brackets (single & double elimination, round robin, Swiss)") for your gaming or sport events? The Challonge plugin integrates your Challonge tournaments into your WordPress website so your users may easily see recent tournaments, their progress, and even sign up and participate.
+Do you use [Challonge](https://challonge.com/ "Free online tournament management and brackets (single & double elimination, round robin, Swiss)") for your gaming or sport events? The Challonge plugin integrates your Challonge tournaments into your WordPress website so your users may easily see recent tournaments, their progress, and even sign up and participate.
 
 = Features =
 
+* Adaptive caching and background refresh allows your pages to load a lot faster than before! - **New in 1.1.6!**
 * Only registered users may sign up to your tournaments.
 * Likewise, your users may forfeit a tournament after signing up, but only before it begins.
 * Participating users may report their own scores.
 * Includes role capabilities. You will need a role management plugin to change who has these capabilities.
-* Adjustable caching to speed up page load time.
 * Custom participant name templating.
 
 = Languages =
@@ -30,20 +31,20 @@ Do you use [Challonge](http://challonge.com/ "Free online tournament management 
 
 = Requirements =
 
-In order to use the API, you will need [cURL](http://www.php.net/manual/en/book.curl.php). Most PHP installations include cURL.
+In order to use the API, you will need [cURL](http://php.net/manual/en/book.curl.php). Most PHP installations include cURL.
 
 = Latest Information =
 
 Keep up to date with upcoming release information on my website:
 
-http://zavaboy.org/challonge-wordpress-plugin/
+https://zavaboy.org/challonge-wordpress-plugin/
 
 = Getting Started =
 
 Before you start using this plugin, here's what you'll need:
 
-* A [Challonge.com](http://challonge.com/) account. Registration is free.
-* A valid 'Developer API Key' so the Challonge plugin can talk with your Challonge.com account.
+* A [Challonge.com](https://challonge.com/) account. Registration is free.
+* A valid [Developer API Key](https://challonge.com/settings/developer) so the Challonge plugin can talk with your Challonge.com account.
 
 Once you have the Challonge plugin installed and activated on your website, you will need to enter your Challonge.com API key in 'Settings' > 'Challonge'. Once you have done that, you have unlocked the full power of this nice plugin.
 
@@ -74,6 +75,7 @@ Here's all the shortcode attributes available to you:
 * **`limit`** - Limit the number of returned results for tournament listings.
 * **`allowusers`** / **`denyusers`** / **`allowroles`** / **`denyroles`** - A comma separated list of users or roles you would like to specifically allow or deny from viewing the tournament bracket or tournament listings.
 * **`statuses`** / **`excludestatuses`** - A comma separated list of tournament statuses you would like to specifically show or hide from the tournament listings. All statuses: "Pending,Checking In,Checked In,Underway,Awaiting Review,Complete"
+* **`listparticipants`** - List participants currently in the tournament. (Must be used with `url`) - **New in 1.1.6!**
 
 = Widget =
 
@@ -115,19 +117,19 @@ At first, I needed a WordPress plugin to help with some tournaments I was involv
 
 = Do I need a Challonge.com account to use this plugin? =
 
-Actually, no you don't. (Keep reading!) Without an account, you will only be able to embed tournament brackets into posts and pages with the shortcode, but you will not be able to get any tournament listings with the shortcode or in the widget. You will need a valid Challonge API key, which you can get easily with a [Challonge.com](http://challonge.com/) account, to use all the Challonge WordPress plugin has to offer. A Challonge.com account is free.
+Actually, no you don't. (Keep reading!) Without an account, you will only be able to embed tournament brackets into posts and pages with the shortcode, but you will not be able to get any tournament listings with the shortcode or in the widget. You will need a valid Challonge API key, which you can get easily with a [Challonge.com](https://challonge.com/) account, to use all the Challonge WordPress plugin has to offer. A Challonge.com account is free.
 
 = I think I found a bug. What do I do? =
 
-Although I do my best to avoid introducing bugs, especially with complexity growing every release, it gets increasingly difficult for me to squish them all before I make a release. That said, please report any bugs you come across in the [support forum](http://wordpress.org/support/plugin/challonge). I try to get to bug reports quickly depending on the severity. If I'm already aware of the bug, you will find it in the [upcoming release notes](http://zavaboy.org/challonge-wordpress-plugin/) on my website.
+Although I do my best to avoid introducing bugs, especially with complexity growing every release, it gets increasingly difficult for me to squish them all before I make a release. That said, please report any bugs you come across in the [support forum](https://wordpress.org/support/plugin/challonge). I try to get to bug reports quickly depending on the severity. If I'm already aware of the bug, you will find it in the [upcoming release notes](https://zavaboy.org/challonge-wordpress-plugin/) on my website.
 
 = Can you make the plugin do this? =
 
-Got an idea for a new feature or don't like how something already is? Please speak up in the [support forum](http://wordpress.org/support/plugin/challonge)! A lot of the features in the plugin today have been suggested or influenced by the community. If there's something you'd like to see, chances are others may want to see it as well.
+Got an idea for a new feature or don't like how something already is? Please speak up in the [support forum](https://wordpress.org/support/plugin/challonge)! A lot of the features in the plugin today have been suggested or influenced by the community. If there's something you'd like to see, chances are others may want to see it as well.
 
 = How can I help you out? =
 
-I do not have a lot of time to actually test everything I put into this plugin. It has already happened where I make something work and the next thing I know, it doesn't work because I forgot one small detail. So, testing this plugin out for me and letting me know what you find would be a big help! If you don't want to do that, you could always donate. Donating will keep me active on this project.
+I do not have a lot of time to actually test everything I put into this plugin. It has already happened where I make something work and the next thing I know, it doesn't work because I forgot one small detail. So, testing this plugin out for me and letting me know what you find would be a big help! If you don't want to do that, you could always [donate](https://zavaboy.org/challonge-wordpress-plugin/). Donating will keep me active on this project.
 
 == Screenshots ==
 
@@ -138,6 +140,17 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 5. Control things like how player names are defined and how scoring works in the settings page.
 
 == Changelog ==
+
+= 1.1.6 =
+* Tested in WordPress 4.9
+* Fixed issue where widget Signup buttons on tournaments with one or more participants are not displayed for users not logged in. Thanks to sagund07 for finding the cause and giving a solution for this issue.
+* Added comments in code about relevant functionality changes in WordPress 4.6.
+* Changed some class names in settings to be less conflicting with other plugin CSS that may be loaded as well.
+* Added a way to list participants to shortcodes.
+* Fixed insecure content loading in iframes on secure pages.
+* Improved caching for much faster page loads.
+* Added adaptive caching where the expire date is determined by the cached content.
+* Added cache age to bottom corner shortcodes and widgets which also allows manual refreshing.
 
 = 1.1.5 =
 * Moved widget content functions to a new class for Ajax related methods.
@@ -245,6 +258,17 @@ I do not have a lot of time to actually test everything I put into this plugin. 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.6 =
+Tested in WordPress 4.9
+Fixed issue where widget Signup buttons on tournaments with one or more participants are not displayed for users not logged in. Thanks to sagund07 for finding the cause and giving a solution for this issue.
+Added comments in code about relevant functionality changes in WordPress 4.6.
+Changed some class names in settings to be less conflicting with other plugin CSS that may be loaded as well.
+Added a way to list participants to shortcodes.
+Fixed insecure content loading in iframes on secure pages.
+Improved caching for much faster page loads.
+Added adaptive caching where the expire date is determined by the cached content.
+Added cache age to bottom corner shortcodes and widgets which also allows manual refreshing.
 
 = 1.1.5 =
 Moved widget content functions to a new class for Ajax related methods.

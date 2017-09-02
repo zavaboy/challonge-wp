@@ -5,6 +5,14 @@ defined( 'ABSPATH' ) OR exit;
 $this instanceof Challonge_Plugin OR exit;
 ?>
 <div class="wrap challonge challonge-settings">
+	<h2><?php
+		printf(
+			/* translators:
+				%s is the title of the plugin (hint: it will always be "Challonge")
+			*/
+			__('%s Settings', Challonge_Plugin::TEXT_DOMAIN),
+			Challonge_Plugin::TITLE
+		); ?></h2>
 	<div id="challonge-donate">
 		<p>
 			<a href="http://zavaboy.org/" id="challonge-developer">
@@ -25,14 +33,6 @@ $this instanceof Challonge_Plugin OR exit;
 			<a id="challonge-donate-hide" href="#"><?php _e( 'Hide', Challonge_Plugin::TEXT_DOMAIN ); ?></a>
 		</p>
 	</div>
-	<h2><?php
-		printf(
-			/* translators:
-				%s is the title of the plugin (hint: it will always be "Challonge")
-			*/
-			__('%s Settings', Challonge_Plugin::TEXT_DOMAIN),
-			Challonge_Plugin::TITLE
-		); ?></h2>
 	<p><?php _e('The only setup needed is your API key. Simple, right?', Challonge_Plugin::TEXT_DOMAIN) ?></p>
 	<form action="options.php" method="post">
 		<?php
@@ -93,17 +93,17 @@ $this instanceof Challonge_Plugin OR exit;
 								}));
 								foreach ($options['headers_shortcode'] AS $k => $v) {
 						?>
-							<li class="ui-state-default <?php echo $v['show']?'show':'hide' ?>">
+							<li class="ui-state-default challonge-<?php echo $v['show']?'show':'hide' ?>">
 								<input id="challonge-headers_shortcode-<?php echo esc_attr( $v['prop'] ) ?>"
 									type="hidden" name="challonge_options[headers_shortcode][]"
 									value="<?php echo esc_attr(json_encode(array_diff_key($v, $filter_out))) ?>" />
 								<span class="challonge-headers_shortcode-item">
-									<a class="challonge-headers_shortcode-togglevis dashicons dashicons-visibility togglevis show" tabindex="0"></a>
-									<a class="challonge-headers_shortcode-togglevis dashicons dashicons-hidden togglevis hide" tabindex="0"></a>
+									<a class="challonge-headers_shortcode-togglevis dashicons dashicons-visibility togglevis challonge-show" tabindex="0"></a>
+									<a class="challonge-headers_shortcode-togglevis dashicons dashicons-hidden togglevis challonge-hide" tabindex="0"></a>
 									<span class="challonge-headers_shortcode-label"><?php echo $v['alias'] ?: $v['name'] ?></span>
-									<a class="challonge-headers_shortcode-edit dashicons dashicons-edit hover" tabindex="0"></a>
+									<a class="challonge-headers_shortcode-edit dashicons dashicons-edit challonge-hover" tabindex="0"></a>
 								</span>
-								<span class="challonge-headers_shortcode-handle dashicons dashicons-menu handle" tabindex="0"></span>
+								<span class="challonge-headers_shortcode-handle dashicons dashicons-menu challonge-handle" tabindex="0"></span>
 								<div class="challonge-headers_shortcode-editform" data-prop="<?php echo esc_attr( $v['prop'] ) ?>"
 									title="<?php echo esc_attr(__('Edit Header:', Challonge_Plugin::TEXT_DOMAIN) . ' ' . $v['name'] ) ?>">
 									<fieldset>
@@ -324,6 +324,12 @@ $this instanceof Challonge_Plugin OR exit;
 							. ' size="3" maxlength="5" value="' . esc_attr( $options['caching'] ) . '" />'
 						);
 					?><br />
+					<label for="challonge-caching_adaptive"><input type="checkbox" id="challonge-caching_adaptive"
+						name="challonge_options[caching_adaptive]" <?php checked($options['caching_adaptive'], true) ?>/>
+					<?php _e('Enable adaptive caching. Adaptive caching will expire cached API responses based on their content.', Challonge_Plugin::TEXT_DOMAIN) ?></label><br />
+					<label for="challonge-caching_freshness"><input type="checkbox" id="challonge-caching_freshness"
+						name="challonge_options[caching_freshness]" <?php checked($options['caching_freshness'], true) ?>/>
+					<?php _e('Show cache age. Enabling this will also allow users to manually refresh content.', Challonge_Plugin::TEXT_DOMAIN) ?></label><br />
 					<label for="challonge-caching_clear"><input type="checkbox" id="challonge-caching_clear"
 						name="challonge_options[caching_clear]" <?php checked(true, true) ?>/>
 					<?php _e('Clear any cached API responses when I click save.', Challonge_Plugin::TEXT_DOMAIN) ?></label>

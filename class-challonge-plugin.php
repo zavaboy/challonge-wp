@@ -10,9 +10,10 @@ class Challonge_Plugin
 {
 	const NAME        = 'Challonge';
 	const TITLE       = 'Challonge';
-	const VERSION     = '1.1.5';
+	const VERSION     = '1.1.6';
 	const TEXT_DOMAIN = 'challonge';
 	const THIRD_PARTY = 'Challonge.com'; // The name of the website this plugin interfaces with.
+	const CACHE_NAME  = 'challonge_cache_log'; // The name of the website this plugin interfaces with.
 	static $aStatuses = array(
 		'pending',
 		'underway',
@@ -46,6 +47,8 @@ class Challonge_Plugin
 		'scoring'                 => 'one',
 		'scoring_opponent'        => false,
 		'caching'                 => 0,
+		'caching_adaptive'        => true,
+		'caching_freshness'       => true,
 		'no_ssl_verify'           => false,
 		// TODO: Safely remove 'no_ssl_verify' in version 1.2
 		'VERSION'                 => null,
@@ -115,6 +118,7 @@ class Challonge_Plugin
 	public function init()
 	{
 		// Localization!
+		// NOTE: load_plugin_textdomain() is no longer required as of WordPress version 4.6
 		load_plugin_textdomain( Challonge_Plugin::TEXT_DOMAIN, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		// Load Options!
 		$this->getOptions();
@@ -162,6 +166,7 @@ class Challonge_Plugin
 	public function registerWidgets()
 	{
 		require_once( 'class-challonge-widget.php' );
+		// NOTE: register_widget() also accepts object instance since WordPress 4.6
 		register_widget( 'Challonge_Widget' );
 	}
 
@@ -178,13 +183,18 @@ class Challonge_Plugin
 			$min = '';
 		wp_register_style( 'challonge.css', $this->sPluginUrl . 'challonge.css', array( 'thickbox' ), self::VERSION );
 		wp_enqueue_style( 'challonge.css' );
-		wp_register_script( 'challonge.js', $this->sPluginUrl . 'challonge' . $min . '.js', array( 'jquery' ), self::VERSION );
+		wp_register_script( 'moment-with-locales.js', $this->sPluginUrl . 'moment-with-locales' . $min . '.js', array(), self::VERSION );
+		wp_enqueue_script( 'moment-with-locales.js' );
+		wp_register_script( 'challonge.js', $this->sPluginUrl . 'challonge' . $min . '.js', array( 'jquery', 'moment-with-locales.js' ), self::VERSION );
 		wp_localize_script( 'challonge.js', 'challongeVar', array(
 			'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
 			'spinUrl'  => includes_url( 'images/wpspin.gif' ),
 			'wltMsg'   => __( 'Please select if you Won, Lost, or Tied.', Challonge_Plugin::TEXT_DOMAIN ),
 			'errorMsg' => __( 'Sorry, an error occurred.', Challonge_Plugin::TEXT_DOMAIN ),
 			'closeMsg' => __( 'Close', Challonge_Plugin::TEXT_DOMAIN ),
+			'wpLocale' => get_locale(), // used with moment.js
+			'rfNowMsg' => __( 'refresh now' ),
+			'rfingMsg' => __( 'refreshing...' ),
 		) );
 		wp_enqueue_script( 'challonge.js' );
 		wp_register_script( 'jquery.challonge.js', $this->sPluginUrl . 'jquery.challonge' . $min . '.js', array( 'jquery' ), self::VERSION );
@@ -299,6 +309,7 @@ class Challonge_Plugin
 		// API Key
 		$options['api_key_input'] = preg_replace( '/[\W_]+/', '', $input['api_key'] );
 		if (40 == strlen( $options['api_key_input'] ) && extension_loaded( 'curl' ) ) {
+			$this->bIgnoreCached = true;
 			$c = new Challonge_Api_Adapter( $options['api_key_input'] );
 			$c->verify_ssl = ! $this->aOptions['no_ssl_verify'];
 			$t = $c->getTournaments( array( 'created_after' => date( 'Y-m-d', time() + 86400 ) ) );
@@ -347,6 +358,8 @@ class Challonge_Plugin
 			$this->clearCache();
 			$this->addNotice( __( 'The Challonge API cache was cleared.', Challonge_Plugin::TEXT_DOMAIN ), 'updated', 'cache-cleared' );
 		}
+		$options['caching_adaptive'] = ! empty( $input['caching_adaptive'] );
+		$options['caching_freshness'] = ! empty( $input['caching_freshness'] );
 
 		// Disable SSL verification
 		$options['no_ssl_verify'] = ! empty( $input['no_ssl_verify'] );
@@ -402,23 +415,30 @@ class Challonge_Plugin
 		}
 	}
 
+	public function getCache() {
+		if ( false === ( $cache = get_transient( self::CACHE_NAME ) ) ) {
+			$cache = array();
+		}
+		return $cache;
+	}
+
 	public function clearCache() {
-		$log_transient = 'challonge_cache_log';
-		if ( false !== ( $transient_data = get_transient( $log_transient ) ) ) {
-			foreach ( $transient_data AS $k => $v) {
+		$cache = $this->getCache();
+		if ( ! empty( $cache ) ) {
+			foreach ( $cache AS $k => $v) {
 				delete_transient( $k );
 			}
-			delete_transient( $log_transient );
+			delete_transient( self::CACHE_NAME );
 		}
 	}
 
-	public function logCache( $transient ) {
-		$log_transient = 'challonge_cache_log';
-		if ( false === ( $transient_data = get_transient( $log_transient ) ) ) {
-			$transient_data = array();
+	public function logCache( $transient, DateTime $time = null ) {
+		$cache = $this->getCache();
+		if ( null === $time ) {
+			$time = new DateTime;
 		}
-		$transient_data[$transient] = time();
-		$transient_set = set_transient( $log_transient, $transient_data, WEEK_IN_SECONDS );
+		$cache[$transient] = $time->format( DateTime::ATOM );
+		$transient_set = set_transient( self::CACHE_NAME, $cache, MONTH_IN_SECONDS );
 	}
 
 	public function isCacheIgnored() {
@@ -430,13 +450,20 @@ class Challonge_Plugin
 		if ( empty( $aOptions ) || ! is_array( $aOptions ) ) {
 			// Probably a new install
 			$aOptions = array();
-		} elseif ( ! isset( $aOptions['VERSION'] ) ) {
-			// Probably from a version prior to 1.1.3
-			if ( isset( $aOptions['no_ssl_verify'] ) && $aOptions['no_ssl_verify'] ) {
-				// SSL verification was finally fixed in version 1.1.3.
-				// Let's turn SSL verification ON for the user.
-				// They can always turn it back off if they need to. (for now)
-				$aOptions['no_ssl_verify'] = false; // Turn SSL verification ON
+		} else {
+			if ( ! isset( $aOptions['VERSION'] ) ) {
+				// Probably from a version prior to 1.1.3
+				if ( isset( $aOptions['no_ssl_verify'] ) && $aOptions['no_ssl_verify'] ) {
+					// SSL verification was finally fixed in version 1.1.3.
+					// Let's turn SSL verification ON for the user.
+					// They can always turn it back off if they need to. (for now)
+					$aOptions['no_ssl_verify'] = false; // Turn SSL verification ON
+				}
+			}
+			if ( $aOptions['VERSION'] < '1.1.6' ) {
+				// Caching format changed in version 1.1.6
+				// Old cached data will no longer work, so we need to clear it.
+				$this->clearCache();
 			}
 		}
 		$aOptions['VERSION'] = Challonge_Plugin::VERSION;
@@ -497,8 +524,8 @@ class Challonge_Plugin
 				'text'            => __( 'Plain Text'                                     , Challonge_Plugin::TEXT_DOMAIN ),
 				'link'            => __( 'Link to Challonge.com'                          , Challonge_Plugin::TEXT_DOMAIN ),
 				'link_new'        => __( 'Link to Challonge.com in new browser window/tab', Challonge_Plugin::TEXT_DOMAIN ),
-				'link_modal'      => __( 'Link to open in modal'                          , Challonge_Plugin::TEXT_DOMAIN ),
-				'link_modal_full' => __( 'Link to open in full modal'                     , Challonge_Plugin::TEXT_DOMAIN ),
+				'link_modal'      => __( 'Link to open in dialog'                          , Challonge_Plugin::TEXT_DOMAIN ),
+				'link_modal_full' => __( 'Link to open in full dialog'                     , Challonge_Plugin::TEXT_DOMAIN ),
 				), 'alias' => '', 'show' => true , 'format' => 'link_modal_full'),
 			array('prop' => 'type'        , 'name' => __( 'Type'             , Challonge_Plugin::TEXT_DOMAIN ), '_formats' => array(
 				'full'            => __( 'Full (eg. Single Elimination, Swiss)'           , Challonge_Plugin::TEXT_DOMAIN ),
@@ -507,7 +534,7 @@ class Challonge_Plugin
 			array('prop' => 'participants', 'name' => __( 'Participants'     , Challonge_Plugin::TEXT_DOMAIN ), '_formats' => array(
 				'p'               => __( 'Number of participants (eg. 5)'                 , Challonge_Plugin::TEXT_DOMAIN ),
 				'p_of_t'          => __( 'Num. of participants of total (eg. 5 of 12)'    , Challonge_Plugin::TEXT_DOMAIN ),
-				'p_slash_t'       => __( 'Num. of participants slash toal (eg. 5/12)'     , Challonge_Plugin::TEXT_DOMAIN ),
+				'p_slash_t'       => __( 'Num. of participants slash total (eg. 5/12)'     , Challonge_Plugin::TEXT_DOMAIN ),
 				), 'alias' => '', 'show' => true , 'format' => 'p_slash_t'),
 			array('prop' => 'created'     , 'name' => __( 'Created On'       , Challonge_Plugin::TEXT_DOMAIN ), '_formats' => array(
 				'date'            => __( 'Date'                                           , Challonge_Plugin::TEXT_DOMAIN ),

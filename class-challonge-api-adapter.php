@@ -15,31 +15,128 @@ class Challonge_Api_Adapter extends ChallongeAPI {
 	private $api_key;
 	protected $oCP;
 	protected $aOptions;
+	protected $bUseCached = null;
+	protected $oCacheDate = null;
+	protected $oCacheExpireDate = null;
 	public function __construct( $api_key = '' ) {
 		$this->oCP = Challonge_Plugin::getInstance();
 		$this->aOptions = $this->oCP->getOptions();
 		$this->api_key = $api_key;
 	}
 
+	// This is designed to be chained.
+	//   e.g.
+	//    $t = $oApi->fromCache()->getTournament(...);
+	public function fromCache() {
+		$this->bUseCached = true;
+		return $this;
+	}
+
+	public function getCacheDate() {
+		if ( null !== $this->oCacheDate )
+			return $this->oCacheDate->format( DateTime::ATOM );
+		else
+			return null;
+	}
+
+	public function getCacheExpireDate( $response = null ) {
+		// TODO: Improve adaptive caching by looking at other variables, like tournament start time
+		if ( null === $this->oCacheExpireDate ) {
+			if ( null === $this->oCacheDate ) {
+				return null;
+			}
+			$options = $this->oCP->getOptions();
+			if ( empty( $options['caching_adaptive'] ) ) {
+				$cacheTime = $options['caching'] ? $options['caching'] : WEEK_IN_SECONDS;
+			} else {
+				$cacheTime = WEEK_IN_SECONDS;
+				if ( null !== $response && $response instanceof SimpleXMLElement ) {
+					$state_list = array();
+					if ( isset( $response->state ) ) {
+						$state_list[] = (string) $response->state;
+					} else if ( isset( $response->tournament ) ) {
+						foreach ( $response->tournament AS $tourny ) {
+							$state_list[] = (string) $tourny->state;
+						}
+					}
+					if ( count( $state_list ) ) {
+						foreach ($state_list as $state) {
+							switch ( (string) $state ) {
+								case 'pending'         : $ct = MINUTE_IN_SECONDS * 5 ; break;
+								case 'checking_in'     : $ct = MINUTE_IN_SECONDS * 2 ; break;
+								case 'checked_in'      : $ct = MINUTE_IN_SECONDS * 2 ; break;
+								case 'underway'        : $ct = MINUTE_IN_SECONDS / 2 ; break;
+								case 'awaiting_review' : $ct = MINUTE_IN_SECONDS * 5 ; break;
+								case 'complete'        : $ct =   HOUR_IN_SECONDS     ; break;
+								default                : $ct =   WEEK_IN_SECONDS     ; break;
+							}
+							$cacheTime = min( $ct, $cacheTime );
+						}
+					}
+				}
+				if ( WEEK_IN_SECONDS == $cacheTime ) {
+					$cacheTime = HOUR_IN_SECONDS / 4;
+				}
+			}
+			$this->oCacheExpireDate = clone $this->oCacheDate;
+			$this->oCacheExpireDate->add( new DateInterval( 'PT' . $cacheTime . 'S' ) );
+		}
+		return $this->oCacheExpireDate
+			->format( DateTime::ATOM );
+	}
+
 	public function makeCall( $path = '', $params = array(), $method = 'get' ) {
 		// Handle caching
-		if ( 'get' == $method && 0 < $this->aOptions['caching'] ) {
-			$transient = 'challongeapi-' . md5( serialize( func_get_args() ) ); // Exactly 45 characters (max for transients)
-			if ( $this->oCP->isCacheIgnored() || false === ( $transient_data = get_transient( $transient ) ) ) {
-				$transient_data = $response = $this->makeCallAlt( $path, $params, $method );
-				if ( $response instanceof SimpleXMLElement )
-					$transient_data = $response->asXML();
-				$transient_set = set_transient( $transient, $transient_data, $this->aOptions['caching'] );
-				if ( $transient_set )
-					$this->oCP->logCache( $transient );
-				//echo $transient_set ? '[OK:TransSet]' : '[ERROR:TransNotSet]'; // For debugging
-			} else {
+		if ( 'get' == $method ) {
+			$args = func_get_args();
+			$transient = 'challongeapi-' . md5( serialize( $args ) ); // Exactly 45 characters (max for transients)
+			$cache = $this->oCP->getCache();
+			$this->oCacheDate = isset( $cache[$transient] ) ? new DateTime( $cache[$transient] ) : null;
+			if ( ! $this->bUseCached  &&  0 < $this->aOptions['caching'] && ! $this->oCP->isCacheIgnored() && null !== $this->oCacheDate ) {
+				$transient_data = get_transient( $transient );
+				if ( is_array( $transient_data ) ) {
+					$this->oCacheDate       = new DateTime( $transient_data['cache_time' ] );
+					$this->oCacheExpireDate = new DateTime( $transient_data['expire_time'] );
+					$this->bUseCached = 0 < $this->oCacheExpireDate->diff( new DateTime )->format( '%s' ); // use cache if not expired
+				}
+			}
+			if ( $this->bUseCached && ! $this->oCP->isCacheIgnored() && false !== ( $transient_data = get_transient( $transient ) ) ) {
+				if ( is_array( $transient_data ) ) {
+					$transient_data = gzuncompress( base64_decode( $transient_data['response'] ) );
+				}
 				if ( is_string( $transient_data ) && false !== strpos( $transient_data, '<?xml' ) )
 					$response = simplexml_load_string( $transient_data );
 				else
 					$response = $transient_data;
 				//echo '[OK:TransFound]'; // For debugging
+			} else {
+				$transient_data = $response = $this->makeCallAlt( $path, $params, $method );
+				if ( $response instanceof SimpleXMLElement ) {
+					// Using DOMDocument to minify the XML
+					$dom = new DOMDocument( '1.0' );
+					$dom->preserveWhiteSpace = false;
+					$dom->formatOutput = false;
+					$dom->loadXML( $response->asXML() );
+					$transient_data = $dom->saveXML();
+				}
+				$this->oCacheDate = new DateTime;
+				$transient_data = array(
+					'plugin_ver'  => Challonge_Plugin::VERSION,
+					'cache_time'  => $this->getCacheDate(),
+					'expire_time' => $this->getCacheExpireDate( $response ),
+					'call_args'   => $args,
+					'response'    => base64_encode( gzcompress( $transient_data ) ),
+				);
+				$transient_set = set_transient( $transient, $transient_data, MONTH_IN_SECONDS );
+				if ( $transient_set ) {
+					$this->oCP->logCache( $transient, $this->oCacheDate );
+				} else {
+					$this->oCacheDate = null;
+					$this->oCacheExpireDate = null;
+				}
+				//echo $transient_set ? '[OK:TransSet]' : '[ERROR:TransNotSet]'; // For debugging
 			}
+			$this->bUseCached = false;
 			return $response;
 		}
 		//echo '[OK:TransSkipped]'; // For debugging
@@ -57,7 +154,7 @@ class Challonge_Api_Adapter extends ChallongeAPI {
 		$params['api_key'] = $this->api_key;
 
 		// Build the URL that'll be hit. If the request is GET, params will be appended later
-		$call_url = 'https://api.challonge.com/v1/'.$path.'.xml';
+		$call_url = 'https://api.challonge.com/v1/' . $path . '.xml';
 
 		$curl_handle = curl_init();
 		// Common settings
@@ -103,7 +200,7 @@ class Challonge_Api_Adapter extends ChallongeAPI {
 
 			case 'get':
 			default:
-				$call_url .= '?'.http_build_query( $params, '', '&' );
+				$call_url .= '?' . http_build_query( $params, '', '&' );
 		}
 
 		curl_setopt( $curl_handle, CURLOPT_HTTPHEADER, $curlheaders ); 

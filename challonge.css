@@ -62,23 +62,25 @@
 .challonge-denied-message-description {
 	font-size: 80%;
 }
-.challonge-table th {
+.challonge-table > tfoot > tr > td {
+	padding: 0;
+}
+.challonge-table .challonge-type,
+.challonge-table .challonge-participants,
+.challonge-table .challonge-progress,
+.challonge-table .challonge-quick,
+.challonge-table .challonge-state,
+.challonge-table .challonge-signup,
+.challonge-table .challonge-rank,
+.challonge-table .challonge-points {
 	text-align: center;
 }
-td.challonge-type,
-td.challonge-participants,
-td.challonge-progress,
-td.challonge-quick,
-td.challonge-state,
-td.challonge-signup {
-	text-align: center;
-}
-td.challonge-created,
-td.challonge-started,
-td.challonge-start {
+.challonge-table .challonge-created,
+.challonge-table .challonge-started,
+.challonge-table .challonge-start {
 	text-align: right;
 }
-td.challonge-progress progress {
+.challonge-table td.challonge-progress progress {
 	width: 64px;
 	background-clip: content-box; /* fixes Chrome v32+ */
 }
@@ -257,6 +259,48 @@ td.challonge-quick .dashicons {
 #challonge-loginform #user_login,
 #challonge-loginform #user_pass {
 	width: 80%;
+}
+
+.challonge-freshness {
+	opacity: 0.7;
+	font-size: 65%;
+	text-align: right;
+	vertical-align: middle;
+	line-height: 1;
+	display: block;
+}
+.challonge-freshness:before {
+	font-size: 150%;
+	vertical-align: middle;
+	line-height: 1.25;
+}
+.challonge-freshness.challonge-refresh {
+	cursor: pointer;
+	position: relative;
+}
+.challonge-freshness.challonge-refresh .challonge-freshness-hover {
+	display: none;
+}
+.challonge-freshness.challonge-refresh:hover {
+	color: transparent;
+}
+.challonge-freshness.challonge-refresh:hover:before {
+	color: initial;
+	opacity: 1;
+}
+.challonge-freshness.challonge-refresh:hover .challonge-freshness-hover {
+	display: inline;
+	color: initial;
+	opacity: 1;
+	position: absolute;
+	line-height: 2;
+	right: 0;
+	font-weight: bold;
+}
+.challonge-table > tfoot.challonge-hide-freshness,
+.challonge-freshness.challonge-hide-freshness,
+.challonge-freshness.challonge-refresh.challonge-hide-freshness {
+	display: none;
 }
 
 /* A fix to prevent theme elements from showing over thickbox. */

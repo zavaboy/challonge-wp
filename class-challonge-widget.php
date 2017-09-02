@@ -11,6 +11,8 @@ class Challonge_Widget extends WP_Widget
 	protected $oCP;
 	protected $oApi;
 	protected $aStatuses;
+	protected $sCached;
+	protected $sExpires;
 
 	public function __construct() {
 		$this->aStatuses = Challonge_Plugin::$aStatuses;
@@ -106,6 +108,7 @@ class Challonge_Widget extends WP_Widget
 	public function widget( $args, $instance ) {
 		// Init
 		$this->oCP = Challonge_Plugin::getInstance();
+		$this->oApi = $this->oCP->getApi();
 		$usr = wp_get_current_user();
 		$options = $this->oCP->getOptions();
 
@@ -115,18 +118,29 @@ class Challonge_Widget extends WP_Widget
 		}
 
 		// Widget output
-		echo $args['before_widget'];
-		echo $args['before_title'];
-		if ( ! empty( $instance['title'] ) ) {
-			echo esc_html( $instance['title'] );
-		} else {
-			echo __( Challonge_Plugin::TITLE, Challonge_Plugin::TEXT_DOMAIN );
+		if ( empty( $args['ajax_content_only'] ) ) {
+			echo $args['before_widget'];
+			echo $args['before_title'];
+			if ( ! empty( $instance['title'] ) ) {
+				echo esc_html( $instance['title'] );
+			} else {
+				echo __( Challonge_Plugin::TITLE, Challonge_Plugin::TEXT_DOMAIN );
+			}
+			echo $args['after_title'];
 		}
-		echo $args['after_title'];
+		$content = $this->content( $instance );
 		echo '<div class="challonge-widget-content">';
-		echo $this->content( $instance );
+		echo $content;
+		echo '<time datetime="' . $this->sCached . '" data-expires="' . $this->sExpires . '"'
+				. ' data-widgetid="' . $args['widget_id'] . '" class="challonge-freshness' . ( $options['caching_freshness'] ? '' : ' challonge-hide-freshness' ) . ' dashicons-before dashicons-update">'
+				. 'about '
+				. human_time_diff( (new DateTime( $this->sCached ))->getTimestamp(), (new DateTime)->getTimestamp())
+				. ' ago'
+			. '</time>';
 		echo '</div>';
-		echo $args['after_widget'];
+		if ( empty( $args['ajax_content_only'] ) ) {
+			echo $args['after_widget'];
+		}
 	}
 
 	public function content( $instance ) {
@@ -177,10 +191,12 @@ class Challonge_Widget extends WP_Widget
 
 		// Get tournament listing
 		if ( empty( $subdomain ) ) {
-			$t = $this->oApi->getTournaments();
+			$t = $this->oApi->fromCache()->getTournaments();
 		} else {
-			$t = $this->oApi->getTournaments( array( 'subdomain' => $subdomain ) );
+			$t = $this->oApi->fromCache()->getTournaments( array( 'subdomain' => $subdomain ) );
 		}
+		$this->sCached = $this->oApi->getCacheDate();
+		$this->sExpires = $this->oApi->getCacheExpireDate();
 		$tournys = array();
 		if ( ! empty( $t->tournament ) ) {
 			foreach ( $t->tournament AS $tourny ) {

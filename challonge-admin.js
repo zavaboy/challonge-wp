@@ -79,7 +79,7 @@ jQuery(document).ready( function( $ ) {
 	// Manages the events (both mouse and keyboard) on the shortcode colum header list
 	var $headShortList = $( '#challonge-headers_shortcode-list' );
 	$headShortList.sortable({
-		handle : '.handle'
+		handle : '.challonge-handle'
 	});
 	var updateListItem = function () {};
 	// $headShortList.disableSelection();
@@ -105,8 +105,8 @@ jQuery(document).ready( function( $ ) {
 			$dat = $li.find( 'input[type=hidden]' ),
 			data = JSON.parse( $dat.val() );
 		if ( data.hasOwnProperty( 'show' ) ) {
-			data.show = $li.hasClass( 'hide' );
-			$li.addClass( data.show ? 'show' : 'hide' ).removeClass( data.show ? 'hide' : 'show' );
+			data.show = $li.hasClass( 'challonge-hide' );
+			$li.addClass( data.show ? 'challonge-show' : 'challonge-hide' ).removeClass( data.show ? 'challonge-hide' : 'challonge-show' );
 			$dat.val(JSON.stringify(data));
 		}
 	});

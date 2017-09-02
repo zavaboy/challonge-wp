@@ -12,6 +12,7 @@ class Challonge_Shortcode
 	protected $oApi;
 	protected $nShortCodeId = 0;
 	protected $aAtts;
+	protected $aAttsUser;
 	protected $aAttsDefault = array(
 		'url'                    => ''   ,
 		'subdomain'              => ''   ,
@@ -29,7 +30,10 @@ class Challonge_Shortcode
 		'denyroles'              => ''   ,
 		'statuses'               => ''   ,
 		'excludestatuses'        => ''   ,
+		'listparticipants'       => ''   ,
 	);
+	protected $sCached;
+	protected $sExpires;
 
 	public function __construct()
 	{
@@ -153,6 +157,9 @@ class Challonge_Shortcode
 						}
 					}
 					break;
+				case 'listparticipants' :
+					$atts['listparticipants'] = $this->isTrue( $v );
+					break;
 				default:
 					// This shouldn't happen! If it does, do nothing.
 			}
@@ -272,10 +279,12 @@ class Challonge_Shortcode
 
 		// Get all tournaments
 		if ( empty( $atts[ 'subdomain' ] ) ) {
-			$t = $this->oApi->getTournaments();
+			$t = $this->oApi->fromCache()->getTournaments();
 		} else {
-			$t = $this->oApi->getTournaments( array( 'subdomain' => $atts[ 'subdomain' ] ) );
+			$t = $this->oApi->fromCache()->getTournaments( array( 'subdomain' => $atts[ 'subdomain' ] ) );
 		}
+		$this->sCached = $this->oApi->getCacheDate();
+		$this->sExpires = $this->oApi->getCacheExpireDate();
 		$tournys = array();
 		if ( ! empty( $t ) ) {
 			if ( count( $t->tournament ) ) {
@@ -571,32 +580,154 @@ class Challonge_Shortcode
 					$cells[] = '<th class="challonge-' . $v['prop'] . '">' . esc_html( $v['alias'] ?: $v['name'] ) . '</th>';
 				}
 			}
+			$atts_val = base64_encode( gzcompress( json_encode( $this->aAttsUser ) ) );
 			return '<table class="challonge-table"><thead><tr>'
-				// . '<th class="challonge-name">'         . __( 'Name'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				// . '<th class="challonge-type">'         . __( 'Type'        , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				// . '<th class="challonge-participants">' . __( 'Participants', Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				// . '<th class="challonge-created">'      . __( 'Created On'  , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				// . '<th class="challonge-progress">'     . __( 'Progress'    , Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
-				. implode( '', $cells )
+					. implode( '', $cells )
 				. '</tr></thead><tbody>'
-			    . implode( '', array_slice( array_reverse( $tournys ), 0, $atts['limit'] ) )
-				. '</tbody></table>';
+				    . implode( '', array_slice( array_reverse( $tournys ), 0, $atts['limit'] ) )
+				. '</tbody>'
+				. '<tfoot' . ( $options['caching_freshness'] ? '' : ' class="challonge-hide-freshness"' ) . '><tr><td colspan="' . count( $cells ) . '">'
+					. '<time datetime="' . $this->sCached . '" data-expires="' . $this->sExpires . '"'
+						. ' data-atts="' . $atts_val . '" class="challonge-freshness' . ( $options['caching_freshness'] ? '' : ' challonge-hide-freshness' ) . ' dashicons-before dashicons-update">'
+						. 'about '
+						. human_time_diff( (new DateTime( $this->sCached ))->getTimestamp(), (new DateTime)->getTimestamp())
+						. ' ago'
+					. '</time>'
+				. '</td></tr></tfoot>'
+				. '</table>';
 		}
+	}
+
+	public function listParticipants()
+	{
+		// Current user and plugin options
+		$usr = $this->oCP->getUser();
+		$options = $this->oCP->getOptions();
+
+		// Denied?
+		if ( ( ! empty( $usr->ID ) && ! current_user_can( 'challonge_view' ) ) || ( empty( $usr->ID ) && empty( $options['public_shortcode'] ) ) ) {
+			return '<p><em>' . __( '(no participants)', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
+		}
+
+		// No API Key?
+		if ( ! $this->oCP->hasApiKey() ) {
+			if ( current_user_can( 'manage_options' ) ) {
+				return '<p class="challonge-error">' . __( 'No API Key!', Challonge_Plugin::TEXT_DOMAIN ) . ' <a href="'
+					. admin_url( 'options-general.php?page=challonge-settings' ) . '">'
+					. __( 'Set one.', Challonge_Plugin::TEXT_DOMAIN ) . '</a></p>';
+			}
+			return '<p class="challonge-error">' . __( 'No API Key!', Challonge_Plugin::TEXT_DOMAIN ) . '</p>';
+		}
+
+		// API and Attributes
+		$this->oApi = $this->oCP->getApi();
+		$atts = $this->aAtts;
+
+		// Get all tournaments
+		if ( empty( $atts[ 'subdomain' ] ) ) {
+			$tournyId = $atts[ 'url' ];
+		} else {
+			$tournyId = $atts[ 'subdomain' ] . '-' . $atts[ 'url' ];
+		}
+		$tourny = $this->oApi->fromCache()->getTournament( $tournyId, array(
+			'include_participants' => 1,
+			'include_matches'      => 1,
+		) );
+		$this->sCached = $this->oApi->getCacheDate();
+		$this->sExpires = $this->oApi->getCacheExpireDate();
+		// echo'<pre>';print_r($tourny);echo'</pre>';
+		if ( empty( $tourny ) ) {
+			return '<p><em>' . __( '(no participants)', Challonge_Plugin::TEXT_DOMAIN ) . '</em></p>';
+		}
+
+		// User key hash
+		if ( is_user_logged_in() && current_user_can( 'challonge_signup' ) )
+			$usrkey = md5( $tourny->url . ' ' . $usr->user_login . ' <' . $usr->user_email . '>' ); // Highlight self
+		else
+			$usrkey = false; // Highlight none
+
+		$users = array();
+		foreach ( $tourny->participants->participant AS $v ) {
+			// echo'<pre>';print_r($v);echo'</pre>';
+			$user = array();
+			$user['id'] = $v->id;
+			$user['seed'] = $v->seed;
+			$user['name'] = esc_html( $v->name );
+			if ( ! empty( $v->{'final-rank'} ) ) {
+				$user['rank'] = $v->{'final-rank'};
+			}
+			$user['score'] = 0; // next foreach loop adds to this
+			$user['misc'] = $v->misc;
+			$users[(string) $v->id] = $user;
+		}
+
+		foreach ( $tourny->matches->match AS $v ) {
+			// echo'<pre>';print_r($v);echo'</pre>';
+			if ( 'complete' == $v->state ) {
+				$score = explode( '-', $v->{'scores-csv'} );
+				$users[(string) $v->{'player1-id'}]['score'] += $score[0];
+				$users[(string) $v->{'player2-id'}]['score'] += $score[1];
+			}
+		}
+
+		$list = array();
+		foreach ( $users AS $v ) {
+			// echo'<pre>';print_r($v);echo'</pre>';
+			if ( $usrkey && strpos( $v['misc'], $usrkey ) === 0 ) {
+				$v['name'] = '<strong>' . $v['name'] . '</strong>';
+			}
+			$num = isset( $v['rank'] ) ? $v['rank'] : $v['seed'];
+			$list[ $num . '__' . $v['id'] ] = '<tr>'
+					. '<td class="challonge-rank">' . $num . '</td>'
+					. '<td class="challonge-name">' . $v['name'] . '</td>'
+					. '<td class="challonge-points">' . $v['score'] . '</td>'
+				. '</tr>';
+		}
+		ksort($list);
+		$atts_val = base64_encode( gzcompress( json_encode( $this->aAttsUser ) ) );
+		return '<table class="challonge-table">'
+				. '<thead><tr>'
+					. '<th class="challonge-rank">' . __( 'Rank', Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+					. '<th class="challonge-name">' . __( 'Participant', Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+					. '<th class="challonge-points">' . __( 'Pts', Challonge_Plugin::TEXT_DOMAIN ) . '</th>'
+				. '</tr></thead>'
+				. '<tbody>' . implode( '', $list ) . '</tbody>'
+				. '<tfoot' . ( $options['caching_freshness'] ? '' : ' class="challonge-hide-freshness"' ) . '><tr><td colspan="3">'
+					. '<time datetime="' . $this->sCached . '" data-expires="' . $this->sExpires . '"'
+						. ' data-atts="' . $atts_val . '" class="challonge-freshness' . ( $options['caching_freshness'] ? '' : ' challonge-hide-freshness' ) . ' dashicons-before dashicons-update">'
+						. 'about '
+						. human_time_diff( (new DateTime( $this->sCached ))->getTimestamp(), (new DateTime)->getTimestamp())
+						. ' ago'
+					. '</time>'
+				. '</td></tr></tfoot>'
+			. '</table>';
 	}
 
 	public function shortCode( $atts )
 	{
 		// Attribute filtering and validation...
-		$this->aAtts = shortcode_atts( $this->aAttsDefault, $atts );
+		$this->aAttsUser = $atts;
+		$this->aAtts = shortcode_atts( $this->aAttsDefault, $this->aAttsUser );
 		$this->validateAtts();
 
 		if ( ! empty( $this->aAtts['url'] ) ) {
-			// Display a tournament
-			return $this->embedModule();
+			if ( empty( $this->aAtts['listparticipants'] ) ) {
+				// Display a tournament
+				$html = $this->embedModule();
+			} else {
+				// Display tournament participants
+				$html = $this->listParticipants();
+			}
 		} else {
 			// Tournament listing
-			return $this->listTournaments();
+			$html = $this->listTournaments();
 		}
+		if ( null !== $this->oApi ) {
+			return '<div class="challonge-shortcode-content">'
+					. $html
+				. '</div>';
+		}
+		return $html;
 	}
 
 	private function isTrue( $val )

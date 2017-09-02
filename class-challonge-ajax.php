@@ -73,7 +73,7 @@ class Challonge_Ajax
 			$pmisc = $this->parseParticipantMisc( $participant->misc );
 			if ( empty( $pmisc[0] ) ) {
 				$this->oLnk->all_have_misc = false;
-			} elseif ( $pmisc[0] == $this->oLnk->usrkey ) {
+			} elseif ( $pmisc[0] === $this->oLnk->usrkey ) { // Fix by sagund07 ~ https://wordpress.org/support/topic/widget-signup-button
 				$this->oLnk->signed_up = true;
 				$this->oLnk->participant_id = (int) $participant->id;
 				$this->oLnk->misc = $pmisc;
@@ -157,6 +157,7 @@ class Challonge_Ajax
 			. '<span class="challonge-tournyinfo">' . implode( ' &nbsp;&middot;&nbsp; ', $tournyinfo ) . '</span>';
 
 		// Conditions
+			//print_r(array($this->oLnk->usrkey,!$this->oLnk->signed_up,'pending' == $tourny->state,'true' == $tourny->{'open-signup'}));exit;
 		if ( $this->oLnk->usrkey
 			&& ! $this->oLnk->signed_up
 			&& 'pending' == $tourny->state
@@ -380,6 +381,21 @@ class Challonge_Ajax
 	public function widgetReply()
 	{
 		$this->oCP->setCacheIgnore( true ); // AJAX requests never should use cached API data
+
+		if ( ! empty( $_REQUEST['type'] ) && ! empty( $_REQUEST['refresh'] ) ) {
+			switch ( $_REQUEST['type'] ) {
+				case 'widget':
+					$this->getWidgetContent( $_REQUEST['refresh'] );
+					break;
+				case 'shortcode':
+					$this->getShortcodeContent( $_REQUEST['refresh'] );
+					break;
+				default:
+					echo 'Unexpected refresh type.';
+					break;
+			}
+			exit;
+		}
 
 		// No API Key?
 		if ( ! $this->oCP->hasApiKey() ) {
@@ -720,6 +736,34 @@ class Challonge_Ajax
 			return html_entity_decode( vsprintf( $username, $inputs ) );
 		}
 		return false;
+	}
+
+	public function getWidgetContent( $wId )
+	{
+		global $wp_registered_widgets, $wp_registered_sidebars;
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+		foreach ( $sidebars_widgets as $sidebarId => $widgets ) {
+			foreach ( $widgets as $k => $widgetId ) {
+				if ( $widgetId === $wId && isset( $wp_registered_sidebars[ $sidebarId ] ) && isset( $wp_registered_widgets[ $widgetId ] ) ) {
+					$num = $wp_registered_widgets[ $widgetId ]['params'][0]['number'];
+					$pluginWidgets = $wp_registered_widgets[ $widgetId ]['callback'][0]->get_settings();
+					the_widget( 'Challonge_Widget', $pluginWidgets[ $num ], array( 'ajax_content_only' => true, 'widget_id' => $widgetId ) );
+					exit;
+				}
+			}
+		}
+		die( __( 'Widget not found' ) );
+	}
+
+	public function getShortcodeContent( $data )
+	{
+		$atts = json_decode( gzuncompress( base64_decode( $data ) ), true );
+		if ( is_array( $atts ) ) {
+			$oShortcode = new Challonge_Shortcode;
+			echo $oShortcode->shortCode( $atts );
+			exit;
+		}
+		die( __( 'Invalid shortcode data' ) );
 	}
 
 }

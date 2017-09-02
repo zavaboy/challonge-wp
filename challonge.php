@@ -6,7 +6,7 @@
 Plugin Name: Challonge
 Plugin URI: http://wordpress.org/plugins/challonge
 Description: Integrates <a href="http://challonge.com/">Challonge</a>, a handy bracket generator, into WordPress.
-Version: 1.1.5
+Version: 1.1.6
 Author: Ivik Injerd
 Author URI: http://zavaboy.org/
 Text Domain: Challonge
@@ -55,12 +55,20 @@ https://github.com/challonge/challonge-jquery-plugin
 Contributers: Adam Darrah, David Cornelius
 License: MIT
 License URL: https://github.com/jquery/jquery-color/blob/2.1.2/MIT-LICENSE.txt
+Note: I made a small edit from the original file.
+
+File: moment-with-locales.js
+Moment.js 2.18.1
+https://momentjs.com/
+Copyright (c) JS Foundation and other contributors
+License: MIT
+https://github.com/moment/moment/blob/develop/LICENSE
 
 */
 
 // TODO: Add phpdoc (maybe someday...)
 // TODO: Before release, update version, changelog, readme, screenshots
-// TODO: Properly impliment context aware text l10n
+// TODO: Properly implement context aware text l10n
 
 // Exit on direct request.
 defined( 'ABSPATH' ) OR exit;
