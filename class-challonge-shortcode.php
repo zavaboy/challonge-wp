@@ -293,6 +293,7 @@ class Challonge_Shortcode
 				$tbh = 550; // ThinkBox Height
 				$lnk_url = $ajaxurl . '?action=challonge_widget&amp;width=' . $tbw . '&amp;height=' . $tbh;
 				foreach ( $t->tournament AS $tourny ) {
+					$tourny = $tourny->tournament; //XML being returned has like an extra tournament layer, not sure if this is a durable fix or not, but seems to work.
 					if (
 						( 'false' == $tourny->private || $options[ 'public_ignore_exclusion' ] )
 						&& ( empty( $atts[ 'statuses' ] )
@@ -310,9 +311,9 @@ class Challonge_Shortcode
 								case 'name' :
 									$cell = esc_html( $tourny->name );
 									if ( 'text' != $v['format'] ) {
-										if ( strlen( $tourny->subdomain ) ) {
-											$lnk_tourny = $tourny->subdomain . '-' . $tourny->url;
-											$ext_url = 'http://' . $tourny->subdomain . '.challonge.com/' . $tourny->url;
+										if ( strlen( $atts['subdomain'] ) ) { //XML does not get a value for subdomain anymore, so we'll get the subdomain from the shortcode 
+											$lnk_tourny = $atts['subdomain'] . '-' . $tourny->url;
+											$ext_url = 'http://' . $atts['subdomain'] . '.challonge.com/' . $tourny->url;
 										} else {
 											$lnk_tourny = $tourny->url;
 											$ext_url = 'http://challonge.com/' . $tourny->url;
